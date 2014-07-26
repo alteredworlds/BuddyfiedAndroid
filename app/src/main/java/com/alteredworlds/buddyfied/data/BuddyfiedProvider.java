@@ -21,6 +21,7 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final int ATTRIBUTE = 200;
     private static final int ATTRIBUTE_ID = 201;
     private static final int ATTRIBUTE_TYPE = 202;
+    private static final int ATTRIBUTE_TYPE_FOR_PROFILE_ID = 203;
     private static final int BUDDY = 300;
     private static final int BUDDY_ID = 301;
 
@@ -70,10 +71,6 @@ public class BuddyfiedProvider extends ContentProvider {
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE + "/#",
                 PROFILE_ID);
-//        retVal.addURI(
-//                BuddyfiedContract.CONTENT_AUTHORITY,
-//                BuddyfiedContract.PATH_WEATHER + "/*/*",
-//                WEATHER_WITH_LOCATION_AND_DATE);
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE ,
@@ -86,6 +83,10 @@ public class BuddyfiedProvider extends ContentProvider {
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE + "/*" ,
                 ATTRIBUTE_TYPE);
+        retVal.addURI(
+                BuddyfiedContract.CONTENT_AUTHORITY,
+                BuddyfiedContract.PATH_ATTRIBUTE + "/*/#",
+                ATTRIBUTE_TYPE_FOR_PROFILE_ID);
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_BUDDY ,

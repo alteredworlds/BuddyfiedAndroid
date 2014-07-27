@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.alteredworlds.buddyfied"
+            android:name=".data.BuddyfiedProvider" />
     </application>
-
 </manifest>

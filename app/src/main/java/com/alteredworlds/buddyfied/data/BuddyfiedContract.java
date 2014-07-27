@@ -67,7 +67,7 @@ public class BuddyfiedContract {
     /* Inner class that defines the table contents of the buddy_attribute table */
     public static final class ProfileAttributeEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ATTRIBUTE).build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PROFILE_ATTRIBUTE).build();
         public static final String CONTENT_TYPE =
                 "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_PROFILE_ATTRIBUTE;
         public static final String CONTENT_ITEM_TYPE =
@@ -89,7 +89,7 @@ public class BuddyfiedContract {
     /* Inner class that defines the table contents of the location table */
     public static final class BuddyEntry implements BaseColumns {
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ATTRIBUTE).build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BUDDY).build();
         public static final String CONTENT_TYPE =
                 "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_BUDDY;
         public static final String CONTENT_ITEM_TYPE =

@@ -11,6 +11,8 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 
+import java.util.Vector;
+
 /**
  * Created by twcgilbert on 27/07/2014.
  */
@@ -53,6 +55,48 @@ public class TestProvider extends UtilsTestCase {
 
         type = mContext.getContentResolver().getType(ProfileAttributeEntry.buildProfileAttributeUri(1L));
         assertEquals(ProfileAttributeEntry.CONTENT_ITEM_TYPE, type);
+    }
+
+    public void testInsertQueryAttributeByType() {
+        ContentValues[] cvArray = createArrayOfAttributeValues();
+        long numRows = mContext.getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
+        Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI +
+                " num rows: " + numRows);
+        assertTrue(numRows == cvArray.length);
+        //
+        Uri query = AttributeEntry.buildAttributeType("Playing");
+        Cursor cursor = mContext.getContentResolver().query(
+                query,  // Table to Query
+                null, // all columns
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        assertTrue(cursor.getCount() == NUM_PLAYING_ATTRIBUTES);
+        cursor.close();
+        //
+        query = AttributeEntry.buildAttributeType("Language");
+        cursor = mContext.getContentResolver().query(
+                query,  // Table to Query
+                null, // all columns
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        assertTrue(cursor.getCount() == NUM_LANGUAGE_ATTRIBUTES);
+        cursor.close();
+        //
+        query = AttributeEntry.buildAttributeType("Platform");
+        cursor = mContext.getContentResolver().query(
+                query,  // Table to Query
+                null, // all columns
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        int count = cursor.getCount();
+        assertTrue(cursor.getCount() == NUM_PLATFORM_ATTRIBUTES);
+        cursor.close();
     }
 
     public void testInsertReadProvider() {
@@ -114,5 +158,64 @@ public class TestProvider extends UtilsTestCase {
         );
         assertEquals(0, cursor.getCount());
         cursor.close();
+    }
+
+    static final int NUM_PLAYING_ATTRIBUTES = 3;
+    static final int NUM_LANGUAGE_ATTRIBUTES = 4;
+    static final int NUM_PLATFORM_ATTRIBUTES = 1;
+
+    static ContentValues[] createArrayOfAttributeValues() {
+        Vector<ContentValues> contentValues = new Vector<ContentValues>();
+
+        ContentValues cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "1563");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Platform");
+        cv.put(AttributeEntry.COLUMN_NAME, "Playstation 4");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "860");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_NAME, "MLB 08: The Show");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "1895");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_NAME, "Deccan");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "1896");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_NAME, "Dhundhari");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "861");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_NAME, "MLB 09: The Show");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "1897");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_NAME, "Dutch");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "1898");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_NAME, "English");
+        contentValues.add(cv);
+
+        cv = new ContentValues();
+        cv.put(AttributeEntry._ID, "862");
+        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_NAME, "MLB 10: The Show");
+        contentValues.add(cv);
+        ContentValues[] retVal = new ContentValues[contentValues.size()];
+        contentValues.toArray(retVal);
+        return retVal;
     }
 }

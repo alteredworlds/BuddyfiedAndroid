@@ -7,12 +7,15 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+
+import java.text.AttributedCharacterIterator;
 
 /**
  * Created by twcgilbert on 26/07/2014.
@@ -33,9 +36,24 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private BuddyfiedDbHelper mOpenHelper;
 
-//    private static final String sAttributeTypeForProfileSelection =
-//            AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE + " = ? AND " +
-//            AttributeEntry. + " = ? ";
+    private static final String sAttributeTypeSelection =
+            AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE + " = ? ";
+
+    private static final String sAttributeTypeForProfileSelection =
+            AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE + " = ? AND " +
+            ProfileAttributeEntry.TABLE_NAME + "." + ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ? ";
+
+    private static final SQLiteQueryBuilder sAttributeByTypeForProfileQueryBuilder;
+
+    static {
+        sAttributeByTypeForProfileQueryBuilder = new SQLiteQueryBuilder();
+        sAttributeByTypeForProfileQueryBuilder.setTables(
+                ProfileAttributeEntry.TABLE_NAME + " INNER JOIN " + AttributeEntry.TABLE_NAME +
+                        " ON " +
+                        ProfileAttributeEntry.TABLE_NAME + "." + ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID +
+                        " = " +
+                        AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID);
+    }
 
     @Override
     public boolean onCreate() {
@@ -184,31 +202,27 @@ public class BuddyfiedProvider extends ContentProvider {
     }
 
     private Cursor getAttributeByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
-        Cursor retCursor = null;
         // extract AttributeEntry and add a where clause
-        String attributeType = "";
-        long id = ContentUris.parseId(uri);
-        retCursor = mOpenHelper.getReadableDatabase().query(
-                AttributeEntry.TABLE_NAME,
+        String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
+        long profileId = AttributeEntry.getProfileIdFromUri(uri);
+        return sAttributeByTypeForProfileQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                AttributeEntry.COLUMN_TYPE + " = " + attributeType,
+                sAttributeTypeForProfileSelection,
+                new String[] {attributeType, String.valueOf(profileId)},
                 null,
                 null,
-                null,
-                sortOrder
-        );
-        return retCursor;
+                sortOrder);
     }
 
     private Cursor getAttributeByType(Uri uri, String[] projection, String sortOrder) {
         Cursor retCursor = null;
         // extract AttributeEntry and add a where clause
-        String attributeType = "";
-        long id = ContentUris.parseId(uri);
+        String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         retCursor = mOpenHelper.getReadableDatabase().query(
                 AttributeEntry.TABLE_NAME,
                 projection,
-                AttributeEntry.COLUMN_TYPE + " = " + attributeType,
+                sAttributeTypeSelection,
+                new String[] {attributeType},
                 null,
                 null,
                 null,
@@ -371,6 +385,51 @@ public class BuddyfiedProvider extends ContentProvider {
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE_ATTRIBUTE + "/#" ,
                 PROFILE_ATTRIBUTE_ID);
+        return retVal;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        int retVal = 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case ATTRIBUTE:
+                db.beginTransaction();
+                try {
+                    for (ContentValues attributeValues : values) {
+                        long _id = db.insert(AttributeEntry.TABLE_NAME, null, attributeValues);
+                        if (-1 != _id) {
+                            retVal++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case BUDDY:
+                db.beginTransaction();
+                try {
+                    for (ContentValues attributeValues : values) {
+                        long _id = db.insert(BuddyEntry.TABLE_NAME, null, attributeValues);
+                        if (-1 != _id) {
+                            retVal++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            default:
+                retVal = super.bulkInsert(uri, values);
+                break;
+        }
         return retVal;
     }
 }

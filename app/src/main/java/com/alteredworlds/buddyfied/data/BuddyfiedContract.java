@@ -62,6 +62,19 @@ public class BuddyfiedContract {
         public static Uri buildAttributeUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        public static Uri buildAttributeType(String attributeType) {
+            return CONTENT_URI.buildUpon().appendPath(attributeType).build();
+        }
+
+        public static String getAttributeTypeFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
+        public static long getProfileIdFromUri(Uri uri) {
+
+            return ContentUris.parseId(uri);
+        }
     }
 
     /* Inner class that defines the table contents of the buddy_attribute table */

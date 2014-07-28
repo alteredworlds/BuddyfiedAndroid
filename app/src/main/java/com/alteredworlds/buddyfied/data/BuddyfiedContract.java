@@ -32,7 +32,7 @@ public class BuddyfiedContract {
 
         public static final String TABLE_NAME = "profile";
 
-        public static final String COLUMN_NAME = "date";
+        public static final String COLUMN_NAME = "name";
         public static final String COLUMN_COMMENTS = "comments";
         public static final String COLUMN_IMAGE_URI = "image_uri";
 
@@ -67,12 +67,16 @@ public class BuddyfiedContract {
             return CONTENT_URI.buildUpon().appendPath(attributeType).build();
         }
 
+        public static Uri buildAttributeTypeForProfile(String attributeType, long profileId) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(attributeType).appendPath(String.valueOf(profileId)).build();
+        }
+
         public static String getAttributeTypeFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
         }
 
         public static long getProfileIdFromUri(Uri uri) {
-
             return ContentUris.parseId(uri);
         }
     }

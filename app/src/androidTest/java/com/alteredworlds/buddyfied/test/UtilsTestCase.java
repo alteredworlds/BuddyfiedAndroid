@@ -60,6 +60,7 @@ public class UtilsTestCase extends AndroidTestCase {
 
     static ContentValues createProfileValues() {
         ContentValues retVal = new ContentValues();
+        retVal.put(ProfileEntry._ID, 1);
         retVal.put(ProfileEntry.COLUMN_NAME, "alteredworlds");
         retVal.put(ProfileEntry.COLUMN_COMMENTS, "Yeah well where to begin mate, really!");
         retVal.put(ProfileEntry.COLUMN_IMAGE_URI, "http://www.alteredworlds.com");

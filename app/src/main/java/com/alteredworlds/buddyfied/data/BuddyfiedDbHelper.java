@@ -25,13 +25,13 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         // create profile first
         final String SQL_CREATE_PROFILE_TABLE = "CREATE TABLE " + ProfileEntry.TABLE_NAME + " (" +
                 ProfileEntry._ID + " INTEGER PRIMARY KEY," +
-                ProfileEntry.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
-                ProfileEntry.COLUMN_COMMENTS + " TEXT NULL, " +
-                ProfileEntry.COLUMN_IMAGE_URI + " TEXT NULL, " +
+                ProfileEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                ProfileEntry.COLUMN_COMMENTS + " TEXT, " +
+                ProfileEntry.COLUMN_IMAGE_URI + " TEXT );";
 
                 // To assure the application have just one profile with a given name
                 // create a UNIQUE constraint with IGNORE strategy
-                " UNIQUE (" + ProfileEntry.COLUMN_NAME + ") ON CONFLICT IGNORE);";
+                //" UNIQUE (" + ProfileEntry.COLUMN_NAME + ") ON CONFLICT IGNORE);";
 
         // create profile first
         final String SQL_CREATE_ATTRIBUTE_TABLE = "CREATE TABLE " + AttributeEntry.TABLE_NAME + " (" +
@@ -64,10 +64,9 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         // then create weather that depends on location
         final String SQL_CREATE_BUDDY_TABLE = "CREATE TABLE " + BuddyEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?
-                // Unique keys will be auto-generated in either case.  But for weather
-                // forecasting, it's reasonable to assume the user will want information
-                // for a certain date and all dates *following*, so the forecast data
-                // should be sorted accordingly.
+                // Unique keys will be auto-generated in either case.  But for search results
+                // it's reasonable to assume the user will want information
+                // in the order in which it was received (& hence inserted)
                 BuddyEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 
                 // the ID of the location entry associated with this weather data

@@ -270,7 +270,7 @@ public class BuddyfiedProvider extends ContentProvider {
         {
             case ATTRIBUTE: {
                 long _id = db.insert(AttributeEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
+                if (_id >= 0)
                     retVal = AttributeEntry.buildAttributeUri(_id);
                 else
                     throw new SQLException("Failed to insert row into " + AttributeEntry.TABLE_NAME);
@@ -278,7 +278,7 @@ public class BuddyfiedProvider extends ContentProvider {
             break;
             case PROFILE: {
                 long _id = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
+                if (_id >= 0)
                     retVal = ProfileEntry.buildProfileUri(_id);
                 else
                     throw new SQLException("Failed to insert row into " + ProfileEntry.TABLE_NAME);
@@ -286,7 +286,7 @@ public class BuddyfiedProvider extends ContentProvider {
                 break;
             case BUDDY: {
                 long _id = db.insert(BuddyEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
+                if (_id >= 0)
                     retVal = BuddyEntry.buildBuddyUri(_id);
                 else
                     throw new SQLException("Failed to insert row into " + BuddyEntry.TABLE_NAME);
@@ -294,7 +294,7 @@ public class BuddyfiedProvider extends ContentProvider {
             break;
             case PROFILE_ATTRIBUTE: {
                 long _id = db.insert(ProfileAttributeEntry.TABLE_NAME, null, contentValues);
-                if (_id > 0)
+                if (_id >= 0)
                     retVal = ProfileAttributeEntry.buildProfileAttributeUri(_id);
                 else
                     throw new SQLException("Failed to insert row into " + ProfileAttributeEntry.TABLE_NAME);
@@ -337,8 +337,31 @@ public class BuddyfiedProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        int numRows = 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match)
+        {
+            case ATTRIBUTE:
+                numRows = db.update(AttributeEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case PROFILE:
+                numRows = db.update(ProfileEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case BUDDY:
+                numRows = db.update(BuddyEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case PROFILE_ATTRIBUTE:
+                numRows = db.update(ProfileAttributeEntry.TABLE_NAME, values, selection, selectionArgs);
+            default:
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
+        }
+        if ((null == selection) || (0 != numRows))
+        {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return numRows;
     }
 
 

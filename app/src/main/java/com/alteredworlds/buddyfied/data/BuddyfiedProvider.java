@@ -1,9 +1,11 @@
 package com.alteredworlds.buddyfied.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
@@ -31,6 +33,10 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private BuddyfiedDbHelper mOpenHelper;
 
+//    private static final String sAttributeTypeForProfileSelection =
+//            AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE + " = ? AND " +
+//            AttributeEntry. + " = ? ";
+
     @Override
     public boolean onCreate() {
         mOpenHelper = new BuddyfiedDbHelper(getContext());
@@ -38,8 +44,177 @@ public class BuddyfiedProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] strings, String s, String[] strings2, String s2) {
-        return null;
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Cursor retCursor = null;
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            // "attribute/*/#"
+            case ATTRIBUTE_TYPE_FOR_PROFILE_ID: {
+                retCursor = getAttributeByTypeForProfile(uri, projection, sortOrder);
+                break;
+            }
+            // "attribute/*"
+            case ATTRIBUTE_TYPE: {
+                retCursor = getAttributeByType(uri, projection, sortOrder);
+                break;
+            }
+            // "attribute/#"
+            case ATTRIBUTE_ID: {
+                // extract ID and add a where clause
+                long id = ContentUris.parseId(uri);
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        AttributeEntry.TABLE_NAME,
+                        projection,
+                        AttributeEntry._ID + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "attribute"
+            case ATTRIBUTE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        AttributeEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            //
+            // "profile/#"
+            case PROFILE_ID: {
+                // extract ID and add a where clause
+                long id = ContentUris.parseId(uri);
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        ProfileEntry.TABLE_NAME,
+                        projection,
+                        ProfileEntry._ID + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "profile"
+            case PROFILE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        ProfileEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            //
+            // "buddy/#"
+            case BUDDY_ID: {
+                // extract ID and add a where clause
+                long id = ContentUris.parseId(uri);
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        BuddyEntry.TABLE_NAME,
+                        projection,
+                        BuddyEntry._ID + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "buddy"
+            case BUDDY: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        BuddyEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "profile_attribute/#"
+            case PROFILE_ATTRIBUTE_ID: {
+                // extract ID and add a where clause
+                long id = ContentUris.parseId(uri);
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        ProfileAttributeEntry.TABLE_NAME,
+                        projection,
+                        ProfileAttributeEntry._ID + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            // "profile_attribute"
+            case PROFILE_ATTRIBUTE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        ProfileAttributeEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (null != retCursor)
+        {
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+        return retCursor;
+    }
+
+    private Cursor getAttributeByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
+        Cursor retCursor = null;
+        // extract AttributeEntry and add a where clause
+        String attributeType = "";
+        long id = ContentUris.parseId(uri);
+        retCursor = mOpenHelper.getReadableDatabase().query(
+                AttributeEntry.TABLE_NAME,
+                projection,
+                AttributeEntry.COLUMN_TYPE + " = " + attributeType,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+        return retCursor;
+    }
+
+    private Cursor getAttributeByType(Uri uri, String[] projection, String sortOrder) {
+        Cursor retCursor = null;
+        // extract AttributeEntry and add a where clause
+        String attributeType = "";
+        long id = ContentUris.parseId(uri);
+        retCursor = mOpenHelper.getReadableDatabase().query(
+                AttributeEntry.TABLE_NAME,
+                projection,
+                AttributeEntry.COLUMN_TYPE + " = " + attributeType,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+        return retCursor;
     }
 
     @Override
@@ -74,7 +249,48 @@ public class BuddyfiedProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri retVal = null;
+        switch (match)
+        {
+            case ATTRIBUTE: {
+                long _id = db.insert(AttributeEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0)
+                    retVal = AttributeEntry.buildAttributeUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + AttributeEntry.TABLE_NAME);
+            }
+            break;
+            case PROFILE: {
+                long _id = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0)
+                    retVal = ProfileEntry.buildProfileUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + ProfileEntry.TABLE_NAME);
+            }
+                break;
+            case BUDDY: {
+                long _id = db.insert(BuddyEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0)
+                    retVal = BuddyEntry.buildBuddyUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + BuddyEntry.TABLE_NAME);
+            }
+            break;
+            case PROFILE_ATTRIBUTE: {
+                long _id = db.insert(ProfileAttributeEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0)
+                    retVal = ProfileAttributeEntry.buildProfileAttributeUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + ProfileAttributeEntry.TABLE_NAME);
+            }
+            break;
+            default:
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return retVal;
     }
 
     @Override

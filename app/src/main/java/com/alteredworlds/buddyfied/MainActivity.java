@@ -1,6 +1,8 @@
 package com.alteredworlds.buddyfied;
 
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,7 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -25,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mMainMenuTitles;
+    private TypedArray mMainMenuIcons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +37,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mTitle = mDrawerTitle = getTitle();
-        mMainMenuTitles = getResources().getStringArray(R.array.main_menu_options);
+        mMainMenuTitles = getResources().getStringArray(R.array.main_menu_names);
+        mMainMenuIcons = getResources().obtainTypedArray(R.array.main_menu_icons);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -67,7 +73,22 @@ public class MainActivity extends ActionBarActivity {
 
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mMainMenuTitles));
+                R.layout.drawer_list_item, R.id.drawer_list_item_textview, mMainMenuTitles) {
+
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                ViewHolder viewHolder = (ViewHolder)view.getTag();
+                if (null == viewHolder)
+                {
+                    viewHolder = new ViewHolder(view);
+                    view.setTag(viewHolder);
+                }
+                viewHolder.iconView.setImageDrawable(mMainMenuIcons.getDrawable(position));
+                return view;
+            }
+        });
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -170,6 +191,17 @@ public class MainActivity extends ActionBarActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
+        }
+    }
+
+    /**
+     * Cache of the children views for a forecast list item.
+     */
+    public static class ViewHolder {
+        public final ImageView iconView;
+
+        public ViewHolder(View view) {
+            iconView = (ImageView) view.findViewById(R.id.drawer_list_item_icon);
         }
     }
 }

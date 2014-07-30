@@ -2,13 +2,13 @@ package com.alteredworlds.buddyfied;
 
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,10 +18,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mDrawerList;
@@ -30,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
     private CharSequence mTitle;
     private String[] mMainMenuTitles;
     private TypedArray mMainMenuIcons;
+    private String[] mMainMenuFragmentNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,7 @@ public class MainActivity extends ActionBarActivity {
         mTitle = mDrawerTitle = getTitle();
         mMainMenuTitles = getResources().getStringArray(R.array.main_menu_names);
         mMainMenuIcons = getResources().obtainTypedArray(R.array.main_menu_icons);
+        mMainMenuFragmentNames = getResources().getStringArray(R.array.main_menu_fragments);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -104,12 +111,9 @@ public class MainActivity extends ActionBarActivity {
 
     /** Swaps fragments in the main content view */
     private void selectItem(int position) {
-        // Create a new fragment and specify the planet to show based on position
-        Fragment fragment = new PlaceholderFragment();
-        Bundle args = new Bundle();
-        args.putInt(PlaceholderFragment.ARG_OPTION_NUMER, position);
-        fragment.setArguments(args);
-
+        // Create a new fragment based on position
+        Fragment fragment = fragmentFactoryNewFragmentForPosition(position);
+        //
         // Insert the fragment by replacing any existing fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, fragment)
@@ -119,6 +123,23 @@ public class MainActivity extends ActionBarActivity {
         mDrawerList.setItemChecked(position, true);
         setTitle(mMainMenuTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    private Fragment fragmentFactoryNewFragmentForPosition(int position)
+    {
+        Fragment retVal = null;
+        String fragmentName = mMainMenuFragmentNames[position];
+        try {
+            Class fragmentClass = Class.forName(fragmentName);
+            Constructor constructor = fragmentClass.getConstructor();
+            retVal = (Fragment)constructor.newInstance();
+        }
+        catch (ReflectiveOperationException exception)
+        {
+            Log.e(LOG_TAG,
+                    "Failed to find suitable class " + fragmentName + " for menu position " + position);
+        }
+        return retVal;
     }
 
     @Override
@@ -173,25 +194,6 @@ public class MainActivity extends ActionBarActivity {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public static final String ARG_OPTION_NUMER = "option_number";
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
     }
 
     /**

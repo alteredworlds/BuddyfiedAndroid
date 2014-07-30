@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="main_menu_names">
+        <item>Search</item>
+        <item>Matched</item>
+        <item>Profile</item>
+        <item>About</item>
+    </string-array>
     <array name="main_menu_icons">
         <item>@drawable/search_ios</item>
         <item>@drawable/matched_ios</item>
         <item>@drawable/profile_ios</item>
         <item>@drawable/about_ios</item>
     </array>
+    <string-array name="main_menu_fragments">
+        <item>com.alteredworlds.buddyfied.SearchFragment</item>
+        <item>com.alteredworlds.buddyfied.MatchedFragment</item>
+        <item>com.alteredworlds.buddyfied.ProfileFragment</item>
+        <item>com.alteredworlds.buddyfied.AboutFragment</item>
+    </string-array>
 </resources>

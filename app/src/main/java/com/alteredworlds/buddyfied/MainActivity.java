@@ -36,11 +36,15 @@ public class MainActivity extends ActionBarActivity {
     private String[] mMainMenuTitles;
     private TypedArray mMainMenuIcons;
     private String[] mMainMenuFragmentNames;
+    private int mPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //TODO
+        Settings.setUsername(this, "alteredworlds");
 
         mTitle = mDrawerTitle = getTitle();
         mMainMenuTitles = getResources().getStringArray(R.array.main_menu_names);
@@ -104,8 +108,11 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        if (savedInstanceState == null) {
-            selectItem(0);
+        // need to verify if this behaviour actually meets Android standards
+        // w.r.t. use and meaning of the 'Back' button. I suspect it does not.
+        int position = Settings.getPosition(this);
+        if ((null == savedInstanceState) || (mPosition != position)) {
+            selectItem(position);
         }
     }
 
@@ -133,6 +140,8 @@ public class MainActivity extends ActionBarActivity {
             Class fragmentClass = Class.forName(fragmentName);
             Constructor constructor = fragmentClass.getConstructor();
             retVal = (Fragment)constructor.newInstance();
+            mPosition = position;
+            Settings.setPosition(this, position);
         }
         catch (ReflectiveOperationException exception)
         {
@@ -194,6 +203,14 @@ public class MainActivity extends ActionBarActivity {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current state
+        //
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     /**

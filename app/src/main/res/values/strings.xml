@@ -13,6 +13,8 @@
     <string name="pref_password_key">password</string>
     <string name="pref_position_key">position</string>
 
+    <string name="buddy_site">http://dev.buddyfied.com/</string>
+
     <string name="guest_username">guest</string>
     <string name="guest_password"></string>
 

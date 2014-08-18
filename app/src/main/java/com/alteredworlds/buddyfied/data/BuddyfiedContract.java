@@ -4,10 +4,6 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by twcgilbert on 25/07/2014.
  */
@@ -50,6 +46,15 @@ public class BuddyfiedContract {
                 "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_ATTRIBUTE;
         public static final String CONTENT_ITEM_TYPE =
                 "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_ATTRIBUTE;
+
+        public static final String TypePlatform = "platform";
+        public static final String TypeCountry = "country";
+        public static final String TypeGameplay = "gameplay";
+        public static final String TypePlaying = "playing";
+        public static final String TypeSkill = "skill";
+        public static final String TypeTime = "time";
+        public static final String TypeLanguage = "language";
+
 
         public static final String TABLE_NAME = "attribute";
 

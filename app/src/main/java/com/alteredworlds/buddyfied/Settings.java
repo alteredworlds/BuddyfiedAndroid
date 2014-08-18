@@ -8,6 +8,10 @@ import android.preference.PreferenceManager;
  * Created by twcgilbert on 30/07/2014.
  */
 public class Settings {
+    public static String getBuddySite(Context context) {
+        return context.getString(R.string.buddy_site);
+    }
+
     public static String getUsername(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(context.getString(R.string.pref_username_key), null);

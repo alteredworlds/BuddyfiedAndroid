@@ -2,14 +2,13 @@ package com.alteredworlds.buddyfied;
 
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -43,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO
+        //TODO - proper handling of usernames etc.
         Settings.setUsername(this, "alteredworlds");
 
         mTitle = mDrawerTitle = getTitle();

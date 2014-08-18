@@ -143,7 +143,7 @@ public class MainActivity extends ActionBarActivity {
             mPosition = position;
             Settings.setPosition(this, position);
         }
-        catch (ReflectiveOperationException exception)
+        catch (Exception exception)
         {
             Log.e(LOG_TAG,
                     "Failed to find suitable class " + fragmentName + " for menu position " + position);

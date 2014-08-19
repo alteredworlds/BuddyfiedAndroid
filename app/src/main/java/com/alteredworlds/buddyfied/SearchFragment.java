@@ -1,7 +1,6 @@
 package com.alteredworlds.buddyfied;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -47,8 +46,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ProfileRow row = adapter.getItem(position);
-                // show listview containing the results of querying following URI
-                Uri query = AttributeEntry.buildAttributeType(row.attributeType);
                 Intent intent = new Intent(getActivity(), AttributePickerActivity.class);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.attributeType);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);

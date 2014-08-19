@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/touch_selector"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:padding="2dp">
     <TextView
         android:id="@+id/list_item_attribute_value"

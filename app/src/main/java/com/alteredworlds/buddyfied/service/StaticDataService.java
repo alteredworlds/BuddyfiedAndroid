@@ -44,6 +44,9 @@ public class StaticDataService extends IntentService {
     static final String BuddifiedStaticDataUrl =
     "wp-content/themes/buddyfied/_inc/ajax/autocomplete.php?mode=";
 
+    static final String AgeRangeJSON = "[{\"id\":\"900800\",\"name\":\"16-19\"},{\"id\":\"900801\",\"name\":\"20-25\"},{\"id\":\"900802\",\"name\":\"26-35\"},{\"id\":\"900803\",\"name\":\"36-44\"},{\"id\":\"900804\",\"name\":\"45+\"}]";
+    static final String VoiceJSON = "[{\"id\":\"900900\",\"name\":\"Yes\"},{\"id\":\"900901\",\"name\":\"No\"}]";
+
     public StaticDataService() {
         super("StaticDataService");
     }
@@ -58,6 +61,8 @@ public class StaticDataService extends IntentService {
         loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeLanguage, context);
         loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeSkill, context);
         loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeTime, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeAgeRange, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeVoice, context);
     }
 
     public static void loadStaticIfNecessaryForAttributeType(String attributeType, ContextWrapper context) {
@@ -84,15 +89,40 @@ public class StaticDataService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String type = intent.getStringExtra(STATIC_QUERY_EXTRA);
-        // static data request for Attribute type
-        String url = Settings.getBuddySite(this) + BuddifiedStaticDataUrl + remoteKeyForEntityNamed(type) + "&q=";
-        JSONArray staticData = getJson(url);
-        // JSON must now be parsed and converted to series of records to be inserted into database
-        ContentValues[] cvArray = createArrayOfAttributeValues(staticData, type);
-        long numRows = getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
+
+        ContentValues[] cvArray = null;
+        long numRows = 0l;
+        if (0 == AttributeEntry.TypeAgeRange.compareTo(type)) {
+            cvArray = createArrayOfAttributeValues(AgeRangeJSON, AttributeEntry.TypeAgeRange);
+        }
+        else if (0 == AttributeEntry.TypeVoice.compareTo(type)) {
+            cvArray = createArrayOfAttributeValues(VoiceJSON, AttributeEntry.TypeVoice);
+        }
+        else {
+            // static data request for Attribute type
+            String url = Settings.getBuddySite(this) + BuddifiedStaticDataUrl + remoteKeyForEntityNamed(type) + "&q=";
+            JSONArray staticData = getJson(url);
+            // JSON must now be parsed and converted to series of records to be inserted into database
+            cvArray = createArrayOfAttributeValues(staticData, type);
+        }
+        if (null != cvArray) {
+            numRows = getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
+        }
         Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI +
                 " num rows: " + numRows);
     }
+
+    static ContentValues[] createArrayOfAttributeValues(String jsonString, String attributeType) {
+        ContentValues[] retVal = null;
+        try {
+            JSONArray jsonArray = new JSONArray(jsonString);
+            retVal = createArrayOfAttributeValues(jsonArray, attributeType);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return retVal;
+    }
+
 
     static ContentValues[] createArrayOfAttributeValues(JSONArray jsonArray, String attributeType) {
         Vector<ContentValues> contentValues = new Vector<ContentValues>();

@@ -6,14 +6,16 @@ package com.alteredworlds.buddyfied.view_model;
 public class ProfileRow {
     public String name;
     public String value;
+    public String attributeType;
 
     public ProfileRow() {
         super();
     }
 
-    public ProfileRow(String name, String value) {
+    public ProfileRow(String name, String value, String attributeType) {
         super();
         this.name = name;
         this.value = value;
+        this.attributeType = attributeType;
     }
 }

@@ -54,6 +54,8 @@ public class BuddyfiedContract {
         public static final String TypeSkill = "skill";
         public static final String TypeTime = "time";
         public static final String TypeLanguage = "language";
+        public static final String TypeAgeRange = "AgeRange";
+        public static final String TypeVoice = "Voice";
 
 
         public static final String TABLE_NAME = "attribute";

@@ -10,12 +10,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
-
-import java.text.AttributedCharacterIterator;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
 /**
  * Created by twcgilbert on 26/07/2014.
@@ -421,7 +419,7 @@ public class BuddyfiedProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
                     for (ContentValues attributeValues : values) {
-                        long _id = db.insert(AttributeEntry.TABLE_NAME, null, attributeValues);
+                        long _id = db.insertWithOnConflict(AttributeEntry.TABLE_NAME, null, attributeValues, SQLiteDatabase.CONFLICT_REPLACE);
                         if (-1 != _id) {
                             retVal++;
                         }

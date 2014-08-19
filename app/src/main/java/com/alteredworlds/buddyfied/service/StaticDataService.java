@@ -2,7 +2,10 @@ package com.alteredworlds.buddyfied.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Settings;
@@ -45,6 +48,39 @@ public class StaticDataService extends IntentService {
         super("StaticDataService");
     }
 
+    public static void initialStaticDataLoadIfNeeded(ContextWrapper context) {
+        // for each Attribute Type, see if we already have data
+        // if not, kick off a request and load.
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypePlatform, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeCountry, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeGameplay, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypePlaying, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeLanguage, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeSkill, context);
+        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeTime, context);
+    }
+
+    public static void loadStaticIfNecessaryForAttributeType(String attributeType, ContextWrapper context) {
+        Uri query = AttributeEntry.buildAttributeType(attributeType);
+        Cursor cursor = context.getContentResolver().query(
+                query,  // Table to Query
+                null, // all columns
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        boolean needToLoadStatic = 0 == cursor.getCount();
+        cursor.close();
+        if (needToLoadStatic)
+            loadStaticForAttributeType(attributeType, context);
+    }
+
+    public static void loadStaticForAttributeType(String attributeType, ContextWrapper context) {
+        Intent intent = new Intent(context, StaticDataService.class);
+        intent.putExtra(StaticDataService.STATIC_QUERY_EXTRA, attributeType);
+        context.startService(intent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         String type = intent.getStringExtra(STATIC_QUERY_EXTRA);
@@ -64,6 +100,7 @@ public class StaticDataService extends IntentService {
             try {
                 ContentValues cv = new ContentValues();
                 JSONObject attribute = jsonArray.getJSONObject(idx);
+                Log.i(LOG_TAG, attribute.toString());
                 cv.put(AttributeEntry._ID, attribute.getInt("id"));
                 cv.put(AttributeEntry.COLUMN_TYPE, attributeType);
                 cv.put(AttributeEntry.COLUMN_NAME, attribute.getString("name"));
@@ -77,7 +114,7 @@ public class StaticDataService extends IntentService {
         return retVal;
     }
 
-    public static JSONArray getJson(String url){
+    static JSONArray getJson(String url){
 
         InputStream is = null;
         String result = "";
@@ -91,6 +128,7 @@ public class StaticDataService extends IntentService {
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
         } catch(Exception e) {
+            e.printStackTrace();
             return null;
         }
 
@@ -105,6 +143,7 @@ public class StaticDataService extends IntentService {
             is.close();
             result = sb.toString();
         } catch(Exception e) {
+            e.printStackTrace();
             return null;
         }
 
@@ -112,6 +151,7 @@ public class StaticDataService extends IntentService {
         try {
             jsonArray = new JSONArray(result);
         } catch(JSONException e) {
+            e.printStackTrace();
             return null;
         }
 
@@ -119,8 +159,7 @@ public class StaticDataService extends IntentService {
 
     }
 
-
-    String remoteKeyForEntityNamed(String entityName) {
+    static String remoteKeyForEntityNamed(String entityName) {
         String retVal = null;
         if (0 == AttributeEntry.TypePlatform.compareTo(entityName)) {
             retVal = PlatformKey;

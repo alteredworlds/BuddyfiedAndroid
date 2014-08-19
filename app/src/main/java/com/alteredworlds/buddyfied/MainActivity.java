@@ -1,6 +1,6 @@
 package com.alteredworlds.buddyfied;
 
-import android.content.Intent;
+
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import android.widget.ListView;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
 import java.lang.reflect.Constructor;
+
 
 
 public class MainActivity extends ActionBarActivity {
@@ -115,6 +116,9 @@ public class MainActivity extends ActionBarActivity {
         if ((null == savedInstanceState) || (mPosition != position)) {
             selectItem(position);
         }
+        //
+        // pull static data if needed
+        StaticDataService.initialStaticDataLoadIfNeeded(this);
     }
 
     /** Swaps fragments in the main content view */
@@ -182,11 +186,7 @@ public class MainActivity extends ActionBarActivity {
         // ActionBarDrawerToggle will take care of this.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            // TEST - get static data
-            Intent intent = new Intent(this, StaticDataService.class);
-            intent.putExtra(StaticDataService.STATIC_QUERY_EXTRA, "platform");
-            startService(intent);
-            return true;
+            ;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -4,6 +4,7 @@ package com.alteredworlds.buddyfied;
  * Created by twcgilbert on 19/08/2014.
  */
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 
 /**
@@ -32,10 +34,9 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     private static final int ATTRIBUTE_LOADER = 1;
     private final String LOG_TAG = AttributePickerFragment.class.getSimpleName();
 
+    public static final String PROFILE_ID_EXTRA = "profile_id";
     public static final String ATTRIBUTE_TYPE_EXTRA = "attribute_type";
     public static final String ATTRIBUTE_DISPLAY_EXTRA = "attribute_display";
-
-    private static final String ATTRIBUTE_TYPE_KEY = "attribute_type";
 
     private static final String[] ATTRIBUTE_COLUMNS = {
             AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID,
@@ -50,6 +51,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
 
     private String mAttributeType;
     private AttributePickerAdapter mCursorAdapter;
+    private int mProfileId;
+    private String mTitle;
 
     public AttributePickerFragment() {
     }
@@ -58,28 +61,37 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (null != savedInstanceState) {
-            mAttributeType = savedInstanceState.getString(ATTRIBUTE_TYPE_KEY);
+            mAttributeType = savedInstanceState.getString(ATTRIBUTE_TYPE_EXTRA);
+            mProfileId = savedInstanceState.getInt(PROFILE_ID_EXTRA);
+            mTitle = savedInstanceState.getString(ATTRIBUTE_DISPLAY_EXTRA);
+        }
+        else {
+            Intent intent = getActivity().getIntent();
+            mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
+            mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
+            mTitle = intent.getStringExtra(ATTRIBUTE_DISPLAY_EXTRA);
         }
         getLoaderManager().initLoader(ATTRIBUTE_LOADER, null, this);
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(ATTRIBUTE_TYPE_EXTRA, mAttributeType);
+        outState.putInt(PROFILE_ID_EXTRA, mProfileId);
+        outState.putString(ATTRIBUTE_DISPLAY_EXTRA, mTitle);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        if ((null != mAttributeType) &&
-                !mAttributeType.equals(getActivity().getIntent().getStringExtra(ATTRIBUTE_TYPE_EXTRA)))
-        {
-            getLoaderManager().restartLoader(ATTRIBUTE_LOADER, null, this);
-        }
+        getLoaderManager().restartLoader(ATTRIBUTE_LOADER, null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_attribute_picker, container, false);
-
-        Intent intent = getActivity().getIntent();
-        String title = intent.getStringExtra(ATTRIBUTE_DISPLAY_EXTRA);
 
         mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0);
 
@@ -92,25 +104,34 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                 CheckedTextView ctv = (CheckedTextView) view.findViewById(R.id.list_item_attribute_value);
                 boolean setCheckedTo = !ctv.isChecked();
                 ctv.setChecked(setCheckedTo);
+                associateAttribute(position, setCheckedTo);
             }
         });
 
-        getActivity().setTitle(title);
+        getActivity().setTitle(mTitle);
         return rootView;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(ATTRIBUTE_TYPE_KEY, mAttributeType);
+    protected void associateAttribute(int position, boolean add) {
+        Cursor cursor = (Cursor)mCursorAdapter.getItem(position);
+        long attributeId = cursor.getLong(COL_ATTRIBUTE_ID);
+        if (add) {
+            ContentValues cv = new ContentValues();
+            cv.put(ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID, attributeId);
+            cv.put(ProfileAttributeEntry.COLUMN_PROFILE_ID, mProfileId);
+            getActivity().getContentResolver().insert(ProfileAttributeEntry.CONTENT_URI, cv);
+        }
+        else {
+            getActivity().getContentResolver().delete(
+                    ProfileAttributeEntry.CONTENT_URI,
+                    "attribute_id = ? AND profile_id = ?",
+                    new String[] {String.valueOf(attributeId), String.valueOf(mProfileId)});
+        }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intent = getActivity().getIntent();
-        mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
-        //Uri query = BuddyfiedContract.AttributeEntry.buildAttributeType(mAttributeType);
-        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, 0l);
+        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
         // Now create and return a CursorLoader that will take care of
         // creating a Cursor for the data being displayed.
         return new CursorLoader(

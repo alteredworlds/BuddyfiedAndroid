@@ -6,12 +6,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
-import java.sql.SQLException;
 import java.util.Vector;
 
 /**
@@ -369,7 +368,7 @@ public class TestProvider extends UtilsTestCase {
         retVal[0] = profile1;
 
         ContentValues profile2 = new ContentValues();
-        profile2.put(AttributeEntry._ID, PROFILE2_ID);
+        profile2.put(ProfileEntry._ID, PROFILE2_ID);
         profile2.put(ProfileEntry.COLUMN_NAME, "buddyfied");
         profile2.put(ProfileEntry.COLUMN_COMMENTS, "The startup with the great idea!");
         profile2.put(ProfileEntry.COLUMN_IMAGE_URI, "http://www.buddyfied.com");

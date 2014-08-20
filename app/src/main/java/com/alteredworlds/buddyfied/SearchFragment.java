@@ -1,6 +1,7 @@
 package com.alteredworlds.buddyfied;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.view_model.ProfileRow;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 
@@ -19,7 +21,24 @@ import com.alteredworlds.buddyfied.view_model.SearchAdapter;
  */
 public class SearchFragment extends Fragment {
 
+    protected int mProfileId;
+
     public SearchFragment() {
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Cursor cursor = getActivity().getContentResolver().query(
+                ProfileEntry.CONTENT_URI,
+                new String[] {ProfileEntry._ID},
+                "name = 'Default'",
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            mProfileId = cursor.getInt(0);
+        }
+        cursor.close();
     }
 
     @Override
@@ -47,6 +66,7 @@ public class SearchFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ProfileRow row = adapter.getItem(position);
                 Intent intent = new Intent(getActivity(), AttributePickerActivity.class);
+                intent.putExtra(AttributePickerFragment.PROFILE_ID_EXTRA, mProfileId);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.attributeType);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);
                 startActivity(intent);

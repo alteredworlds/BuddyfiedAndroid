@@ -1,18 +1,22 @@
 package com.alteredworlds.buddyfied.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
 /**
  * Created by twcgilbert on 25/07/2014.
  */
 public class BuddyfiedDbHelper extends SQLiteOpenHelper {
+    private static final String LOG_TAG = BuddyfiedDbHelper.class.getSimpleName();
+
     private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "buddyfied.db";
 
@@ -90,6 +94,16 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_PROFILE_TABLE);
         db.execSQL(SQL_CREATE_ATTRIBUTE_TABLE);
         db.execSQL(SQL_CREATE_BUDDY_ATTRIBUTE_TABLE);
+        //
+        insertSearchProfile(db);
+    }
+
+    protected void insertSearchProfile(SQLiteDatabase db) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ProfileEntry._ID, 1);
+        contentValues.put(ProfileEntry.COLUMN_NAME, "Default");
+        long searchProfileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
+        Log.i(LOG_TAG, "Search Profile (Default) has ID " + searchProfileId);
     }
 
     @Override

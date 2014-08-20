@@ -108,7 +108,7 @@ public class StaticDataService extends IntentService {
         if (null != cvArray) {
             numRows = getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
         }
-        Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI +
+        Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI + " type " + type +
                 " num rows: " + numRows);
     }
 

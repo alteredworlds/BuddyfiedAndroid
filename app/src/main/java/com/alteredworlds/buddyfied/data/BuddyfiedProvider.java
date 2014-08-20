@@ -45,7 +45,7 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final String sAllAttributesByTypeForProfileSelectionP1 =
             "SELECT attribute._id, attribute.name, CASE WHEN EXISTS (SELECT * FROM profile_attribute WHERE profile_id = ";
     private static final String sAllAttributesByTypeForProfileSelectionP2 =
-            ") THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
+            " AND attribute_id = attribute._id) THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
 
     private static final SQLiteQueryBuilder sAttributeByTypeForProfileQueryBuilder;
 

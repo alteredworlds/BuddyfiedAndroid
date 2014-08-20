@@ -7,15 +7,17 @@ public class ProfileRow {
     public String name;
     public String value;
     public String attributeType;
+    public int loaderId;
 
     public ProfileRow() {
         super();
     }
 
-    public ProfileRow(String name, String value, String attributeType) {
+    public ProfileRow(String name, String value, String attributeType, int loaderId) {
         super();
         this.name = name;
         this.value = value;
         this.attributeType = attributeType;
+        this.loaderId = loaderId;
     }
 }

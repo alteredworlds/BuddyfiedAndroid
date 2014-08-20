@@ -22,7 +22,6 @@ import android.widget.CheckedTextView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 
@@ -38,13 +37,6 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public static final String ATTRIBUTE_TYPE_EXTRA = "attribute_type";
     public static final String ATTRIBUTE_DISPLAY_EXTRA = "attribute_display";
 
-    private static final String[] ATTRIBUTE_COLUMNS = {
-            AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID,
-            AttributeEntry.COLUMN_NAME
-    };
-
-    // These indices are tied to ATTRIBUTE_COLUMNS.  If ATTRIBUTE_COLUMNS changes, these
-    // must change.
     public static final int COL_ATTRIBUTE_ID = 0;
     public static final int COL_ATTRIBUTE_NAME = 1;
     public static final int COL_ATTRIBUTE_IN_PROFILE = 2;
@@ -53,6 +45,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     private AttributePickerAdapter mCursorAdapter;
     private int mProfileId;
     private String mTitle;
+    private Uri mQuery;
 
     public AttributePickerFragment() {
     }
@@ -71,6 +64,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
             mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
             mTitle = intent.getStringExtra(ATTRIBUTE_DISPLAY_EXTRA);
         }
+        mQuery = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
         getLoaderManager().initLoader(ATTRIBUTE_LOADER, null, this);
     }
 
@@ -124,20 +118,19 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
         else {
             getActivity().getContentResolver().delete(
                     ProfileAttributeEntry.CONTENT_URI,
-                    "attribute_id = ? AND profile_id = ?",
+                    ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID + " = ? AND " +
+                            ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ?",
                     new String[] {String.valueOf(attributeId), String.valueOf(mProfileId)});
         }
+        getActivity().getContentResolver().notifyChange(mQuery, null);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
         return new CursorLoader(
                 getActivity(),
-                query,
-                ATTRIBUTE_COLUMNS,
+                mQuery,
+                null,
                 null,
                 null,
                 null

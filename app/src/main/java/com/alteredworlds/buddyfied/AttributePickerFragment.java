@@ -12,15 +12,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -36,7 +38,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     private static final String ATTRIBUTE_TYPE_KEY = "attribute_type";
 
     private static final String[] ATTRIBUTE_COLUMNS = {
-            AttributeEntry._ID,
+            AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID,
             AttributeEntry.COLUMN_NAME
     };
 
@@ -44,9 +46,10 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     // must change.
     public static final int COL_ATTRIBUTE_ID = 0;
     public static final int COL_ATTRIBUTE_NAME = 1;
+    public static final int COL_ATTRIBUTE_IN_PROFILE = 2;
 
     private String mAttributeType;
-    private SimpleCursorAdapter mCursorAdapter;
+    private AttributePickerAdapter mCursorAdapter;
 
     public AttributePickerFragment() {
     }
@@ -78,14 +81,19 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
         Intent intent = getActivity().getIntent();
         String title = intent.getStringExtra(ATTRIBUTE_DISPLAY_EXTRA);
 
-        mCursorAdapter = new SimpleCursorAdapter(getActivity(),
-                R.layout.list_item_attribute_picker, null,
-                new String[] { AttributeEntry.COLUMN_NAME },
-                new int[] { R.id.list_item_attribute_value },
-                0);
+        mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0);
 
-        ListView listView = (ListView)rootView.findViewById(R.id.listview_attribute_picker);
+        final ListView listView = (ListView) rootView.findViewById(R.id.listview_attribute_picker);
         listView.setAdapter(mCursorAdapter);
+        listView.setItemsCanFocus(false);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CheckedTextView ctv = (CheckedTextView) view.findViewById(R.id.list_item_attribute_value);
+                boolean setCheckedTo = !ctv.isChecked();
+                ctv.setChecked(setCheckedTo);
+            }
+        });
 
         getActivity().setTitle(title);
         return rootView;
@@ -101,13 +109,14 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Intent intent = getActivity().getIntent();
         mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
-        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeType(mAttributeType);
+        //Uri query = BuddyfiedContract.AttributeEntry.buildAttributeType(mAttributeType);
+        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, 0l);
         // Now create and return a CursorLoader that will take care of
         // creating a Cursor for the data being displayed.
         return new CursorLoader(
                 getActivity(),
                 query,
-                null,
+                ATTRIBUTE_COLUMNS,
                 null,
                 null,
                 null

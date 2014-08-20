@@ -6,9 +6,10 @@
     android:background="@drawable/touch_selector"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:padding="2dp">
-    <TextView
+    <CheckedTextView
         android:id="@+id/list_item_attribute_value"
         style="@style/StandardText"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"/>
 </FrameLayout>

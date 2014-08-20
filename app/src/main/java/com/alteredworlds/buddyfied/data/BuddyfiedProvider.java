@@ -26,6 +26,7 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final int ATTRIBUTE_ID = 201;
     private static final int ATTRIBUTE_TYPE = 202;
     private static final int ATTRIBUTE_TYPE_FOR_PROFILE_ID = 203;
+    private static final int ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL = 204;
     private static final int BUDDY = 300;
     private static final int BUDDY_ID = 301;
     private static final int PROFILE_ATTRIBUTE = 400;
@@ -39,7 +40,12 @@ public class BuddyfiedProvider extends ContentProvider {
 
     private static final String sAttributeTypeForProfileSelection =
             AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE + " = ? AND " +
-            ProfileAttributeEntry.TABLE_NAME + "." + ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ? ";
+                    ProfileAttributeEntry.TABLE_NAME + "." + ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ? ";
+
+    private static final String sAllAttributesByTypeForProfileSelectionP1 =
+            "SELECT attribute._id, attribute.name, CASE WHEN EXISTS (SELECT * FROM profile_attribute WHERE profile_id = ";
+    private static final String sAllAttributesByTypeForProfileSelectionP2 =
+            ") THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
 
     private static final SQLiteQueryBuilder sAttributeByTypeForProfileQueryBuilder;
 
@@ -64,6 +70,10 @@ public class BuddyfiedProvider extends ContentProvider {
         Cursor retCursor = null;
         final int match = sUriMatcher.match(uri);
         switch (match) {
+            case ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL: {
+                retCursor = getAllAttributesByTypeForProfile(uri, projection, sortOrder);
+                break;
+            }
             // "attribute/*/#"
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID: {
                 retCursor = getAttributeByTypeForProfile(uri, projection, sortOrder);
@@ -212,6 +222,13 @@ public class BuddyfiedProvider extends ContentProvider {
                 sortOrder);
     }
 
+    private Cursor getAllAttributesByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
+        String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
+        long profileId = AttributeEntry.getProfileIdFromUri(uri);
+        final String queryString = sAllAttributesByTypeForProfileSelectionP1 + profileId + sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'";
+        return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
+    }
+
     private Cursor getAttributeByType(Uri uri, String[] projection, String sortOrder) {
         Cursor retCursor = null;
         // extract AttributeEntry and add a where clause
@@ -234,8 +251,10 @@ public class BuddyfiedProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match)
         {
+            case ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL:
+                return AttributeEntry.CONTENT_TYPE;
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID:
-                return AttributeEntry.CONTENT_ITEM_TYPE;
+                return AttributeEntry.CONTENT_TYPE;
             case ATTRIBUTE_ID:
                 return AttributeEntry.CONTENT_ITEM_TYPE;
             case ATTRIBUTE_TYPE:
@@ -366,42 +385,68 @@ public class BuddyfiedProvider extends ContentProvider {
     private static UriMatcher buildUriMatcher()
     {
         final UriMatcher retVal = new UriMatcher(UriMatcher.NO_MATCH);
+        //
+        // all Profiles
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE,
                 PROFILE);
+        //
+        // a specific Profile (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE + "/#",
                 PROFILE_ID);
+        //
+        // all Attributes
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE ,
                 ATTRIBUTE);
+        //
+        // a specific Attribute (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE + "/#" ,
                 ATTRIBUTE_ID);
+        //
+        // all Attributes of a given type
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE + "/*" ,
                 ATTRIBUTE_TYPE);
+        //
+        // all Attributes of a given type for a specific Profile (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_ATTRIBUTE + "/*/#",
                 ATTRIBUTE_TYPE_FOR_PROFILE_ID);
+        //
+        // all Attributes of a given type with indication if belong to specific Profile (by ID)
+        retVal.addURI(
+                BuddyfiedContract.CONTENT_AUTHORITY,
+                BuddyfiedContract.PATH_ATTRIBUTE + "/*/" + BuddyfiedContract.PATH_ATTRIBUTE_ALL + "/#/",
+                ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL);
+        //
+        // all Buddies
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_BUDDY ,
                 BUDDY);
+        //
+        // a specific Buddy (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_BUDDY + "/#" ,
                 BUDDY_ID);
+        //
+        // all Profile Attributes
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE_ATTRIBUTE ,
                 PROFILE_ATTRIBUTE);
+        //
+        // a specific ProfileAttribute (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE_ATTRIBUTE + "/#" ,

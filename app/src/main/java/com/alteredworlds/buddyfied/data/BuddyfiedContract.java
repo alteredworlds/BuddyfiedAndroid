@@ -15,6 +15,7 @@ public class BuddyfiedContract {
     public static final String PATH_PROFILE = "profile";
     public static final String PATH_BUDDY = "buddy";
     public static final String PATH_ATTRIBUTE = "attribute";
+    public static final String PATH_ATTRIBUTE_ALL = "all";
     public static final String PATH_PROFILE_ATTRIBUTE = "profile_attribute";
 
     /* Inner class that defines the table contents of the profile table */
@@ -77,6 +78,14 @@ public class BuddyfiedContract {
         public static Uri buildAttributeTypeForProfile(String attributeType, long profileId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(attributeType).appendPath(String.valueOf(profileId)).build();
+        }
+
+        public static Uri buildAttributeTypeForProfileAll(String attributeType, long profileId) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(attributeType)
+                    .appendPath(PATH_ATTRIBUTE_ALL)
+                    .appendPath(String.valueOf(profileId))
+                    .build();
         }
 
         public static String getAttributeTypeFromUri(Uri uri) {

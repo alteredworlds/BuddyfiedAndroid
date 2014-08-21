@@ -9,16 +9,18 @@
     android:background="@drawable/touch_selector">
     <TextView
         android:id="@+id/list_item_name"
-        android:text="Platform"
         style="@style/StandardText"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_gravity="center_vertical"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/list_item_value"
-        android:text="Mac"
         style="@style/StandardText"
+        android:layout_marginLeft="15dp"
+        android:layout_gravity="center_vertical"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:gravity="end"/>
+        android:layout_height="wrap_content"
+        android:gravity="start" />
 </LinearLayout>

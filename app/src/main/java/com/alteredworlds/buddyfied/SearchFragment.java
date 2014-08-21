@@ -41,7 +41,7 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
 
     public SearchFragment() {
         mData = new ProfileRow[] {
-                new ProfileRow("Platform", "Mac", AttributeEntry.TypePlatform, LOADER_ID_PLATFORM),
+                new ProfileRow("Platform", "", AttributeEntry.TypePlatform, LOADER_ID_PLATFORM),
                 new ProfileRow("Playing", "", AttributeEntry.TypePlaying, LOADER_ID_PLAYING),
                 new ProfileRow("Gameplay", "", AttributeEntry.TypeGameplay, LOADER_ID_GAMEPLAY),
                 new ProfileRow("Country", "", AttributeEntry.TypeCountry, LOADER_ID_COUNTRY),

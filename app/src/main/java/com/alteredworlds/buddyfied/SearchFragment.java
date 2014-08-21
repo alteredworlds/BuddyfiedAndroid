@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.view_model.ProfileRow;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 
@@ -56,7 +55,7 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mProfileId = getSearchProfileId();
+        mProfileId = ((MainActivity) getActivity()).getSearchProfileId();
         for (int i = 0; i < mData.length; i++) {
             getLoaderManager().initLoader(mData[i].loaderId, null, this);
         }
@@ -68,21 +67,6 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
         for (int i = 0; i < mData.length; i++) {
             getLoaderManager().restartLoader(mData[i].loaderId, null, this);
         }
-    }
-
-    protected int getSearchProfileId() {
-        int retVal = 0;
-        Cursor cursor = getActivity().getContentResolver().query(
-                ProfileEntry.CONTENT_URI,
-                new String[] {ProfileEntry._ID},
-                "name = 'Default'",
-                null,
-                null);
-        if (cursor.moveToFirst()) {
-            retVal = cursor.getInt(0);
-        }
-        cursor.close();
-        return retVal;
     }
 
     @Override

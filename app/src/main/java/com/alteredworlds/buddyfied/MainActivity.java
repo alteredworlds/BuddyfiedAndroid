@@ -3,6 +3,7 @@ package com.alteredworlds.buddyfied;
 
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
 import java.lang.reflect.Constructor;
@@ -40,13 +42,29 @@ public class MainActivity extends ActionBarActivity {
     private String[] mMainMenuFragmentNames;
     private int mPosition = 0;
 
+    public int getSearchProfileId() {
+        int retVal = 0;
+        Cursor cursor = getContentResolver().query(
+                BuddyfiedContract.ProfileEntry.CONTENT_URI,
+                new String[]{BuddyfiedContract.ProfileEntry._ID},
+                "name = 'Default'",
+                null,
+                null);
+        if (cursor.moveToFirst()) {
+            retVal = cursor.getInt(0);
+        }
+        cursor.close();
+        return retVal;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //TODO - proper handling of usernames etc.
-        Settings.setUsername(this, "alteredworlds");
+        Settings.setUsername(this, "guest");
+        Settings.setPassword(this, "buddyfied");
 
         mTitle = mDrawerTitle = getTitle();
         mMainMenuTitles = getResources().getStringArray(R.array.main_menu_names);

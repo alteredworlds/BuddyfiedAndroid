@@ -17,6 +17,7 @@ public class BuddyfiedContract {
     public static final String PATH_ATTRIBUTE = "attribute";
     public static final String PATH_ATTRIBUTE_ALL = "all";
     public static final String PATH_PROFILE_ATTRIBUTE = "profile_attribute";
+    public static final String PATH_PROFILE_ATTRIBUTE_LIST = "profile_attribute_list";
 
     /* Inner class that defines the table contents of the profile table */
     public static final class ProfileEntry implements BaseColumns {
@@ -55,8 +56,8 @@ public class BuddyfiedContract {
         public static final String TypeSkill = "skill";
         public static final String TypeTime = "time";
         public static final String TypeLanguage = "language";
-        public static final String TypeAgeRange = "AgeRange";
-        public static final String TypeVoice = "Voice";
+        public static final String TypeAgeRange = "age_range";
+        public static final String TypeVoice = "voice";
 
 
         public static final String TABLE_NAME = "attribute";
@@ -118,6 +119,27 @@ public class BuddyfiedContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
+
+    /* Inner class that defines the contents of the cursor returning search data */
+    public static final class ProfileAttributeListEntry {
+
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PROFILE_ATTRIBUTE_LIST).build();
+        public static final String CONTENT_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_PROFILE_ATTRIBUTE_LIST;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_PROFILE_ATTRIBUTE_LIST;
+
+        // attribute type
+        public static final String COLUMN_ATTRIBUTE_TYPE = "type";
+
+        // comma delimited list of attribute._id
+        public static final String COLUMN_ATTRIBUTE_IDS = "attribute_ids";
+
+        public static Uri buildProfileAttributeListUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
 
     /* Inner class that defines the table contents of the location table */
     public static final class BuddyEntry implements BaseColumns {

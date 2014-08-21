@@ -78,7 +78,7 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * XMLRPCClient constructor. Creates new instance based on server URI
      *
-     * @param XMLRPC server URI
+     * @param uri server URI
      */
     public XMLRPCClient(URI uri) {
         postMethod = new HttpPost(uri);
@@ -95,7 +95,7 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * Convenience constructor. Creates new instance based on server String address
      *
-     * @param XMLRPC server address
+     * @param url server address
      */
     public XMLRPCClient(String url) {
         this(URI.create(url));
@@ -104,7 +104,7 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * Convenience XMLRPCClient constructor. Creates new instance based on server URL
      *
-     * @param XMLRPC server URL
+     * @param url server URL
      */
     public XMLRPCClient(URL url) {
         this(URI.create(url.toExternalForm()));
@@ -113,9 +113,9 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * Convenience constructor. Creates new instance based on server String address
      *
-     * @param XMLRPC server address
-     * @param HTTP   Server - Basic Authentication - Username
-     * @param HTTP   Server - Basic Authentication - Password
+     * @param uri      server address
+     * @param username Server - Basic Authentication - Username
+     * @param password Server - Basic Authentication - Password
      */
     public XMLRPCClient(URI uri, String username, String password) {
         this(uri);
@@ -128,9 +128,9 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * Convenience constructor. Creates new instance based on server String address
      *
-     * @param XMLRPC server address
-     * @param HTTP   Server - Basic Authentication - Username
-     * @param HTTP   Server - Basic Authentication - Password
+     * @param url      server address
+     * @param username Server - Basic Authentication - Username
+     * @param password Server - Basic Authentication - Password
      */
     public XMLRPCClient(String url, String username, String password) {
         this(URI.create(url), username, password);
@@ -139,9 +139,9 @@ public class XMLRPCClient extends XMLRPCCommon {
     /**
      * Convenience constructor. Creates new instance based on server String address
      *
-     * @param XMLRPC server url
-     * @param HTTP   Server - Basic Authentication - Username
-     * @param HTTP   Server - Basic Authentication - Password
+     * @param url      server url
+     * @param username Server - Basic Authentication - Username
+     * @param password Server - Basic Authentication - Password
      */
     public XMLRPCClient(URL url, String username, String password) {
         this(URI.create(url.toExternalForm()), username, password);

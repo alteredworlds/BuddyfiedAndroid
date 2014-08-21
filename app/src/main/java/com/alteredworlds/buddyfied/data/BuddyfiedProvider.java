@@ -13,6 +13,7 @@ import android.net.Uri;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
 /**
@@ -31,6 +32,7 @@ public class BuddyfiedProvider extends ContentProvider {
     private static final int BUDDY_ID = 301;
     private static final int PROFILE_ATTRIBUTE = 400;
     private static final int PROFILE_ATTRIBUTE_ID = 401;
+    private static final int PROFILE_ATTRIBUTE_LIST = 402;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private BuddyfiedDbHelper mOpenHelper;
@@ -46,6 +48,20 @@ public class BuddyfiedProvider extends ContentProvider {
             "SELECT attribute._id, attribute.name, CASE WHEN EXISTS (SELECT * FROM profile_attribute WHERE profile_id = ";
     private static final String sAllAttributesByTypeForProfileSelectionP2 =
             " AND attribute_id = attribute._id) THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
+
+    private static final String sAttributeListsForProfileSelectP1 =
+            "SELECT " + AttributeEntry.COLUMN_TYPE + ", GROUP_CONCAT(" +
+                    AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID + ") AS ids FROM " +
+                    ProfileAttributeEntry.TABLE_NAME + " INNER JOIN " +
+                    AttributeEntry.TABLE_NAME + " ON " +
+                    ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID + " = " +
+                    AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID +
+                    " WHERE " + ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ";
+    private static final String sAttributeListsForProfileSelectP2 =
+            " GROUP BY " + AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_TYPE;
+
+    public static final int COL_ATTRIBUTE_LIST_TYPE_INDEX = 0;
+    public static final int COL_ATTRIBUTE_LIST_IDS_INDEX = 1;
 
     private static final SQLiteQueryBuilder sAttributeByTypeForProfileQueryBuilder;
 
@@ -199,6 +215,11 @@ public class BuddyfiedProvider extends ContentProvider {
                 break;
             }
 
+            case PROFILE_ATTRIBUTE_LIST: {
+                retCursor = getAttributeListsForProfile(uri, projection, sortOrder);
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -207,6 +228,15 @@ public class BuddyfiedProvider extends ContentProvider {
             retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return retCursor;
+    }
+
+    private Cursor getAttributeListsForProfile(Uri uri, String[] projection, String sortOrder) {
+        long profileId = AttributeEntry.getProfileIdFromUri(uri);
+        final String queryString =
+                sAttributeListsForProfileSelectP1 +
+                        profileId +
+                        sAttributeListsForProfileSelectP2;
+        return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
     }
 
     private Cursor getAttributeByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
@@ -225,7 +255,8 @@ public class BuddyfiedProvider extends ContentProvider {
     private Cursor getAllAttributesByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         long profileId = AttributeEntry.getProfileIdFromUri(uri);
-        final String queryString = sAllAttributesByTypeForProfileSelectionP1 + profileId + sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'";
+        final String queryString = sAllAttributesByTypeForProfileSelectionP1 + profileId +
+                sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'";
         return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
     }
 
@@ -273,6 +304,8 @@ public class BuddyfiedProvider extends ContentProvider {
                 return ProfileAttributeEntry.CONTENT_ITEM_TYPE;
             case PROFILE_ATTRIBUTE:
                 return ProfileAttributeEntry.CONTENT_TYPE;
+            case PROFILE_ATTRIBUTE_LIST:
+                return ProfileAttributeListEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
@@ -451,6 +484,12 @@ public class BuddyfiedProvider extends ContentProvider {
                 BuddyfiedContract.CONTENT_AUTHORITY,
                 BuddyfiedContract.PATH_PROFILE_ATTRIBUTE + "/#" ,
                 PROFILE_ATTRIBUTE_ID);
+        //
+        //
+        retVal.addURI(
+                BuddyfiedContract.CONTENT_AUTHORITY,
+                BuddyfiedContract.PATH_PROFILE_ATTRIBUTE_LIST + "/#",
+                PROFILE_ATTRIBUTE_LIST);
         return retVal;
     }
 

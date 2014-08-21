@@ -15,7 +15,8 @@
         android:text="Matched"
         android:textColor="@color/orange"
         android:background="@drawable/matched_button"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:onClick="matchedButtonClick" />
 
     <ListView
         android:id="@+id/listview_search"

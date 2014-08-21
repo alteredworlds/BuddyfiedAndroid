@@ -218,6 +218,24 @@ public class MainActivity extends ActionBarActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    public void onSelectMenuItem(String title) {
+        // find the position from the title, then swap fragments to the desired one
+        int position = -1;
+        for (int i = 0; i < mMainMenuTitles.length; i++) {
+            if (0 == mMainMenuTitles[i].compareTo(title)) {
+                position = i;
+                break;
+            }
+        }
+        if (-1 != position) {
+            selectItem(position);
+        }
+    }
+
+    public void matchedButtonClick(View view) {
+        onSelectMenuItem("Matched");
+    }
+
     /**
      * Cache of the children views for a forecast list item.
      */

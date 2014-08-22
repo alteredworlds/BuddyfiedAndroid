@@ -37,6 +37,10 @@ public class BuddyQueryService extends IntentService {
     public static final String GetMemberInfo = "bp.getMemberData";
     public static final String VerifyConnection = "bp.verifyConnection";
 
+    // this last one is a bit naughty - easiest way of providing
+    // asynchronous delete
+    public static final String DeleteBuddies = "deleteBuddies";
+
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
 
     public BuddyQueryService() {
@@ -56,6 +60,8 @@ public class BuddyQueryService extends IntentService {
             result = getMemberInfo(intent);
         } else if (0 == VerifyConnection.compareTo(method)) {
             result = verifyConnection(intent);
+        } else if (0 == DeleteBuddies.compareTo(method)) {
+            result = deleteAllBuddies(intent);
         } else {
             String errorMessage = "Unknown xmlrpc method call: '" + method + "'";
             Log.e(LOG_TAG, errorMessage);
@@ -65,6 +71,11 @@ public class BuddyQueryService extends IntentService {
         if (null != resultReceiver) {
             resultReceiver.send(result.code, result.results);
         }
+    }
+
+    private CallResult deleteAllBuddies(Intent intent) {
+        getContentResolver().delete(BuddyEntry.CONTENT_URI, null, null);
+        return new CallResult(0, null);
     }
 
     private CallResult verifyConnection(Intent intent) {

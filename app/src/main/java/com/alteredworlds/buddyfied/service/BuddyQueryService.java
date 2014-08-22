@@ -100,17 +100,37 @@ public class BuddyQueryService extends IntentService {
             if (cursor.moveToFirst()) {
                 do {
                     String type = cursor.getString(BuddyfiedProvider.COL_ATTRIBUTE_LIST_TYPE_INDEX);
-                    if ((0 != BuddyfiedContract.AttributeEntry.TypeVoice.compareTo(type)) &&
-                            (0 != BuddyfiedContract.AttributeEntry.TypeAgeRange.compareTo(type))) {
-                        retVal.put(
-                                type,
-                                cursor.getString(BuddyfiedProvider.COL_ATTRIBUTE_LIST_IDS_INDEX));
+                    String value = cursor.getString(BuddyfiedProvider.COL_ATTRIBUTE_LIST_IDS_INDEX);
+                    // 2 params need special treatment...
+                    if (0 == BuddyfiedContract.AttributeEntry.TypeVoice.compareTo(type)) {
+                        type = "mic";
+                        // need to re-transform the single ID back to Name
+                        value = getAttributeNameForId(value);
+                    } else if (0 == BuddyfiedContract.AttributeEntry.TypeAgeRange.compareTo(type)) {
+                        type = "age";
+                        // need to re-transform the single ID back to Name
+                        value = getAttributeNameForId(value);
                     }
+                    retVal.put(type, value);
                 }
                 while (cursor.moveToNext());
             }
             cursor.close();
         }
+        return retVal;
+    }
+
+    private String getAttributeNameForId(String attributeId) {
+        String retVal = attributeId;
+        Uri query = BuddyfiedContract.AttributeEntry.buildAttributeUri(Long.parseLong(attributeId));
+        Cursor cursor = getContentResolver().query(
+                query,
+                new String[]{BuddyfiedContract.AttributeEntry.COLUMN_NAME},
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            retVal = cursor.getString(0);
+        }
+        cursor.close();
         return retVal;
     }
 

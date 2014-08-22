@@ -145,15 +145,16 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
                 break;
             }
         }
-        if ((null != row)  && data.moveToFirst()) {
-            StringBuilder sb = new StringBuilder(data.getString(0));
-            while (data.moveToNext()) {
-                sb.append("\n" + data.getString(0));
+        if (null != row) {
+            StringBuilder sb = new StringBuilder();
+            if (data.moveToFirst()) {
+                sb.append(data.getString(0));
+                while (data.moveToNext()) {
+                    sb.append("\n" + data.getString(0));
+                }
             }
-            if (sb.length() > 0) {
-                row.value = sb.toString();
-                mAdapter.notifyDataSetChanged();
-            }
+            row.value = sb.toString();
+            mAdapter.notifyDataSetChanged();
         }
     }
 

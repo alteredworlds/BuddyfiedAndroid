@@ -78,7 +78,7 @@ public class TestProvider extends UtilsTestCase {
 
         addProfileAttribute(PROFILE2_ID, 860L); // Playing
         //
-        Uri query = AttributeEntry.buildAttributeTypeForProfile("Playing", PROFILE1_ID);
+        Uri query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypePlaying, PROFILE1_ID);
         Cursor cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -89,7 +89,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == 2);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeTypeForProfile("Playing", PROFILE2_ID);
+        query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypePlaying, PROFILE2_ID);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -100,7 +100,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == 1);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeTypeForProfile("Language", PROFILE1_ID);
+        query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypeLanguage, PROFILE1_ID);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -111,7 +111,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == 2);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeTypeForProfile("Language", PROFILE2_ID);
+        query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypeLanguage, PROFILE2_ID);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -122,7 +122,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == 0);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeTypeForProfile("Platform", PROFILE1_ID);
+        query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypePlatform, PROFILE1_ID);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -133,7 +133,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == 1);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeTypeForProfile("Platform", PROFILE2_ID);
+        query = AttributeEntry.buildAttributeTypeForProfile(AttributeEntry.TypePlatform, PROFILE2_ID);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -152,7 +152,7 @@ public class TestProvider extends UtilsTestCase {
                 " num rows: " + numRows);
         assertTrue(numRows == cvArray.length);
         //
-        Uri query = AttributeEntry.buildAttributeType("Playing");
+        Uri query = AttributeEntry.buildAttributeType(AttributeEntry.TypePlaying);
         Cursor cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -163,7 +163,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == NUM_PLAYING_ATTRIBUTES);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeType("Language");
+        query = AttributeEntry.buildAttributeType(AttributeEntry.TypeLanguage);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -174,7 +174,7 @@ public class TestProvider extends UtilsTestCase {
         assertTrue(cursor.getCount() == NUM_LANGUAGE_ATTRIBUTES);
         cursor.close();
         //
-        query = AttributeEntry.buildAttributeType("Platform");
+        query = AttributeEntry.buildAttributeType(AttributeEntry.TypePlatform);
         cursor = mContext.getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
@@ -307,49 +307,49 @@ public class TestProvider extends UtilsTestCase {
 
         ContentValues cv = new ContentValues();
         cv.put(AttributeEntry._ID, "1563");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Platform");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypePlatform);
         cv.put(AttributeEntry.COLUMN_NAME, "Playstation 4");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "860");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypePlaying);
         cv.put(AttributeEntry.COLUMN_NAME, "MLB 08: The Show");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "1895");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypeLanguage);
         cv.put(AttributeEntry.COLUMN_NAME, "Deccan");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "1896");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypeLanguage);
         cv.put(AttributeEntry.COLUMN_NAME, "Dhundhari");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "861");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypePlaying);
         cv.put(AttributeEntry.COLUMN_NAME, "MLB 09: The Show");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "1897");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypeLanguage);
         cv.put(AttributeEntry.COLUMN_NAME, "Dutch");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "1898");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Language");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypeLanguage);
         cv.put(AttributeEntry.COLUMN_NAME, "English");
         contentValues.add(cv);
 
         cv = new ContentValues();
         cv.put(AttributeEntry._ID, "862");
-        cv.put(AttributeEntry.COLUMN_TYPE, "Playing");
+        cv.put(AttributeEntry.COLUMN_TYPE, AttributeEntry.TypePlaying);
         cv.put(AttributeEntry.COLUMN_NAME, "MLB 10: The Show");
         contentValues.add(cv);
         ContentValues[] retVal = new ContentValues[contentValues.size()];

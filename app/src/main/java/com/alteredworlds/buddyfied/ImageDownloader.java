@@ -288,7 +288,7 @@ public class ImageDownloader {
      */
 
     private static final int HARD_CACHE_CAPACITY = 10;
-    private static final int DELAY_BEFORE_PURGE = 10 * 1000; // in milliseconds
+    private static final int DELAY_BEFORE_PURGE = 100 * 1000; // in milliseconds
 
     // Hard cache, with a fixed maximum capacity and a life duration
     private final HashMap<String, Bitmap> sHardBitmapCache =

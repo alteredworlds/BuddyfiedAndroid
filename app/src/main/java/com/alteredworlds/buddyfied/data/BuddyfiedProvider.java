@@ -48,6 +48,8 @@ public class BuddyfiedProvider extends ContentProvider {
             "SELECT attribute._id, attribute.name, CASE WHEN EXISTS (SELECT * FROM profile_attribute WHERE profile_id = ";
     private static final String sAllAttributesByTypeForProfileSelectionP2 =
             " AND attribute_id = attribute._id) THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
+    private static final String sAllAttributesByTypeForProfileSelectionP3 =
+            " ORDER BY attribute.name";
 
     private static final String sAttributeListsForProfileSelectP1 =
             "SELECT " + AttributeEntry.COLUMN_TYPE + ", GROUP_CONCAT(" +
@@ -256,7 +258,8 @@ public class BuddyfiedProvider extends ContentProvider {
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         long profileId = AttributeEntry.getProfileIdFromUri(uri);
         final String queryString = sAllAttributesByTypeForProfileSelectionP1 + profileId +
-                sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'";
+                sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'" +
+                sAllAttributesByTypeForProfileSelectionP3;
         return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
     }
 

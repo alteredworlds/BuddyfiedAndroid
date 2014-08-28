@@ -7,22 +7,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
+import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.AttributePickerFragment;
-import com.alteredworlds.buddyfied.R;
 
 /**
  * Created by twcgilbert on 20/08/2014.
  */
 public class AttributePickerAdapter extends CursorAdapter {
-    public AttributePickerAdapter(Context context, Cursor c, int flags) {
+
+    final private AttributePickerFragment mPicker;
+
+    public AttributePickerAdapter(Context context, Cursor c, int flags, AttributePickerFragment picker) {
         super(context, c, flags);
+        mPicker = picker;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_attribute_picker, parent, false);
-        ViewHolder holder = new ViewHolder(view);
+        View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_checked, parent, false);
+        ViewHolder holder = new ViewHolder(view, (ListView) parent);
         view.setTag(holder);
         return view;
     }
@@ -30,10 +34,13 @@ public class AttributePickerAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        int position = cursor.getPosition();
         ViewHolder viewHolder = (ViewHolder)view.getTag();
         viewHolder.checkedTextView.setText(cursor.getString(AttributePickerFragment.COL_ATTRIBUTE_NAME));
-        int checked = cursor.getInt(AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE);
-        viewHolder.checkedTextView.setChecked(1 == checked);
+        Boolean checked = 1 == cursor.getInt(AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE);
+        viewHolder.listView.setItemChecked(position, checked);
+        if (checked)
+            mPicker.setLastCheckedPosition(position);
     }
 
     /**
@@ -41,9 +48,12 @@ public class AttributePickerAdapter extends CursorAdapter {
      */
     public static class ViewHolder {
         public final CheckedTextView checkedTextView;
+        public final ListView listView;
 
-        public ViewHolder(View view) {
-            checkedTextView = (CheckedTextView) view.findViewById(R.id.list_item_attribute_value);
+        public ViewHolder(View view, ListView lView) {
+            checkedTextView = (CheckedTextView) view.findViewById(android.R.id.text1);
+            checkedTextView.setTextColor(view.getResources().getColor(android.R.color.white));
+            listView = lView;
         }
     }
 }

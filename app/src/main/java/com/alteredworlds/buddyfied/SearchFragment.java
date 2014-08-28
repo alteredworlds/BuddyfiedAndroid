@@ -85,11 +85,17 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
                 intent.putExtra(AttributePickerFragment.PROFILE_ID_EXTRA, mProfileId);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.attributeType);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);
+                intent.putExtra(AttributePickerFragment.ATTIBUTE_SINGLE_CHOICE_EXTRA, singleChoice(row));
                 startActivity(intent);
             }
         });
 
         return rootView;
+    }
+
+    private boolean singleChoice(ProfileRow row) {
+        return (0 == AttributeEntry.TypeAgeRange.compareTo(row.attributeType)) ||
+                (0 == AttributeEntry.TypeVoice.compareTo(row.attributeType));
     }
 
     @Override

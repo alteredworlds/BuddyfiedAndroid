@@ -104,9 +104,13 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (listView.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
-                    if ((NO_ROW_CHECKED != mLastCheckedPosition) && (position != mLastCheckedPosition)) {
-                        // we need to explicitly UN-CHECK this last checked item
+                if ((ListView.CHOICE_MODE_SINGLE == listView.getChoiceMode()) &&
+                        (NO_ROW_CHECKED != mLastCheckedPosition)) {
+                    if (position == mLastCheckedPosition) {
+                        // user clicked on checked row, meaning to UN-CHECK it
+                        listView.setItemChecked(position, false);
+                    } else {
+                        // make sure our model UN-CHECKs the previous item
                         associateAttribute(mLastCheckedPosition, false);
                     }
                 }

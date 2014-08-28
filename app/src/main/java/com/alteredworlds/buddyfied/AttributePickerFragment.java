@@ -18,12 +18,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CheckedTextView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 
 /**
@@ -37,18 +35,25 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public static final String PROFILE_ID_EXTRA = "profile_id";
     public static final String ATTRIBUTE_TYPE_EXTRA = "attribute_type";
     public static final String ATTRIBUTE_DISPLAY_EXTRA = "attribute_display";
+    public static final String ATTIBUTE_SINGLE_CHOICE_EXTRA = "attribute_single_choice";
 
     public static final int COL_ATTRIBUTE_ID = 0;
     public static final int COL_ATTRIBUTE_NAME = 1;
     public static final int COL_ATTRIBUTE_IN_PROFILE = 2;
 
+    private static final int NO_ROW_CHECKED = -1;
     private String mAttributeType;
     private AttributePickerAdapter mCursorAdapter;
     private int mProfileId;
     private String mTitle;
     private Uri mQuery;
+    private int mLastCheckedPosition;
 
     public AttributePickerFragment() {
+    }
+
+    public void setLastCheckedPosition(int value) {
+        mLastCheckedPosition = value;
     }
 
     @Override
@@ -88,22 +93,31 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_attribute_picker, container, false);
 
-        mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0);
+        mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0, this);
+        mLastCheckedPosition = NO_ROW_CHECKED;
 
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_attribute_picker);
         listView.setAdapter(mCursorAdapter);
         listView.setItemsCanFocus(false);
+        listView.setChoiceMode(getActivity().getIntent().getBooleanExtra(ATTIBUTE_SINGLE_CHOICE_EXTRA, false) ?
+                ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_MULTIPLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CheckedTextView ctv = (CheckedTextView) view.findViewById(R.id.list_item_attribute_value);
-                boolean setCheckedTo = !ctv.isChecked();
-                ctv.setChecked(setCheckedTo);
-                associateAttribute(position, setCheckedTo);
-                // if the search has changed, we need to remove all Buddies
-                Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-                intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
-                getActivity().startService(intent);
+                if (listView.getChoiceMode() == ListView.CHOICE_MODE_SINGLE) {
+                    if ((NO_ROW_CHECKED != mLastCheckedPosition) && (position != mLastCheckedPosition)) {
+                        // we need to explicitly UN-CHECK this last checked item
+                        associateAttribute(mLastCheckedPosition, false);
+                    }
+                }
+                Boolean isChecked = listView.isItemChecked(position);
+                associateAttribute(position, isChecked);
+                mLastCheckedPosition = isChecked ? position : NO_ROW_CHECKED;
+//
+//                // if the search has changed, we need to remove all Buddies
+//                Intent intent = new Intent(getActivity(), BuddyQueryService.class);
+//                intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
+//                getActivity().startService(intent);
             }
         });
 

@@ -22,6 +22,7 @@ import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 
 /**
@@ -119,9 +120,9 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                 mLastCheckedPosition = isChecked ? position : NO_ROW_CHECKED;
 //
 //                // if the search has changed, we need to remove all Buddies
-//                Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-//                intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
-//                getActivity().startService(intent);
+                Intent intent = new Intent(getActivity(), BuddyQueryService.class);
+                intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
+                getActivity().startService(intent);
             }
         });
 

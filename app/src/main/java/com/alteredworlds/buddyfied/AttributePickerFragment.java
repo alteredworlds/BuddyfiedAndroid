@@ -163,6 +163,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                         mFilterEditText.setCursorVisible(true);
                     } else {
                         mFilterEditText.setCursorVisible(false);
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mFilterEditText.getWindowToken(), 0);
                     }
                 }
             });
@@ -183,8 +185,6 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                 mFilterEditText.getGlobalVisibleRect(outRect);
                 if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     mFilterEditText.clearFocus();
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mFilterEditText.getWindowToken(), 0);
                 }
             }
         }

@@ -26,7 +26,6 @@ import com.alteredworlds.buddyfied.service.StaticDataService;
 import java.lang.reflect.Constructor;
 
 
-
 public class MainActivity extends ActionBarActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -110,9 +109,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
-                ViewHolder viewHolder = (ViewHolder)view.getTag();
-                if (null == viewHolder)
-                {
+                ViewHolder viewHolder = (ViewHolder) view.getTag();
+                if (null == viewHolder) {
                     viewHolder = new ViewHolder(view);
                     view.setTag(viewHolder);
                 }
@@ -139,7 +137,9 @@ public class MainActivity extends ActionBarActivity {
         StaticDataService.initialStaticDataLoadIfNeeded(this);
     }
 
-    /** Swaps fragments in the main content view */
+    /**
+     * Swaps fragments in the main content view
+     */
     private void selectItem(int position) {
         // Create a new fragment based on position
         Fragment fragment = fragmentFactoryNewFragmentForPosition(position);
@@ -155,19 +155,16 @@ public class MainActivity extends ActionBarActivity {
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
-    private Fragment fragmentFactoryNewFragmentForPosition(int position)
-    {
+    private Fragment fragmentFactoryNewFragmentForPosition(int position) {
         Fragment retVal = null;
         String fragmentName = mMainMenuFragmentNames[position];
         try {
             Class fragmentClass = Class.forName(fragmentName);
             Constructor constructor = fragmentClass.getConstructor();
-            retVal = (Fragment)constructor.newInstance();
+            retVal = (Fragment) constructor.newInstance();
             mPosition = position;
             Settings.setPosition(this, position);
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             Log.e(LOG_TAG,
                     "Failed to find suitable class " + fragmentName + " for menu position " + position);
         }

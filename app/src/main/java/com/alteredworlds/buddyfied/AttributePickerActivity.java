@@ -1,10 +1,11 @@
 package com.alteredworlds.buddyfied;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.MotionEvent;
 
 
 public class AttributePickerActivity extends ActionBarActivity {
@@ -49,5 +50,14 @@ public class AttributePickerActivity extends ActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (currentFragment instanceof AttributePickerFragment) {
+            ((AttributePickerFragment) currentFragment).clearEditFocus(ev);
+        }
+        return super.dispatchTouchEvent(ev);
     }
 }

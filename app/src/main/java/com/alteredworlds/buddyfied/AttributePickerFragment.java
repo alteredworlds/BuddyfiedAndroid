@@ -5,22 +5,32 @@ package com.alteredworlds.buddyfied;
  */
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
@@ -49,6 +59,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     private String mTitle;
     private Uri mQuery;
     private int mLastCheckedPosition;
+    private EditText mFilterEditText;
 
     public AttributePickerFragment() {
     }
@@ -69,9 +80,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
             Intent intent = getActivity().getIntent();
             mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
             mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
-            mTitle = intent.getStringExtra(ATTRIBUTE_DISPLAY_EXTRA);
         }
-        mQuery = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
+        mQuery = AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
         getLoaderManager().initLoader(ATTRIBUTE_LOADER, null, this);
     }
 
@@ -118,16 +128,71 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                 Boolean isChecked = listView.isItemChecked(position);
                 associateAttribute(position, isChecked);
                 mLastCheckedPosition = isChecked ? position : NO_ROW_CHECKED;
-//
-//                // if the search has changed, we need to remove all Buddies
+
+                // if the search has changed, we need to remove all Buddies
                 Intent intent = new Intent(getActivity(), BuddyQueryService.class);
                 intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
                 getActivity().startService(intent);
             }
         });
 
-        getActivity().setTitle(mTitle);
+        getActivity().setTitle(getActivity().getIntent().getStringExtra(ATTRIBUTE_DISPLAY_EXTRA));
+        //
+        mFilterEditText = (EditText) rootView.findViewById(R.id.edittext_attribute_picker);
+        if (pickerShouldDisplaySearch(getActivity().getIntent().getStringExtra(ATTRIBUTE_TYPE_EXTRA))) {
+            mFilterEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+            mFilterEditText.setOnFocusChangeListener(new EditText.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        mFilterEditText.setCursorVisible(true);
+                    } else {
+                        mFilterEditText.setCursorVisible(false);
+                    }
+                }
+            });
+            mFilterEditText.clearFocus();
+            getActivity().getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        } else {
+            // get rid of the filter EditText
+            mFilterEditText.setVisibility(View.GONE);
+        }
         return rootView;
+    }
+
+    public void clearEditFocus(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mFilterEditText.isFocused()) {
+                Rect outRect = new Rect();
+                mFilterEditText.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    mFilterEditText.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mFilterEditText.getWindowToken(), 0);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.attribute_picker, menu);
     }
 
     protected void associateAttribute(int position, boolean add) {
@@ -171,5 +236,11 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(LOG_TAG, "onLoaderReset");
         mCursorAdapter.swapCursor(null);
+    }
+
+    private Boolean pickerShouldDisplaySearch(String attributeType) {
+        return (0 == AttributeEntry.TypePlaying.compareTo(attributeType)) ||
+                (0 == AttributeEntry.TypeCountry.compareTo(attributeType)) ||
+                (0 == AttributeEntry.TypeLanguage.compareTo(attributeType));
     }
 }

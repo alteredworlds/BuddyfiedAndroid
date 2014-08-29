@@ -19,5 +19,6 @@
     <string name="about_description">Buddyfied is a great way to find new people to play online games with. You can search for players based on your location, what games you play, and when you play. Stay connected with old friends and make new ones!</string>
     <string name="title_activity_attribute_picker">AttributePickerActivity</string>
     <string name="specify_query">Search not specified</string>
+    <string name="search_attributes">Search...</string>
 
 </resources>

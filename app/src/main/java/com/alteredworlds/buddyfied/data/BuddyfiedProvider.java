@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
@@ -48,8 +49,6 @@ public class BuddyfiedProvider extends ContentProvider {
             "SELECT attribute._id, attribute.name, CASE WHEN EXISTS (SELECT * FROM profile_attribute WHERE profile_id = ";
     private static final String sAllAttributesByTypeForProfileSelectionP2 =
             " AND attribute_id = attribute._id) THEN 1 ELSE 0 END AS 'in_profile' FROM attribute WHERE attribute.type = ";
-    private static final String sAllAttributesByTypeForProfileSelectionP3 =
-            " ORDER BY attribute.name";
 
     private static final String sAttributeListsForProfileSelectP1 =
             "SELECT " + AttributeEntry.COLUMN_TYPE + ", GROUP_CONCAT(" +
@@ -89,12 +88,12 @@ public class BuddyfiedProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL: {
-                retCursor = getAllAttributesByTypeForProfile(uri, projection, sortOrder);
+                retCursor = getAllAttributesByTypeForProfile(uri, projection, selection, sortOrder);
                 break;
             }
             // "attribute/*/#"
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID: {
-                retCursor = getAttributeByTypeForProfile(uri, projection, sortOrder);
+                retCursor = getAttributeByTypeForProfile(uri, projection, selection, sortOrder);
                 break;
             }
             // "attribute/*"
@@ -241,26 +240,38 @@ public class BuddyfiedProvider extends ContentProvider {
         return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
     }
 
-    private Cursor getAttributeByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
+    private Cursor getAttributeByTypeForProfile(Uri uri, String[] projection, String selection, String sortOrder) {
         // extract AttributeEntry and add a where clause
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         long profileId = AttributeEntry.getProfileIdFromUri(uri);
+        StringBuilder sb = new StringBuilder(sAttributeTypeForProfileSelection);
+        if (!Utils.isNullOrEmpty(selection)) {
+            sb.append(" AND ");
+            sb.append(selection);
+        }
         return sAttributeByTypeForProfileQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                sAttributeTypeForProfileSelection,
+                sb.toString(),
                 new String[] {attributeType, String.valueOf(profileId)},
                 null,
                 null,
                 sortOrder);
     }
 
-    private Cursor getAllAttributesByTypeForProfile(Uri uri, String[] projection, String sortOrder) {
+    private Cursor getAllAttributesByTypeForProfile(Uri uri, String[] projection, String selection, String sortOrder) {
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         long profileId = AttributeEntry.getProfileIdFromUri(uri);
-        final String queryString = sAllAttributesByTypeForProfileSelectionP1 + profileId +
-                sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'" +
-                sAllAttributesByTypeForProfileSelectionP3;
-        return mOpenHelper.getReadableDatabase().rawQuery(queryString, null);
+        StringBuilder sb = new StringBuilder(sAllAttributesByTypeForProfileSelectionP1);
+        sb.append(profileId + sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'");
+        if (!Utils.isNullOrEmpty(selection)) {
+            sb.append(" AND ");
+            sb.append(selection);
+        }
+        if (!Utils.isNullOrEmpty(sortOrder)) {
+            sb.append(" ORDER BY ");
+            sb.append(sortOrder);
+        }
+        return mOpenHelper.getReadableDatabase().rawQuery(sb.toString(), null);
     }
 
     private Cursor getAttributeByType(Uri uri, String[] projection, String sortOrder) {

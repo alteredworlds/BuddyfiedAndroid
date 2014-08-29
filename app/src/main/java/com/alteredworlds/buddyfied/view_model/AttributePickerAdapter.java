@@ -37,7 +37,11 @@ public class AttributePickerAdapter extends CursorAdapter {
         int position = cursor.getPosition();
         ViewHolder viewHolder = (ViewHolder)view.getTag();
         viewHolder.checkedTextView.setText(cursor.getString(AttributePickerFragment.COL_ATTRIBUTE_NAME));
-        Boolean checked = 1 == cursor.getInt(AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE);
+        Boolean checked = true;
+        int columnCount = cursor.getColumnCount();
+        if (cursor.getColumnCount() > AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE) {
+            checked = 1 == cursor.getInt(AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE);
+        }
         viewHolder.listView.setItemChecked(position, checked);
         if (checked)
             mPicker.setLastCheckedPosition(position);

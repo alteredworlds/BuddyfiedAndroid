@@ -20,5 +20,6 @@
     <string name="title_activity_attribute_picker">AttributePickerActivity</string>
     <string name="specify_query">Search not specified</string>
     <string name="search_attributes">Search...</string>
+    <string name="attribute_picker_filter">Filter</string>
 
 </resources>

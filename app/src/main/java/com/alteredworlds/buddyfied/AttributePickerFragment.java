@@ -19,8 +19,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +47,11 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public static final String ATTRIBUTE_DISPLAY_EXTRA = "attribute_display";
     public static final String ATTIBUTE_SINGLE_CHOICE_EXTRA = "attribute_single_choice";
 
+    public static final String[] ATTRIBS_FILTERED_COLUMNS = {
+            AttributeEntry.TABLE_NAME + "." + AttributeEntry._ID,
+            AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_NAME
+    };
+
     public static final int COL_ATTRIBUTE_ID = 0;
     public static final int COL_ATTRIBUTE_NAME = 1;
     public static final int COL_ATTRIBUTE_IN_PROFILE = 2;
@@ -60,6 +64,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     private Uri mQuery;
     private int mLastCheckedPosition;
     private EditText mFilterEditText;
+    private String mFilterString;
+    private Boolean mShowOnlyCheckedItems = false;
 
     public AttributePickerFragment() {
     }
@@ -81,7 +87,6 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
             mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
             mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
         }
-        mQuery = AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
         getLoaderManager().initLoader(ATTRIBUTE_LOADER, null, this);
     }
 
@@ -103,6 +108,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_attribute_picker, container, false);
+        setHasOptionsMenu(true);
 
         mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0, this);
         mLastCheckedPosition = NO_ROW_CHECKED;
@@ -140,6 +146,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
         //
         mFilterEditText = (EditText) rootView.findViewById(R.id.edittext_attribute_picker);
         if (pickerShouldDisplaySearch(getActivity().getIntent().getStringExtra(ATTRIBUTE_TYPE_EXTRA))) {
+            listView.setFastScrollEnabled(true);
+            listView.setTextFilterEnabled(true);
             mFilterEditText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -153,7 +161,8 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
 
                 @Override
                 public void afterTextChanged(Editable s) {
-
+                    mFilterString = s.toString();
+                    getLoaderManager().restartLoader(ATTRIBUTE_LOADER, null, AttributePickerFragment.this);
                 }
             });
             mFilterEditText.setOnFocusChangeListener(new EditText.OnFocusChangeListener() {
@@ -191,9 +200,24 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.attribute_picker, menu);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.attribute_picker_filter) {
+            // do the refresh
+            toggleCheckedFilter();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
+
+    private void toggleCheckedFilter() {
+        mShowOnlyCheckedItems = !mShowOnlyCheckedItems;
+        getLoaderManager().restartLoader(ATTRIBUTE_LOADER, null, this);
+    }
+
 
     protected void associateAttribute(int position, boolean add) {
         Cursor cursor = (Cursor)mCursorAdapter.getItem(position);
@@ -216,13 +240,24 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = null;
+        if ((null != mFilterString) && (mFilterString.length() > 0)) {
+            selection = AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_NAME +
+                    " LIKE '%" + mFilterString + "%'";
+        }
+        mQuery = mShowOnlyCheckedItems ?
+                AttributeEntry.buildAttributeTypeForProfile(mAttributeType, mProfileId) :
+                AttributeEntry.buildAttributeTypeForProfileAll(mAttributeType, mProfileId);
+        // WARN: Buddyfied[Content]Provider supports extremely limited options
+        // here - could be fixed up, but limited time right now.
+        // only supports selection (NOT selectionArgs)
         return new CursorLoader(
                 getActivity(),
                 mQuery,
+                ATTRIBS_FILTERED_COLUMNS,
+                selection,
                 null,
-                null,
-                null,
-                null
+                AttributeEntry.TABLE_NAME + "." + AttributeEntry.COLUMN_NAME
         );
     }
 

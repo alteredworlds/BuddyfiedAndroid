@@ -17,7 +17,6 @@
     <TextView
         android:id="@+id/list_item_comments_value"
         style="@style/StandardText"
-        android:layout_marginLeft="5dp"
         android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

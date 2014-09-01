@@ -30,31 +30,12 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     public static final String[] BuddyColumns = {
             BuddyEntry._ID,
             BuddyEntry.COLUMN_NAME,
-//            BuddyEntry.COLUMN_COMMENTS,
             BuddyEntry.COLUMN_IMAGE_URI
-//            BuddyEntry.COLUMN_AGE,
-//            BuddyEntry.COLUMN_COUNTRY,
-//            BuddyEntry.COLUMN_GAMEPLAY,
-//            BuddyEntry.COLUMN_LANGUAGE,
-//            BuddyEntry.COLUMN_PLATFORM,
-//            BuddyEntry.COLUMN_PLAYING ,
-//            BuddyEntry.COLUMN_SKILL,
-//            BuddyEntry.COLUMN_TIME,
-//            BuddyEntry.COLUMN_VOICE
     };
 
     public static final int COL_ID = 0;
     public static final int COL_NAME = 1;
     public static final int COL_IMAGE_URI = 2;
-//    public static final int COL_AGE = 4;
-//    public static final int COL_COUNTRY = 5;
-//    public static final int COL_GAMEPLAY = 6;
-//    public static final int COL_LANGUAGE = 7;
-//    public static final int COL_PLATFORM = 8;
-//    public static final int COL_PLAYING = 9;
-//    public static final int COL_SKILL = 10;
-//    public static final int COL_TIME = 11;
-//    public static final int COL_VOICE = 12;
 
     private Uri mQuery;
     private MatchedAdapter mMatchedAdaptor;

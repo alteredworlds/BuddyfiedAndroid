@@ -34,11 +34,7 @@ public class SearchAdapter extends ArrayAdapter<ProfileRow> {
         {
             LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
             row = inflater.inflate(mLayoutResourceId, parent, false);
-
-            holder = new ProfileRowHolder();
-            holder.nameTextView = (TextView)row.findViewById(R.id.list_item_name);
-            holder.valueTextView = (TextView)row.findViewById(R.id.list_item_value);
-
+            holder = newRowHolder(row, mLayoutResourceId);
             row.setTag(holder);
         }
         else
@@ -51,6 +47,13 @@ public class SearchAdapter extends ArrayAdapter<ProfileRow> {
         holder.valueTextView.setText(profileRow.value);
 
         return row;
+    }
+
+    protected ProfileRowHolder newRowHolder(View view, int resourceId) {
+        ProfileRowHolder holder = new ProfileRowHolder();
+        holder.nameTextView = (TextView) view.findViewById(R.id.list_item_name);
+        holder.valueTextView = (TextView) view.findViewById(R.id.list_item_value);
+        return holder;
     }
 
     static class ProfileRowHolder

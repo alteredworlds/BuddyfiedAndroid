@@ -19,8 +19,8 @@ import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
+import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
 import com.alteredworlds.buddyfied.view_model.ProfileRow;
-import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 
 
 /**
@@ -82,8 +82,9 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     private final int ROW_INDEX_TIME;
     private final int ROW_INDEX_AGE;
     private final int ROW_INDEX_VOICE;
+    private final int ROW_INDEX_COMMENTS;
 
-    private SearchAdapter mAdapter;
+    private BuddyAdapter mAdapter;
 
     private ProfileRow[] mData;
     private TextView mCommentTextView;
@@ -98,7 +99,8 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                 new ProfileRow("Skill", "", "", LOADER_ID_SKILL),
                 new ProfileRow("Time", "", "", LOADER_ID_TIME),
                 new ProfileRow("Age", "", "", LOADER_ID_NONE),
-                new ProfileRow("Voice", "", "", LOADER_ID_VOICE)
+                new ProfileRow("Voice", "", "", LOADER_ID_VOICE),
+                new ProfileRow("Comments", "", "", LOADER_ID_NONE)
         };
         ROW_INDEX_PLATFORM = 0;
         ROW_INDEX_PLAYING = 1;
@@ -109,6 +111,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
         ROW_INDEX_TIME = 6;
         ROW_INDEX_AGE = 7;
         ROW_INDEX_VOICE = 8;
+        ROW_INDEX_COMMENTS = 9;
     }
 
     @Override
@@ -116,9 +119,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_buddy, container, false);
 
-        mCommentTextView = (TextView) rootView.findViewById(R.id.buddy_comment_text_view);
-
-        mAdapter = new SearchAdapter(getActivity(), R.layout.list_item_search, mData);
+        mAdapter = new BuddyAdapter(getActivity(), ROW_INDEX_COMMENTS, mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_buddy);
         listView.setAdapter(mAdapter);
         return rootView;
@@ -194,8 +195,9 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
         if (LOADER_ID_BUDDY == loaderId) {
             if ((null != data) && data.moveToFirst()) {
                 // we can update our local data structure to hold untransformed data
-                mCommentTextView.setText(data.getString(COL_COMMENTS));
                 mData[ROW_INDEX_VOICE].value = data.getString(COL_VOICE);
+                mData[ROW_INDEX_AGE].value = data.getString(COL_AGE);
+                mData[ROW_INDEX_COMMENTS].value = data.getString(COL_COMMENTS);
                 //
                 mData[ROW_INDEX_PLATFORM].attributeType = data.getString(COL_PLATFORM);
                 mData[ROW_INDEX_PLAYING].attributeType = data.getString(COL_PLAYING);

@@ -20,7 +20,11 @@ public class BuddyAdapter extends SearchAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        mLayoutResourceId = (mCommentRow != position) ? R.layout.list_item_search : R.layout.list_item_comments;
+        Boolean isCommentRow = (mCommentRow == position);
+        mLayoutResourceId = isCommentRow ? R.layout.list_item_comments : R.layout.list_item_search;
+        if (isCommentRow) {
+            convertView = null;
+        }
         return super.getView(position, convertView, parent);
     }
 

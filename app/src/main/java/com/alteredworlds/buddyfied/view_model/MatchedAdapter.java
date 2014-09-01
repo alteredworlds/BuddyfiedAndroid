@@ -17,7 +17,7 @@ import com.alteredworlds.buddyfied.R;
  * Created by twcgilbert on 22/08/2014.
  */
 public class MatchedAdapter extends CursorAdapter {
-    private final ImageDownloader imageDownloader = new ImageDownloader();
+    private static final ImageDownloader imageDownloader = new ImageDownloader();
 
     public MatchedAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);

@@ -12,7 +12,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,7 +26,6 @@
         <service
             android:name=".service.StaticDataService"
             android:authorities="com.alteredworlds.buddyfied" />
-
         <service
             android:name=".service.BuddyQueryService"
             android:authorities="com.alteredworlds.buddyfied" />
@@ -36,6 +35,14 @@
             android:label="@string/title_activity_attribute_picker"
             android:parentActivityName=".MainActivity">
             <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.alteredworlds.buddyfied.MainActivity" />
+        </activity>
+        <activity
+            android:name=".BuddyActivity"
+            android:label="@string/title_activity_buddy"
+            android:parentActivityName=".MainActivity">
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.MainActivity" />
         </activity>

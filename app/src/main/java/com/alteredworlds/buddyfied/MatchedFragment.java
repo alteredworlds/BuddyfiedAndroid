@@ -33,6 +33,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
             BuddyEntry.COLUMN_IMAGE_URI
     };
 
+    public static final int COL_ID = 0;
     public static final int COL_NAME = 1;
     public static final int COL_IMAGE_URI = 2;
 
@@ -61,7 +62,12 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ;
+                Cursor cursor = (Cursor) mMatchedAdaptor.getItem(position);
+                Intent intent = new Intent(getActivity(), BuddyActivity.class);
+                intent.putExtra(BuddyFragment.BUDDY_ID_EXTRA, cursor.getInt(COL_ID));
+                intent.putExtra(BuddyFragment.BUDDY_NAME_EXTRA, cursor.getString(COL_NAME));
+                intent.putExtra(BuddyFragment.BUDDY_IMAGE_URI_EXTRA, cursor.getString(COL_IMAGE_URI));
+                startActivity(intent);
             }
         });
 

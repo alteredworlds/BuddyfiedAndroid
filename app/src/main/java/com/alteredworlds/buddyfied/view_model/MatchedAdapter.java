@@ -35,10 +35,12 @@ public class MatchedAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        String name = cursor.getString(MatchedFragment.COL_NAME);
-        viewHolder.textView.setText(name);
-        String imageUrl = cursor.getString(MatchedFragment.COL_IMAGE_URI);
-        imageDownloader.download(imageUrl, viewHolder.imageView);
+        if (null != cursor) {
+            String name = cursor.getString(MatchedFragment.COL_NAME);
+            viewHolder.textView.setText(name);
+            String imageUrl = cursor.getString(MatchedFragment.COL_IMAGE_URI);
+            imageDownloader.download(imageUrl, viewHolder.imageView);
+        }
     }
 
     /**

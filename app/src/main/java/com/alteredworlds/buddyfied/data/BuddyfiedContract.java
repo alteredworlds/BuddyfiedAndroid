@@ -155,9 +155,9 @@ public class BuddyfiedContract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_COMMENTS = "comments";
         public static final String COLUMN_IMAGE_URI = "image_uri";
+        public static final String COLUMN_AGE = "age";
 
         // comma separated server ID lists for each type of attribute
-        public static final String COLUMN_AGE = "age";
         public static final String COLUMN_COUNTRY = "country";
         public static final String COLUMN_GAMEPLAY = "gameplay";
         public static final String COLUMN_LANGUAGE = "language";

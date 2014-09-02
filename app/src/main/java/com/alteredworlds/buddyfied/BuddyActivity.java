@@ -1,12 +1,15 @@
 package com.alteredworlds.buddyfied;
 
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.List;
 
 
 public class BuddyActivity extends ActionBarActivity {
@@ -43,15 +46,49 @@ public class BuddyActivity extends ActionBarActivity {
     }
 
     public void reportUserButtonClick(View view) {
-        String userToReport = getIntent().getStringExtra(BuddyFragment.BUDDY_NAME_EXTRA);
         String body = getString(R.string.buddy_report_user_email_body1) +
-                " " + userToReport +
+                " " +
+                getIntent().getStringExtra(BuddyFragment.BUDDY_NAME_EXTRA) +
                 getString(R.string.buddy_report_user_email_body2) +
-                " " + Settings.getUsername(this);
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto", getString(R.string.buddy_report_user_email), null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.buddy_report_user_email_subject));
-        emailIntent.putExtra(Intent.EXTRA_TEXT, body);
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+                " " +
+                Settings.getUsername(this);
+
+        Intent sendIntent = createEmailIntent(
+                getString(R.string.buddy_report_user_email),
+                getString(R.string.buddy_report_user_email_subject),
+                body);
+        if (null != sendIntent) {
+            startActivity(sendIntent);
+        }
+    }
+
+    public Intent createEmailIntent(final String toEmail,
+                                    final String subject,
+                                    final String message) {
+        Intent sendTo = new Intent(Intent.ACTION_SENDTO);
+        String uriText = "mailto:" + Uri.encode(toEmail) +
+                "?subject=" + Uri.encode(subject);
+        Uri uri = Uri.parse(uriText);
+        sendTo.setData(uri);
+        sendTo.putExtra(Intent.EXTRA_TEXT, message);
+
+        List<ResolveInfo> resolveInfos =
+                getPackageManager().queryIntentActivities(sendTo, 0);
+
+        // Emulators may not like this check...
+        if (!resolveInfos.isEmpty()) {
+            return sendTo;
+        }
+
+        // Nothing resolves send to, so fallback to send...
+        Intent send = new Intent(Intent.ACTION_SEND);
+
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_EMAIL,
+                new String[]{toEmail});
+        send.putExtra(Intent.EXTRA_SUBJECT, subject);
+        send.putExtra(Intent.EXTRA_TEXT, message);
+
+        return Intent.createChooser(send, getString(R.string.email_chooser_title));
     }
 }

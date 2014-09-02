@@ -5,9 +5,10 @@
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:orientation="horizontal"
-    android:padding="2dp"
+    style="@style/StandardListItemStyle"
     android:background="@drawable/touch_selector">
-    <TextView
+
+<TextView
         android:id="@+id/list_item_name"
         style="@style/StandardText"
         android:layout_gravity="center_vertical"

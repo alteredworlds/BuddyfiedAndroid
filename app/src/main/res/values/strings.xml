@@ -13,6 +13,10 @@
     <string name="pref_password_key">password</string>
     <string name="pref_position_key">position</string>
     <string name="buddy_site">http://dev.buddyfied.com/</string>
+    <string name="buddy_report_user_email">reportuser@buddyfied.com</string>
+    <string name="buddy_report_user_email_subject">Report User</string>
+    <string name="buddy_report_user_email_body1">Please describe your concerns about user </string>
+    <string name="buddy_report_user_email_body2">.\n\n from </string>
     <string name="guest_username">guest</string>
     <string name="guest_password"></string>
     <string name="about_help_link"><a href="http://www.buddyfied.com/buddyfied-ios-app/">Buddyfied Help</a></string>

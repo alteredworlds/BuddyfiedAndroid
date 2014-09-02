@@ -77,13 +77,11 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onResume() {
         super.onResume();
-        // this code is ALWAYS QUERYING
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatches);
+        // query to server only issued if no buddies locally
+        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
         intent.putExtra(BuddyQueryService.PROFILE_ID_EXTRA, ((MainActivity) getActivity()).getSearchProfileId());
         getActivity().startService(intent);
-        // starts the loader to view existing data
-        //getLoaderManager().restartLoader(MATCHED_LOADER, null, this);
     }
 
     @Override

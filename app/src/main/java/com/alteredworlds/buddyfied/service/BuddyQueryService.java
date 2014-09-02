@@ -33,6 +33,7 @@ public class BuddyQueryService extends IntentService {
     public static final String RESULT_DESCRIPTION = "result_description";
 
     public static final String GetMatches = "bp.getMatches";
+    public static final String GetMatchesIfNeeded = "GetMatchesIfNeeded";
     public static final String SendMessage = "bp.sendMessage";
     public static final String GetMemberInfo = "bp.getMemberData";
     public static final String VerifyConnection = "bp.verifyConnection";
@@ -52,8 +53,10 @@ public class BuddyQueryService extends IntentService {
         ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER_EXTRA);
         String method = intent.getStringExtra(METHOD_EXTRA);
         CallResult result = null;
-        if (0 == GetMatches.compareTo(method)) {
-            result = getMatches(intent);
+        if (0 == GetMatchesIfNeeded.compareTo(method)) {
+            result = getMatches(intent, true);
+        } else if (0 == GetMatches.compareTo(method)) {
+            result = getMatches(intent, false);
         } else if (0 == SendMessage.compareTo(method)) {
             result = sendMessage(intent);
         } else if (0 == GetMemberInfo.compareTo(method)) {
@@ -68,7 +71,7 @@ public class BuddyQueryService extends IntentService {
             Bundle resultBundle = getResultBundleWithDescription(errorMessage);
             result = new CallResult(-1, resultBundle);
         }
-        if (null != resultReceiver) {
+        if ((null != resultReceiver) && (null != result)) {
             resultReceiver.send(result.code, result.results);
         }
     }
@@ -146,30 +149,46 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private CallResult getMatches(Intent intent) {
+    private Boolean haveBuddiesAlready() {
+        Cursor cursor = getContentResolver().query(
+                BuddyEntry.CONTENT_URI,
+                new String[]{BuddyEntry._ID},
+                null,
+                null,
+                null);
+        Boolean retVal = cursor.getCount() > 0;
+        cursor.close();
+        return retVal;
+    }
+
+    private CallResult getMatches(Intent intent, Boolean onlyIfNeeded) {
         int resultCode = 0;
         Bundle resultBundle = null;
-        //
-        HashMap<String, Object> data = getSearchParameters(intent);
-        if (data.isEmpty()) {
-            resultBundle = getResultBundleWithDescription(getString(R.string.specify_query));
+        if (onlyIfNeeded && haveBuddiesAlready()) {
+            // we don't need to make the call
         } else {
-            String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-            XMLRPCClient client = new XMLRPCClient(uri);
-            try {
-                Object res = client.call(
-                        GetMatches,
-                        Settings.getUsername(this),
-                        Settings.getPassword(this),
-                        data);
-                String resultMessage = processSearchResults(res);
-                if ((null != resultMessage) && (resultMessage.length() > 0)) {
-                    resultBundle = getResultBundleWithDescription(resultMessage);
+            // we need to retrieve buddies from the server
+            HashMap<String, Object> data = getSearchParameters(intent);
+            if (data.isEmpty()) {
+                resultBundle = getResultBundleWithDescription(getString(R.string.specify_query));
+            } else {
+                String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
+                XMLRPCClient client = new XMLRPCClient(uri);
+                try {
+                    Object res = client.call(
+                            GetMatches,
+                            Settings.getUsername(this),
+                            Settings.getPassword(this),
+                            data);
+                    String resultMessage = processSearchResults(res);
+                    if ((null != resultMessage) && (resultMessage.length() > 0)) {
+                        resultBundle = getResultBundleWithDescription(resultMessage);
+                    }
+                } catch (XMLRPCException e) {
+                    e.printStackTrace();
+                    resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+                    resultCode = -1;
                 }
-            } catch (XMLRPCException e) {
-                e.printStackTrace();
-                resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
-                resultCode = -1;
             }
         }
         return new CallResult(resultCode, resultBundle);

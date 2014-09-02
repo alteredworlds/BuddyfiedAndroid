@@ -17,8 +17,6 @@ import com.alteredworlds.buddyfied.R;
  * Created by twcgilbert on 22/08/2014.
  */
 public class MatchedAdapter extends CursorAdapter {
-    private static final ImageDownloader imageDownloader = new ImageDownloader();
-
     public MatchedAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
@@ -39,7 +37,7 @@ public class MatchedAdapter extends CursorAdapter {
             String name = cursor.getString(MatchedFragment.COL_NAME);
             viewHolder.textView.setText(name);
             String imageUrl = cursor.getString(MatchedFragment.COL_IMAGE_URI);
-            imageDownloader.download(imageUrl, viewHolder.imageView);
+            ImageDownloader.getInstance().download(imageUrl, viewHolder.imageView);
         }
     }
 

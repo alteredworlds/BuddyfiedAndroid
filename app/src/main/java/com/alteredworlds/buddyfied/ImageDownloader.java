@@ -54,6 +54,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ImageDownloader {
     private static final String LOG_TAG = ImageDownloader.class.getSimpleName();
 
+    private static class ImageDownloaderHolder {
+        public static ImageDownloader downloader = new ImageDownloader();
+    }
+
+    public static ImageDownloader getInstance() {
+        return ImageDownloaderHolder.downloader;
+    }
+
 
     /**
      * Download the specified image from the Internet and binds it to the provided ImageView. The

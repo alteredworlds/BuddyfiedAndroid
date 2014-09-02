@@ -25,5 +25,6 @@
     <string name="title_activity_buddy">Buddy</string>
     <string name="comments">Comments</string>
     <string name="report_user">Report User</string>
+    <string name="message_user">Message User</string>
 
 </resources>

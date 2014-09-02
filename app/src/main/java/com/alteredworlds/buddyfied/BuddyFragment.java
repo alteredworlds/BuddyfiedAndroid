@@ -19,6 +19,7 @@ import android.widget.ListView;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
+import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
@@ -72,8 +73,8 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int LOADER_ID_TIME = 6;
     private static final int LOADER_ID_VOICE = 7;
     private static final int LOADER_ID_BUDDY = 8;
-    private static final int LOADER_ID_NONE = -1;
 
+    private final int ROW_INDEX_HEADER;
     private final int ROW_INDEX_PLATFORM;
     private final int ROW_INDEX_PLAYING;
     private final int ROW_INDEX_GAMEPLAY;
@@ -86,11 +87,13 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     private final int ROW_INDEX_COMMENTS;
 
     private BuddyAdapter mAdapter;
+    private long mBuddyId;
 
     private LoaderListItem[] mData;
 
     public BuddyFragment() {
         mData = new LoaderListItem[]{
+                new BuddyHeaderListItem("", ""),
                 new SearchListItem("Platform", "", "", LOADER_ID_PLATFORM),
                 new SearchListItem("Playing", "", "", LOADER_ID_PLAYING),
                 new SearchListItem("Gameplay", "", "", LOADER_ID_GAMEPLAY),
@@ -98,26 +101,31 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                 new SearchListItem("Language", "", "", LOADER_ID_LANGUAGE),
                 new SearchListItem("Skill", "", "", LOADER_ID_SKILL),
                 new SearchListItem("Time", "", "", LOADER_ID_TIME),
-                new SearchListItem("Age", "", "", LOADER_ID_NONE),
+                new SearchListItem("Age", "", "", LoaderListItem.LOADER_ID_NONE),
                 new SearchListItem("Voice", "", "", LOADER_ID_VOICE),
-                new CommentsListItem("Comments", "", "", LOADER_ID_NONE)
+                new CommentsListItem("Comments", "", "")
         };
-        ROW_INDEX_PLATFORM = 0;
-        ROW_INDEX_PLAYING = 1;
-        ROW_INDEX_GAMEPLAY = 2;
-        ROW_INDEX_COUNTRY = 3;
-        ROW_INDEX_LANGUAGE = 4;
-        ROW_INDEX_SKILL = 5;
-        ROW_INDEX_TIME = 6;
-        ROW_INDEX_AGE = 7;
-        ROW_INDEX_VOICE = 8;
-        ROW_INDEX_COMMENTS = 9;
+        ROW_INDEX_HEADER = 0;
+        ROW_INDEX_PLATFORM = 1;
+        ROW_INDEX_PLAYING = 2;
+        ROW_INDEX_GAMEPLAY = 3;
+        ROW_INDEX_COUNTRY = 4;
+        ROW_INDEX_LANGUAGE = 5;
+        ROW_INDEX_SKILL = 6;
+        ROW_INDEX_TIME = 7;
+        ROW_INDEX_AGE = 8;
+        ROW_INDEX_VOICE = 9;
+        ROW_INDEX_COMMENTS = 10;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_buddy, container, false);
+
+        mBuddyId = getActivity().getIntent().getLongExtra(BUDDY_ID_EXTRA, -1);
+        mData[ROW_INDEX_HEADER].name = getActivity().getIntent().getStringExtra(BUDDY_NAME_EXTRA);
+        mData[ROW_INDEX_HEADER].value = getActivity().getIntent().getStringExtra(BUDDY_IMAGE_URI_EXTRA);
 
         mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_buddy);
@@ -141,8 +149,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (LOADER_ID_BUDDY == id) {
             // first we need to get the buddy information from the database
-            long buddyId = getActivity().getIntent().getLongExtra(BUDDY_ID_EXTRA, -1);
-            Uri query = BuddyEntry.buildBuddyUri(buddyId);
+            final Uri query = BuddyEntry.buildBuddyUri(mBuddyId);
             return new CursorLoader(
                     getActivity(),
                     query,
@@ -151,34 +158,35 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                     null,
                     null);
         } else {
-            String idList = null;
+            int idx = -1;
             switch (id) {
                 case LOADER_ID_PLATFORM:
-                    idList = mData[ROW_INDEX_PLATFORM].extra;
+                    idx = ROW_INDEX_PLATFORM;
                     break;
                 case LOADER_ID_PLAYING:
-                    idList = mData[ROW_INDEX_PLAYING].extra;
+                    idx = ROW_INDEX_PLAYING;
                     break;
                 case LOADER_ID_GAMEPLAY:
-                    idList = mData[ROW_INDEX_GAMEPLAY].extra;
+                    idx = ROW_INDEX_GAMEPLAY;
                     break;
                 case LOADER_ID_COUNTRY:
-                    idList = mData[ROW_INDEX_COUNTRY].extra;
+                    idx = ROW_INDEX_COUNTRY;
                     break;
                 case LOADER_ID_LANGUAGE:
-                    idList = mData[ROW_INDEX_LANGUAGE].extra;
+                    idx = ROW_INDEX_LANGUAGE;
                     break;
                 case LOADER_ID_SKILL:
-                    idList = mData[ROW_INDEX_SKILL].extra;
+                    idx = ROW_INDEX_SKILL;
                     break;
                 case LOADER_ID_TIME:
-                    idList = mData[ROW_INDEX_TIME].extra;
+                    idx = ROW_INDEX_TIME;
                     break;
                 case LOADER_ID_VOICE:
-                    idList = mData[ROW_INDEX_VOICE].extra;
+                    idx = ROW_INDEX_VOICE;
                     break;
             }
-            String select = AttributeEntry._ID + " IN (" + idList + ")";
+            final String idList = mData[idx].extra;
+            final String select = AttributeEntry._ID + " IN (" + idList + ")";
             return new CursorLoader(
                     getActivity(),
                     AttributeEntry.CONTENT_URI,
@@ -210,7 +218,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                 //
                 // kick off the [sub]loaders to transform this data
                 for (int i = 0; i < mData.length; i++) {
-                    if (LOADER_ID_NONE != mData[i].loaderId) {
+                    if (LoaderListItem.LOADER_ID_NONE != mData[i].loaderId) {
                         getLoaderManager().initLoader(mData[i].loaderId, null, this);
                     }
                 }

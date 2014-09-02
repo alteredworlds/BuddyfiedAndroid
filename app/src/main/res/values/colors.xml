@@ -5,4 +5,5 @@
     <color name="sunshine_light_blue">#ff64c2f4</color>
     <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
+    <color name="DarkGray">#323232</color>
 </resources>

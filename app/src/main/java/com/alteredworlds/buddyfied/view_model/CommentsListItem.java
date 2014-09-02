@@ -11,18 +11,15 @@ import com.alteredworlds.buddyfied.R;
  */
 public class CommentsListItem extends LoaderListItem {
 
-    public static final int COMMENTS_LIST_ITEM_VIEW_TYPE_ID = 1;
+    public static final int LIST_ITEM_VIEW_TYPE_ID = 1;
 
-    public CommentsListItem(String name, String value, String extra, int loaderId) {
-        this.name = name;
-        this.value = value;
-        this.extra = extra;
-        this.loaderId = loaderId;
+    public CommentsListItem(String name, String value, String extra) {
+        super(name, value, extra);
     }
 
     @Override
     public int getViewType() {
-        return COMMENTS_LIST_ITEM_VIEW_TYPE_ID;
+        return LIST_ITEM_VIEW_TYPE_ID;
     }
 
     @Override

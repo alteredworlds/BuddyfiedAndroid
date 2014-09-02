@@ -27,15 +27,40 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
 
     private static final int MATCHED_LOADER = 0;
 
+    //    public static final String[] BuddyColumns = {
+//            BuddyEntry._ID,
+//            BuddyEntry.COLUMN_NAME,
+//            BuddyEntry.COLUMN_IMAGE_URI
+//    };
     public static final String[] BuddyColumns = {
             BuddyEntry._ID,
             BuddyEntry.COLUMN_NAME,
-            BuddyEntry.COLUMN_IMAGE_URI
+            BuddyEntry.COLUMN_COMMENTS,
+            BuddyEntry.COLUMN_IMAGE_URI,
+            BuddyEntry.COLUMN_AGE,
+            BuddyEntry.COLUMN_COUNTRY,
+            BuddyEntry.COLUMN_GAMEPLAY,
+            BuddyEntry.COLUMN_LANGUAGE,
+            BuddyEntry.COLUMN_PLATFORM,
+            BuddyEntry.COLUMN_PLAYING,
+            BuddyEntry.COLUMN_SKILL,
+            BuddyEntry.COLUMN_TIME,
+            BuddyEntry.COLUMN_VOICE
     };
 
     public static final int COL_ID = 0;
     public static final int COL_NAME = 1;
-    public static final int COL_IMAGE_URI = 2;
+    public static final int COL_COMMENTS = 2;
+    public static final int COL_IMAGE_URI = 3;
+    public static final int COL_AGE = 4;
+    public static final int COL_COUNTRY = 5;
+    public static final int COL_GAMEPLAY = 6;
+    public static final int COL_LANGUAGE = 7;
+    public static final int COL_PLATFORM = 8;
+    public static final int COL_PLAYING = 9;
+    public static final int COL_SKILL = 10;
+    public static final int COL_TIME = 11;
+    public static final int COL_VOICE = 12;
 
     private Uri mQuery;
     private MatchedAdapter mMatchedAdaptor;
@@ -67,6 +92,19 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
                 intent.putExtra(BuddyFragment.BUDDY_ID_EXTRA, cursor.getLong(COL_ID));
                 intent.putExtra(BuddyFragment.BUDDY_NAME_EXTRA, cursor.getString(COL_NAME));
                 intent.putExtra(BuddyFragment.BUDDY_IMAGE_URI_EXTRA, cursor.getString(COL_IMAGE_URI));
+                //
+                intent.putExtra(BuddyFragment.BUDDY_VOICE_EXTRA, cursor.getString(COL_VOICE));
+                intent.putExtra(BuddyFragment.BUDDY_AGE_EXTRA, cursor.getString(COL_AGE));
+                intent.putExtra(BuddyFragment.BUDDY_COMMENTS_EXTRA, cursor.getString(COL_COMMENTS));
+                //
+                // data that must be transformed via a loader
+                intent.putExtra(BuddyFragment.BUDDY_PLATFORM_EXTRA, cursor.getString(COL_PLATFORM));
+                intent.putExtra(BuddyFragment.BUDDY_PLAYING_EXTRA, cursor.getString(COL_PLAYING));
+                intent.putExtra(BuddyFragment.BUDDY_GAMEPLAY_EXTRA, cursor.getString(COL_GAMEPLAY));
+                intent.putExtra(BuddyFragment.BUDDY_COUNTRY_EXTRA, cursor.getString(COL_COUNTRY));
+                intent.putExtra(BuddyFragment.BUDDY_LANGUAGE_EXTRA, cursor.getString(COL_LANGUAGE));
+                intent.putExtra(BuddyFragment.BUDDY_SKILL_EXTRA, cursor.getString(COL_SKILL));
+                intent.putExtra(BuddyFragment.BUDDY_TIME_EXTRA, cursor.getString(COL_TIME));
                 startActivity(intent);
             }
         });

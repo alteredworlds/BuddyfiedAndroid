@@ -15,12 +15,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
-import com.alteredworlds.buddyfied.view_model.ProfileRow;
+import com.alteredworlds.buddyfied.view_model.CommentsListItem;
+import com.alteredworlds.buddyfied.view_model.LoaderListItem;
+import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
 
 /**
@@ -86,21 +87,20 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private BuddyAdapter mAdapter;
 
-    private ProfileRow[] mData;
-    private TextView mCommentTextView;
+    private LoaderListItem[] mData;
 
     public BuddyFragment() {
-        mData = new ProfileRow[]{
-                new ProfileRow("Platform", "", "", LOADER_ID_PLATFORM),
-                new ProfileRow("Playing", "", "", LOADER_ID_PLAYING),
-                new ProfileRow("Gameplay", "", "", LOADER_ID_GAMEPLAY),
-                new ProfileRow("Country", "", "", LOADER_ID_COUNTRY),
-                new ProfileRow("Language", "", "", LOADER_ID_LANGUAGE),
-                new ProfileRow("Skill", "", "", LOADER_ID_SKILL),
-                new ProfileRow("Time", "", "", LOADER_ID_TIME),
-                new ProfileRow("Age", "", "", LOADER_ID_NONE),
-                new ProfileRow("Voice", "", "", LOADER_ID_VOICE),
-                new ProfileRow("Comments", "", "", LOADER_ID_NONE)
+        mData = new LoaderListItem[]{
+                new SearchListItem("Platform", "", "", LOADER_ID_PLATFORM),
+                new SearchListItem("Playing", "", "", LOADER_ID_PLAYING),
+                new SearchListItem("Gameplay", "", "", LOADER_ID_GAMEPLAY),
+                new SearchListItem("Country", "", "", LOADER_ID_COUNTRY),
+                new SearchListItem("Language", "", "", LOADER_ID_LANGUAGE),
+                new SearchListItem("Skill", "", "", LOADER_ID_SKILL),
+                new SearchListItem("Time", "", "", LOADER_ID_TIME),
+                new SearchListItem("Age", "", "", LOADER_ID_NONE),
+                new SearchListItem("Voice", "", "", LOADER_ID_VOICE),
+                new CommentsListItem("Comments", "", "", LOADER_ID_NONE)
         };
         ROW_INDEX_PLATFORM = 0;
         ROW_INDEX_PLAYING = 1;
@@ -119,7 +119,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_buddy, container, false);
 
-        mAdapter = new BuddyAdapter(getActivity(), ROW_INDEX_COMMENTS, mData);
+        mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_buddy);
         listView.setAdapter(mAdapter);
         return rootView;
@@ -154,28 +154,28 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
             String idList = null;
             switch (id) {
                 case LOADER_ID_PLATFORM:
-                    idList = mData[ROW_INDEX_PLATFORM].attributeType;
+                    idList = mData[ROW_INDEX_PLATFORM].extra;
                     break;
                 case LOADER_ID_PLAYING:
-                    idList = mData[ROW_INDEX_PLAYING].attributeType;
+                    idList = mData[ROW_INDEX_PLAYING].extra;
                     break;
                 case LOADER_ID_GAMEPLAY:
-                    idList = mData[ROW_INDEX_GAMEPLAY].attributeType;
+                    idList = mData[ROW_INDEX_GAMEPLAY].extra;
                     break;
                 case LOADER_ID_COUNTRY:
-                    idList = mData[ROW_INDEX_COUNTRY].attributeType;
+                    idList = mData[ROW_INDEX_COUNTRY].extra;
                     break;
                 case LOADER_ID_LANGUAGE:
-                    idList = mData[ROW_INDEX_LANGUAGE].attributeType;
+                    idList = mData[ROW_INDEX_LANGUAGE].extra;
                     break;
                 case LOADER_ID_SKILL:
-                    idList = mData[ROW_INDEX_SKILL].attributeType;
+                    idList = mData[ROW_INDEX_SKILL].extra;
                     break;
                 case LOADER_ID_TIME:
-                    idList = mData[ROW_INDEX_TIME].attributeType;
+                    idList = mData[ROW_INDEX_TIME].extra;
                     break;
                 case LOADER_ID_VOICE:
-                    idList = mData[ROW_INDEX_VOICE].attributeType;
+                    idList = mData[ROW_INDEX_VOICE].extra;
                     break;
             }
             String select = AttributeEntry._ID + " IN (" + idList + ")";
@@ -194,19 +194,21 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
         int loaderId = loader.getId();
         if (LOADER_ID_BUDDY == loaderId) {
             if ((null != data) && data.moveToFirst()) {
-                // we can update our local data structure to hold untransformed data
+                // data we can already just use is assigned to 'value'
                 mData[ROW_INDEX_VOICE].value = data.getString(COL_VOICE);
                 mData[ROW_INDEX_AGE].value = data.getString(COL_AGE);
                 mData[ROW_INDEX_COMMENTS].value = data.getString(COL_COMMENTS);
                 //
-                mData[ROW_INDEX_PLATFORM].attributeType = data.getString(COL_PLATFORM);
-                mData[ROW_INDEX_PLAYING].attributeType = data.getString(COL_PLAYING);
-                mData[ROW_INDEX_GAMEPLAY].attributeType = data.getString(COL_GAMEPLAY);
-                mData[ROW_INDEX_COUNTRY].attributeType = data.getString(COL_COUNTRY);
-                mData[ROW_INDEX_LANGUAGE].attributeType = data.getString(COL_LANGUAGE);
-                mData[ROW_INDEX_SKILL].attributeType = data.getString(COL_SKILL);
-                mData[ROW_INDEX_TIME].attributeType = data.getString(COL_TIME);
-                // then kick off the sub-loaders to transform this data
+                // data that must be transformed via a loader assigned to 'extra'
+                mData[ROW_INDEX_PLATFORM].extra = data.getString(COL_PLATFORM);
+                mData[ROW_INDEX_PLAYING].extra = data.getString(COL_PLAYING);
+                mData[ROW_INDEX_GAMEPLAY].extra = data.getString(COL_GAMEPLAY);
+                mData[ROW_INDEX_COUNTRY].extra = data.getString(COL_COUNTRY);
+                mData[ROW_INDEX_LANGUAGE].extra = data.getString(COL_LANGUAGE);
+                mData[ROW_INDEX_SKILL].extra = data.getString(COL_SKILL);
+                mData[ROW_INDEX_TIME].extra = data.getString(COL_TIME);
+                //
+                // kick off the [sub]loaders to transform this data
                 for (int i = 0; i < mData.length; i++) {
                     if (LOADER_ID_NONE != mData[i].loaderId) {
                         getLoaderManager().initLoader(mData[i].loaderId, null, this);
@@ -215,7 +217,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         } else {
             // find the correct ProfileRow to update based on the loaderId
-            ProfileRow row = null;
+            LoaderListItem row = null;
             for (int i = 0; i < mData.length; i++) {
                 if (mData[i].loaderId == loaderId) {
                     row = mData[i];

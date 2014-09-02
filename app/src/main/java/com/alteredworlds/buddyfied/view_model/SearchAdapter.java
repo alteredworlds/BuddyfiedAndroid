@@ -1,64 +1,24 @@
 package com.alteredworlds.buddyfied.view_model;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
-
-import com.alteredworlds.buddyfied.R;
 
 /**
  * Created by twcgilbert on 19/08/2014.
  */
-public class SearchAdapter extends ArrayAdapter<ProfileRow> {
-    Context mContext;
-    int mLayoutResourceId;
-    ProfileRow mData[] = null;
+public class SearchAdapter extends ArrayAdapter<ListItem> {
+    private LayoutInflater mInflater;
 
-    public SearchAdapter(Context context, int resource, ProfileRow[] objects) {
-        super(context, resource, objects);
-        mContext = context;
-        mLayoutResourceId = resource;
-        mData = objects;
+    public SearchAdapter(Context context, ListItem[] objects) {
+        super(context, 0, objects);
+        mInflater = LayoutInflater.from(context);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-        ProfileRowHolder holder = null;
-
-        if(row == null)
-        {
-            LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
-            row = inflater.inflate(mLayoutResourceId, parent, false);
-            holder = newRowHolder(row, mLayoutResourceId);
-            row.setTag(holder);
-        }
-        else
-        {
-            holder = (ProfileRowHolder)row.getTag();
-        }
-
-        ProfileRow profileRow = mData[position];
-        holder.nameTextView.setText(profileRow.name);
-        holder.valueTextView.setText(profileRow.value);
-
-        return row;
-    }
-
-    protected ProfileRowHolder newRowHolder(View view, int resourceId) {
-        ProfileRowHolder holder = new ProfileRowHolder();
-        holder.nameTextView = (TextView) view.findViewById(R.id.list_item_name);
-        holder.valueTextView = (TextView) view.findViewById(R.id.list_item_value);
-        return holder;
-    }
-
-    static class ProfileRowHolder
-    {
-        TextView nameTextView;
-        TextView valueTextView;
+        return getItem(position).getView(mInflater, convertView);
     }
 }

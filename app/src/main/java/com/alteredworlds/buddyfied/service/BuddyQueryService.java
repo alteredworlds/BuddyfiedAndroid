@@ -99,7 +99,30 @@ public class BuddyQueryService extends IntentService {
     }
 
     private CallResult getMemberInfo(Intent intent) {
-        return null;
+        int resultCode = 0;
+        Bundle resultBundle = null;
+
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("user_id", Settings.getUserId(this));
+
+        String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
+        XMLRPCClient client = new XMLRPCClient(uri);
+        try {
+            Object res = client.call(
+                    GetMemberInfo,
+                    Settings.getUsername(this),
+                    Settings.getPassword(this),
+                    data);
+            String resultMessage = processMemberInfoResults(res);
+            if ((null != resultMessage) && (resultMessage.length() > 0)) {
+                resultBundle = getResultBundleWithDescription(resultMessage);
+            }
+        } catch (XMLRPCException e) {
+            e.printStackTrace();
+            resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+            resultCode = -1;
+        }
+        return new CallResult(resultCode, resultBundle);
     }
 
     private CallResult sendMessage(Intent intent) {
@@ -215,6 +238,21 @@ public class BuddyQueryService extends IntentService {
                 }
                 int numBuddiesInserted = getContentResolver().bulkInsert(BuddyEntry.CONTENT_URI, cva);
                 Log.i(LOG_TAG, "Inserted " + numBuddiesInserted + " buddies");
+            }
+        }
+        return retVal;
+    }
+
+    private String processMemberInfoResults(Object res) {
+        String retVal = null;
+        if (res instanceof HashMap) {
+            Object message = ((HashMap) res).get("message");
+            if (message instanceof String) {
+                retVal = (String) message;
+            } else if (message instanceof Object[]) {
+                // this should be member info...
+                // should be used to update Profile record for My Profile
+
             }
         }
         return retVal;

@@ -20,6 +20,9 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "buddyfied.db";
 
+    public static final int SEARCH_PROFILE_ID = 1;
+    public static final int MY_PROFILE_ID = 2;
+
     public BuddyfiedDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -88,14 +91,23 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_PROFILE_ATTRIBUTE_TABLE);
         //
         insertSearchProfile(db);
+        insertMyProfile(db);
     }
 
     protected void insertSearchProfile(SQLiteDatabase db) {
+        insertProfile(db, SEARCH_PROFILE_ID, "Default");
+    }
+
+    protected void insertMyProfile(SQLiteDatabase db) {
+        insertProfile(db, MY_PROFILE_ID, "My Profile");
+    }
+
+    protected void insertProfile(SQLiteDatabase db, int id, String name) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ProfileEntry._ID, 1);
-        contentValues.put(ProfileEntry.COLUMN_NAME, "Default");
-        long searchProfileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
-        Log.i(LOG_TAG, "Search Profile (Default) has ID " + searchProfileId);
+        contentValues.put(ProfileEntry._ID, id);
+        contentValues.put(ProfileEntry.COLUMN_NAME, name);
+        long profileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
+        Log.i(LOG_TAG, "Profile '" + name + "' has ID " + profileId);
     }
 
     @Override

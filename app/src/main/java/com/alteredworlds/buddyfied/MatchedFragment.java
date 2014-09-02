@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.MatchedAdapter;
 
@@ -27,11 +28,6 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
 
     private static final int MATCHED_LOADER = 0;
 
-    //    public static final String[] BuddyColumns = {
-//            BuddyEntry._ID,
-//            BuddyEntry.COLUMN_NAME,
-//            BuddyEntry.COLUMN_IMAGE_URI
-//    };
     public static final String[] BuddyColumns = {
             BuddyEntry._ID,
             BuddyEntry.COLUMN_NAME,
@@ -118,7 +114,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
         // query to server only issued if no buddies locally
         intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
-        intent.putExtra(BuddyQueryService.PROFILE_ID_EXTRA, ((MainActivity) getActivity()).getSearchProfileId());
+        intent.putExtra(BuddyQueryService.PROFILE_ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
         getActivity().startService(intent);
     }
 

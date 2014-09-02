@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
@@ -25,7 +26,7 @@ import com.alteredworlds.buddyfied.view_model.SearchListItem;
  */
 public class SearchFragment extends Fragment   implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    protected int mProfileId;
+    final protected int mProfileId = BuddyfiedDbHelper.SEARCH_PROFILE_ID;
     protected LoaderListItem[] mData;
     protected SearchAdapter mAdapter;
 
@@ -56,7 +57,6 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mProfileId = ((MainActivity) getActivity()).getSearchProfileId();
         for (int i = 0; i < mData.length; i++) {
             getLoaderManager().initLoader(mData[i].loaderId, null, this);
         }

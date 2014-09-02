@@ -192,7 +192,7 @@ public class BuddyQueryService extends IntentService {
                 Object[] values = (Object[]) message;
                 ContentValues[] cva = new ContentValues[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    cva[i] = createBuddyValues((HashMap) values[i]);
+                    cva[i] = createBuddyValues((HashMap) values[i], i);
                 }
                 int numBuddiesInserted = getContentResolver().bulkInsert(BuddyEntry.CONTENT_URI, cva);
                 Log.i(LOG_TAG, "Inserted " + numBuddiesInserted + " buddies");
@@ -201,8 +201,10 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private static ContentValues createBuddyValues(HashMap buddy) {
+    private static ContentValues createBuddyValues(HashMap buddy, int displayOrder) {
         ContentValues retVal = new ContentValues();
+        retVal.put(BuddyEntry._ID, (String) buddy.get("user_id"));
+        retVal.put(BuddyEntry.COLUMN_DISPLAY_ORDER, displayOrder);
         retVal.put(BuddyEntry.COLUMN_NAME, (String) buddy.get("field_1"));
         retVal.put(BuddyEntry.COLUMN_COMMENTS, (String) buddy.get("field_167"));
         retVal.put(BuddyEntry.COLUMN_IMAGE_URI, getBuddyImageUrl(buddy));

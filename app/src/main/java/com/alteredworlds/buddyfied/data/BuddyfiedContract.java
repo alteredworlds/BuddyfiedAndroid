@@ -152,6 +152,7 @@ public class BuddyfiedContract {
 
         public static final String TABLE_NAME = "buddy";
 
+        public static final String COLUMN_DISPLAY_ORDER = "display_order";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_COMMENTS = "comments";
         public static final String COLUMN_IMAGE_URI = "image_uri";

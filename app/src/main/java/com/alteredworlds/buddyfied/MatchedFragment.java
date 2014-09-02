@@ -94,7 +94,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
                 MatchedFragment.BuddyColumns,
                 null,
                 null,
-                null
+                BuddyEntry.COLUMN_DISPLAY_ORDER
         );
     }
 

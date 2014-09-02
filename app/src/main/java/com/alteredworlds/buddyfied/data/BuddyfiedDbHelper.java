@@ -26,7 +26,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // create profile first
+        // profile table
         final String SQL_CREATE_PROFILE_TABLE = "CREATE TABLE " + ProfileEntry.TABLE_NAME + " (" +
                 ProfileEntry._ID + " INTEGER PRIMARY KEY," +
                 ProfileEntry.COLUMN_NAME + " TEXT NOT NULL, " +
@@ -37,14 +37,14 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 // create a UNIQUE constraint with IGNORE strategy
                 //" UNIQUE (" + ProfileEntry.COLUMN_NAME + ") ON CONFLICT IGNORE);";
 
-        // create profile first
+        // attribute table
         final String SQL_CREATE_ATTRIBUTE_TABLE = "CREATE TABLE " + AttributeEntry.TABLE_NAME + " (" +
                 AttributeEntry._ID + " INTEGER PRIMARY KEY," +
                 AttributeEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
                 AttributeEntry.COLUMN_NAME + " TEXT NOT NULL );" ;
 
-        // create profile first
-        final String SQL_CREATE_BUDDY_ATTRIBUTE_TABLE = "CREATE TABLE " + BuddyfiedContract.ProfileAttributeEntry.TABLE_NAME + " (" +
+        // profile_attribute (link) table
+        final String SQL_CREATE_PROFILE_ATTRIBUTE_TABLE = "CREATE TABLE " + BuddyfiedContract.ProfileAttributeEntry.TABLE_NAME + " (" +
                 ProfileAttributeEntry._ID + " INTEGER PRIMARY KEY," +
                 ProfileAttributeEntry.COLUMN_PROFILE_ID + " INTEGER NOT NULL, " +
                 ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID + " INTEGER NOT NULL, " +
@@ -65,15 +65,10 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 ") ON CONFLICT IGNORE);";
 
 
-        // then create weather that depends on location
+        // buddy table
         final String SQL_CREATE_BUDDY_TABLE = "CREATE TABLE " + BuddyEntry.TABLE_NAME + " (" +
-                // Why AutoIncrement here, and not above?
-                // Unique keys will be auto-generated in either case.  But for search results
-                // it's reasonable to assume the user will want information
-                // in the order in which it was received (& hence inserted)
-                BuddyEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-
-                // the ID of the location entry associated with this weather data
+                BuddyEntry._ID + " INTEGER PRIMARY KEY," +
+                BuddyEntry.COLUMN_DISPLAY_ORDER + " INTEGER NOT NULL, " +
                 BuddyEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 BuddyEntry.COLUMN_COMMENTS + " TEXT NOT NULL, " +
                 BuddyEntry.COLUMN_IMAGE_URI + " TEXT NOT NULL, " +
@@ -88,12 +83,12 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 BuddyEntry.COLUMN_VOICE + " TEXT NOT NULL, " +
                 //
                 // a Buddy should have a unique name
-                " UNIQUE (" + BuddyEntry.COLUMN_NAME + ") ON CONFLICT IGNORE);";
+                " UNIQUE (" + BuddyEntry.COLUMN_NAME + ") ON CONFLICT REPLACE);";
 
         db.execSQL(SQL_CREATE_BUDDY_TABLE);
         db.execSQL(SQL_CREATE_PROFILE_TABLE);
         db.execSQL(SQL_CREATE_ATTRIBUTE_TABLE);
-        db.execSQL(SQL_CREATE_BUDDY_ATTRIBUTE_TABLE);
+        db.execSQL(SQL_CREATE_PROFILE_ATTRIBUTE_TABLE);
         //
         insertSearchProfile(db);
     }

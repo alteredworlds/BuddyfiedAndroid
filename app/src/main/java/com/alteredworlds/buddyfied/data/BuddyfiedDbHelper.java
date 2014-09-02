@@ -67,7 +67,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
 
         // buddy table
         final String SQL_CREATE_BUDDY_TABLE = "CREATE TABLE " + BuddyEntry.TABLE_NAME + " (" +
-                BuddyEntry._ID + " INTEGER PRIMARY KEY," +
+                BuddyEntry._ID + " INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE," +
                 BuddyEntry.COLUMN_DISPLAY_ORDER + " INTEGER NOT NULL, " +
                 BuddyEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 BuddyEntry.COLUMN_COMMENTS + " TEXT NOT NULL, " +
@@ -80,10 +80,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 BuddyEntry.COLUMN_PLAYING + " TEXT NOT NULL, " +
                 BuddyEntry.COLUMN_SKILL + " TEXT NOT NULL, " +
                 BuddyEntry.COLUMN_TIME + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_VOICE + " TEXT NOT NULL, " +
-                //
-                // a Buddy should have a unique name
-                " UNIQUE (" + BuddyEntry.COLUMN_NAME + ") ON CONFLICT REPLACE);";
+                BuddyEntry.COLUMN_VOICE + " TEXT NOT NULL);";
 
         db.execSQL(SQL_CREATE_BUDDY_TABLE);
         db.execSQL(SQL_CREATE_PROFILE_TABLE);

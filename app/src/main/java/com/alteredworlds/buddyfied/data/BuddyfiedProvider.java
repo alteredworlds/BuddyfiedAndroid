@@ -529,6 +529,21 @@ public class BuddyfiedProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
+            case PROFILE_ATTRIBUTE:
+                db.beginTransaction();
+                try {
+                    for (ContentValues attributeValues : values) {
+                        long _id = db.insertWithOnConflict(ProfileAttributeEntry.TABLE_NAME, null, attributeValues, SQLiteDatabase.CONFLICT_REPLACE);
+                        if (-1 != _id) {
+                            retVal++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
             case BUDDY:
                 db.beginTransaction();
                 try {

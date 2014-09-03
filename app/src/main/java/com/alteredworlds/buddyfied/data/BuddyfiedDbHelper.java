@@ -21,7 +21,6 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "buddyfied.db";
 
     public static final int SEARCH_PROFILE_ID = 1;
-    public static final int MY_PROFILE_ID = 2;
 
     public BuddyfiedDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -31,14 +30,10 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // profile table
         final String SQL_CREATE_PROFILE_TABLE = "CREATE TABLE " + ProfileEntry.TABLE_NAME + " (" +
-                ProfileEntry._ID + " INTEGER PRIMARY KEY," +
+                ProfileEntry._ID + " INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE," +
                 ProfileEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 ProfileEntry.COLUMN_COMMENTS + " TEXT, " +
                 ProfileEntry.COLUMN_IMAGE_URI + " TEXT );";
-
-                // To assure the application have just one profile with a given name
-                // create a UNIQUE constraint with IGNORE strategy
-                //" UNIQUE (" + ProfileEntry.COLUMN_NAME + ") ON CONFLICT IGNORE);";
 
         // attribute table
         final String SQL_CREATE_ATTRIBUTE_TABLE = "CREATE TABLE " + AttributeEntry.TABLE_NAME + " (" +
@@ -91,15 +86,10 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_PROFILE_ATTRIBUTE_TABLE);
         //
         insertSearchProfile(db);
-        insertMyProfile(db);
     }
 
     protected void insertSearchProfile(SQLiteDatabase db) {
         insertProfile(db, SEARCH_PROFILE_ID, "Default");
-    }
-
-    protected void insertMyProfile(SQLiteDatabase db) {
-        insertProfile(db, MY_PROFILE_ID, "My Profile");
     }
 
     protected void insertProfile(SQLiteDatabase db, int id, String name) {

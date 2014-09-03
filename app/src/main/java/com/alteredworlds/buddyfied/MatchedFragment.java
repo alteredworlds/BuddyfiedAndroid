@@ -114,7 +114,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
         // query to server only issued if no buddies locally
         intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
-        intent.putExtra(BuddyQueryService.PROFILE_ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
+        intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
         getActivity().startService(intent);
     }
 

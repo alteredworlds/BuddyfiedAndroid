@@ -11,15 +11,19 @@ import android.util.Log;
 
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
+import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
 import org.xmlrpc.android.XMLRPCClient;
 import org.xmlrpc.android.XMLRPCException;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Created by twcgilbert on 21/08/2014.
@@ -28,7 +32,7 @@ public class BuddyQueryService extends IntentService {
     private static final String LOG_TAG = BuddyQueryService.class.getSimpleName();
 
     public static final String METHOD_EXTRA = "method";
-    public static final String PROFILE_ID_EXTRA = "profile_id";
+    public static final String ID_EXTRA = "id";
     public static final String RESULT_RECEIVER_EXTRA = "result_receiver";
     public static final String RESULT_DESCRIPTION = "result_description";
 
@@ -43,6 +47,18 @@ public class BuddyQueryService extends IntentService {
     public static final String DeleteBuddies = "deleteBuddies";
 
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
+
+    private static final int FIELD_ID_NAME = 1;
+    private static final int FIELD_ID_COMMENTS = 167;
+    private static final int FIELD_ID_AGE = 8;
+    private static final int FIELD_ID_COUNTRY = 6;
+    private static final int FIELD_ID_GAMEPLAY = 5;
+    private static final int FIELD_ID_LANGUAGE = 153;
+    private static final int FIELD_ID_PLATFORM = 2;
+    private static final int FIELD_ID_PLAYING = 4;
+    private static final int FIELD_ID_SKILL = 7;
+    private static final int FIELD_ID_TIME = 152;
+    private static final int FIELD_ID_VOICE = 9;
 
     public BuddyQueryService() {
         super("BuddyQueryService");
@@ -101,9 +117,10 @@ public class BuddyQueryService extends IntentService {
     private CallResult getMemberInfo(Intent intent) {
         int resultCode = 0;
         Bundle resultBundle = null;
+        String userId = Settings.getUserId(this);
 
         HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("user_id", Settings.getUserId(this));
+        data.put("user_id", userId);
 
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
         XMLRPCClient client = new XMLRPCClient(uri);
@@ -113,8 +130,8 @@ public class BuddyQueryService extends IntentService {
                     Settings.getUsername(this),
                     Settings.getPassword(this),
                     data);
-            String resultMessage = processMemberInfoResults(res);
-            if ((null != resultMessage) && (resultMessage.length() > 0)) {
+            String resultMessage = processMemberInfoResults(res, userId);
+            if (!Utils.isNullOrEmpty(resultMessage)) {
                 resultBundle = getResultBundleWithDescription(resultMessage);
             }
         } catch (XMLRPCException e) {
@@ -126,12 +143,44 @@ public class BuddyQueryService extends IntentService {
     }
 
     private CallResult sendMessage(Intent intent) {
-        return null;
+        //parameters:@[user, password, @{@"recipients": recipients, @"subject" : subject, @"content" : body}]
+        int resultCode = 0;
+        Bundle resultBundle = null;
+
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("recipients", Settings.getUserId(this));
+        data.put("subject", Settings.getUserId(this));
+        data.put("content", Settings.getUserId(this));
+
+        String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
+        XMLRPCClient client = new XMLRPCClient(uri);
+        try {
+            String resultMessage = null;
+            Object res = client.call(
+                    SendMessage,
+                    Settings.getUsername(this),
+                    Settings.getPassword(this),
+                    data);
+            if (res instanceof HashMap) {
+                Object message = ((HashMap) res).get("message");
+                if (message instanceof String) {
+                    resultMessage = (String) message;
+                }
+            }
+            if (!Utils.isNullOrEmpty(resultMessage)) {
+                resultBundle = getResultBundleWithDescription(resultMessage);
+            }
+        } catch (XMLRPCException e) {
+            e.printStackTrace();
+            resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+            resultCode = -1;
+        }
+        return new CallResult(resultCode, resultBundle);
     }
 
     private HashMap<String, Object> getSearchParameters(Intent intent) {
         HashMap<String, Object> retVal = new HashMap<String, Object>();
-        int profileId = intent.getIntExtra(PROFILE_ID_EXTRA, -1);
+        int profileId = intent.getIntExtra(ID_EXTRA, -1);
         if (-1 != profileId) {
             Uri query = ProfileAttributeListEntry.buildProfileAttributeListUri(profileId);
             Cursor cursor = getContentResolver().query(query, null, null, null, null);
@@ -204,7 +253,7 @@ public class BuddyQueryService extends IntentService {
                             Settings.getPassword(this),
                             data);
                     String resultMessage = processSearchResults(res);
-                    if ((null != resultMessage) && (resultMessage.length() > 0)) {
+                    if (!Utils.isNullOrEmpty(resultMessage)) {
                         resultBundle = getResultBundleWithDescription(resultMessage);
                     }
                 } catch (XMLRPCException e) {
@@ -243,19 +292,98 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private String processMemberInfoResults(Object res) {
+    private String processMemberInfoResults(Object res, String userIdStr) {
         String retVal = null;
         if (res instanceof HashMap) {
             Object message = ((HashMap) res).get("message");
             if (message instanceof String) {
                 retVal = (String) message;
-            } else if (message instanceof Object[]) {
+            } else if (message instanceof HashMap) {
                 // this should be member info...
-                // should be used to update Profile record for My Profile
-
+                int userId = Integer.parseInt(userIdStr);
+                // start building Profile record to insert
+                HashMap data = (HashMap) message;
+                ContentValues profileCv = new ContentValues();
+                profileCv.put(ProfileEntry._ID, userId);
+                profileCv.put(ProfileEntry.COLUMN_NAME, (String) data.get("display_name"));
+                profileCv.put(ProfileEntry.COLUMN_IMAGE_URI, getBuddyImageUrl(data));
+                //
+                Vector<ContentValues> profileAttributeCv = new Vector<ContentValues>();
+                Object[] profileGroups = (Object[]) data.get("profile_groups");
+                String groupLabel;
+                for (Object group : profileGroups) {
+                    groupLabel = (String) ((HashMap) group).get("label");
+                    if (0 == "Your games profile".compareTo(groupLabel)) {
+                        Object[] fields = (Object[]) ((HashMap) group).get("fields");
+                        for (Object field : fields) {
+                            try {
+                                int serverFieldId = Integer.parseInt((String) ((HashMap) field).get("id"));
+                                String value = (String) ((HashMap) field).get("value");
+                                if (serverFieldId == FIELD_ID_COMMENTS) {
+                                    profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
+                                } else {
+                                    addProfileAttributeEntriesForServerField(
+                                            profileAttributeCv, userId, serverFieldId, value);
+                                }
+                            } catch (NumberFormatException ex) {
+                                // ignore this malformed field
+                                Log.e(LOG_TAG, "Invalid member data field " + field.toString());
+                            }
+                        }
+                    }
+                }
+                // FIRST: remove any existing Attributes for this Profile
+                getContentResolver().delete(
+                        ProfileAttributeEntry.CONTENT_URI,
+                        ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + userId,
+                        null);
+                //
+                // write this Profile record to the database (updated if already present)
+                getContentResolver().insert(ProfileEntry.CONTENT_URI, profileCv);
+                //
+                // now write any associated Attributes
+                if (profileAttributeCv.size() > 0) {
+                    ContentValues[] param = new ContentValues[profileAttributeCv.size()];
+                    profileAttributeCv.toArray(param);
+                    getContentResolver().bulkInsert(ProfileAttributeEntry.CONTENT_URI, param);
+                }
             }
         }
         return retVal;
+    }
+
+    private void addProfileAttributeEntriesForServerField(Vector<ContentValues> cvs,
+                                                          int userId,
+                                                          int serverFieldId,
+                                                          String value) {
+        switch (serverFieldId) {
+            case FIELD_ID_COUNTRY:
+            case FIELD_ID_GAMEPLAY:
+            case FIELD_ID_LANGUAGE:
+            case FIELD_ID_PLATFORM:
+            case FIELD_ID_PLAYING:
+            case FIELD_ID_SKILL:
+            case FIELD_ID_TIME:
+            case FIELD_ID_VOICE:
+                break;
+            default:
+                return;
+        }
+        if (!Utils.isNullOrEmpty(value)) {
+            // OK, so value is one or more (as comma-delimited) AttributeEntry Id
+            for (String attributeIdStr : value.split(",")) {
+                try {
+                    int attributeId = Integer.parseInt(attributeIdStr);
+                    ContentValues retVal = new ContentValues();
+                    // at this point need to split comma delimited list of
+                    retVal.put(ProfileAttributeEntry.COLUMN_PROFILE_ID, userId);
+                    retVal.put(ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID, attributeId);
+                    cvs.add(retVal);
+                } catch (NumberFormatException e) {
+                    Log.e(LOG_TAG, "Ignoring non-numeric attribute id " + attributeIdStr);
+                }
+            }
+        }
     }
 
     private static ContentValues createBuddyValues(HashMap buddy, int displayOrder) {

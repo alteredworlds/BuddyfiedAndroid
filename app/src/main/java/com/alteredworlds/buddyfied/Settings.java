@@ -44,7 +44,7 @@ public class Settings {
     public static String getUserId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         // TODO: this is obviously TEMP DEV ONLY code!
-        return "32"; //prefs.getString(pref_userid_key, null);
+        return "2403"; //prefs.getString(pref_userid_key, null);
     }
 
     public static void setUserId(Context context, String username) {

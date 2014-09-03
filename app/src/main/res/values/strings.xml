@@ -9,7 +9,7 @@
     <string name="user">User</string>
     <string name="sign_out">Sign Out</string>
     <string name="about_version">Version 1.0.0</string>
-    <string name="buddy_site">http://dev.buddyfied.com/</string>
+    <string name="buddy_site">http://www.buddyfied.com/</string>
     <string name="buddy_report_user_email">reportuser@buddyfied.com</string>
     <string name="buddy_report_user_email_subject">Report User</string>
     <string name="buddy_report_user_email_body1">Please describe your concerns about user </string>

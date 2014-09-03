@@ -310,7 +310,8 @@ public class BuddyQueryService extends IntentService {
                 //
                 Vector<ContentValues> profileAttributeCv = new Vector<ContentValues>();
                 Object[] profileGroups = (Object[]) data.get("profile_groups");
-                String groupLabel;
+                String groupLabel, value;
+                Object valueObj;
                 for (Object group : profileGroups) {
                     groupLabel = (String) ((HashMap) group).get("label");
                     if (0 == "Your games profile".compareTo(groupLabel)) {
@@ -318,14 +319,17 @@ public class BuddyQueryService extends IntentService {
                         for (Object field : fields) {
                             try {
                                 int serverFieldId = Integer.parseInt((String) ((HashMap) field).get("id"));
-                                String value = (String) ((HashMap) field).get("value");
-                                if (serverFieldId == FIELD_ID_COMMENTS) {
-                                    profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
-                                } else if (serverFieldId == FIELD_ID_AGE) {
-                                    profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
-                                } else {
-                                    addProfileAttributeEntriesForServerField(
-                                            profileAttributeCv, userId, serverFieldId, value);
+                                valueObj = ((HashMap) field).get("value");
+                                if (valueObj instanceof String) {
+                                    value = (String) valueObj;
+                                    if (serverFieldId == FIELD_ID_COMMENTS) {
+                                        profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
+                                    } else if (serverFieldId == FIELD_ID_AGE) {
+                                        profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
+                                    } else {
+                                        addProfileAttributeEntriesForServerField(
+                                                profileAttributeCv, userId, serverFieldId, value);
+                                    }
                                 }
                             } catch (NumberFormatException ex) {
                                 // ignore this malformed field

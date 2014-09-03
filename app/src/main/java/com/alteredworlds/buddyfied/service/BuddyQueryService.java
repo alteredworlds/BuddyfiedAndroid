@@ -321,6 +321,8 @@ public class BuddyQueryService extends IntentService {
                                 String value = (String) ((HashMap) field).get("value");
                                 if (serverFieldId == FIELD_ID_COMMENTS) {
                                     profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
+                                } else if (serverFieldId == FIELD_ID_AGE) {
+                                    profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
                                 } else {
                                     addProfileAttributeEntriesForServerField(
                                             profileAttributeCv, userId, serverFieldId, value);

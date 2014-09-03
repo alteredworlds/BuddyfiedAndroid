@@ -30,43 +30,25 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
     protected LoaderListItem[] mData;
     protected SearchAdapter mAdapter;
 
-    private static final int LOADER_ID_PLATFORM = 0;
-    private static final int LOADER_ID_PLAYING = 1;
-    private static final int LOADER_ID_GAMEPLAY = 2;
-    private static final int LOADER_ID_COUNTRY = 3;
-    private static final int LOADER_ID_LANGUAGE = 4;
-    private static final int LOADER_ID_SKILL = 5;
-    private static final int LOADER_ID_TIME = 6;
-    private static final int LOADER_ID_AGERANGE = 7;
-    private static final int LOADER_ID_VOICE = 8;
-
     public SearchFragment() {
         mData = new SearchListItem[]{
-                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LOADER_ID_PLATFORM),
-                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LOADER_ID_PLAYING),
-                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LOADER_ID_GAMEPLAY),
-                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LOADER_ID_COUNTRY),
-                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LOADER_ID_LANGUAGE),
-                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LOADER_ID_SKILL),
-                new SearchListItem("Time", "", AttributeEntry.TypeTime, LOADER_ID_TIME),
-                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LOADER_ID_AGERANGE),
-                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LOADER_ID_VOICE)
+                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderListItem.LOADER_ID_PLATFORM),
+                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderListItem.LOADER_ID_PLAYING),
+                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderListItem.LOADER_ID_GAMEPLAY),
+                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderListItem.LOADER_ID_COUNTRY),
+                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderListItem.LOADER_ID_LANGUAGE),
+                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderListItem.LOADER_ID_SKILL),
+                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderListItem.LOADER_ID_TIME),
+                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderListItem.LOADER_ID_AGERANGE),
+                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderListItem.LOADER_ID_VOICE)
         };
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        for (int i = 0; i < mData.length; i++) {
-            getLoaderManager().initLoader(mData[i].loaderId, null, this);
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         for (int i = 0; i < mData.length; i++) {
-            getLoaderManager().restartLoader(mData[i].loaderId, null, this);
+            getLoaderManager().initLoader(mData[i].loaderId, null, this);
         }
     }
 
@@ -101,44 +83,27 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String attributeType = null;
-        switch (id) {
-            case LOADER_ID_PLATFORM:
-                attributeType = AttributeEntry.TypePlatform;
+        Loader<Cursor> retVal = null;
+        // find the row information for this loader id
+        LoaderListItem row = null;
+        for (int i = 0; i < mData.length; i++) {
+            if (mData[i].loaderId == id) {
+                row = mData[i];
                 break;
-            case LOADER_ID_PLAYING:
-                attributeType = AttributeEntry.TypePlaying;
-                break;
-            case LOADER_ID_GAMEPLAY:
-                attributeType = AttributeEntry.TypeGameplay;
-                break;
-            case LOADER_ID_COUNTRY:
-                attributeType = AttributeEntry.TypeCountry;
-                break;
-            case LOADER_ID_LANGUAGE:
-                attributeType = AttributeEntry.TypeLanguage;
-                break;
-            case LOADER_ID_SKILL:
-                attributeType = AttributeEntry.TypeSkill;
-                break;
-            case LOADER_ID_TIME:
-                attributeType = AttributeEntry.TypeTime;
-                break;
-            case LOADER_ID_AGERANGE:
-                attributeType = AttributeEntry.TypeAgeRange;
-                break;
-            case LOADER_ID_VOICE:
-                attributeType = AttributeEntry.TypeVoice;
-                break;
+            }
         }
-        Uri query = AttributeEntry.buildAttributeTypeForProfile(attributeType, mProfileId);
-        return new CursorLoader(
-                getActivity(),
-                query,
-                new String[] {AttributeEntry.COLUMN_NAME},
-                null,
-                null,
-                AttributeEntry.COLUMN_NAME + " ASC");
+        if ((null != row) && !Utils.isNullOrEmpty(row.extra)) {
+            // we have the AttributeEntry.COLUMN_TYPE information in row.extra
+            Uri query = AttributeEntry.buildAttributeTypeForProfile(row.extra, mProfileId);
+            retVal = new CursorLoader(
+                    getActivity(),
+                    query,
+                    new String[]{AttributeEntry.COLUMN_NAME},
+                    null,
+                    null,
+                    AttributeEntry.COLUMN_NAME + " ASC");
+        }
+        return retVal;
     }
 
     @Override

@@ -33,6 +33,7 @@ public class BuddyfiedContract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_COMMENTS = "comments";
         public static final String COLUMN_IMAGE_URI = "image_uri";
+        public static final String COLUMN_AGE = "age";
 
 
         public static Uri buildProfileUri(long id) {

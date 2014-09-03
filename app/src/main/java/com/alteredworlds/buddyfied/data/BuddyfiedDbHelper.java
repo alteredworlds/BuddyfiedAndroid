@@ -33,13 +33,14 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 ProfileEntry._ID + " INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE," +
                 ProfileEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 ProfileEntry.COLUMN_COMMENTS + " TEXT, " +
-                ProfileEntry.COLUMN_IMAGE_URI + " TEXT );";
+                ProfileEntry.COLUMN_IMAGE_URI + " TEXT, " +
+                ProfileEntry.COLUMN_AGE + " INTEGER );";
 
         // attribute table
         final String SQL_CREATE_ATTRIBUTE_TABLE = "CREATE TABLE " + AttributeEntry.TABLE_NAME + " (" +
                 AttributeEntry._ID + " INTEGER PRIMARY KEY," +
                 AttributeEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
-                AttributeEntry.COLUMN_NAME + " TEXT NOT NULL );" ;
+                AttributeEntry.COLUMN_NAME + " TEXT NOT NULL );";
 
         // profile_attribute (link) table
         final String SQL_CREATE_PROFILE_ATTRIBUTE_TABLE = "CREATE TABLE " + BuddyfiedContract.ProfileAttributeEntry.TABLE_NAME + " (" +
@@ -59,7 +60,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 // repetitions of the same relationship
                 // e.g.: profile '1' linked with attribute '27'
                 " UNIQUE (" + ProfileAttributeEntry.COLUMN_PROFILE_ID + ", "
-                            + ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID +
+                + ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID +
                 ") ON CONFLICT IGNORE);";
 
 

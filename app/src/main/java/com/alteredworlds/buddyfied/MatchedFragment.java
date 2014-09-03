@@ -66,12 +66,6 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(MATCHED_LOADER, null, this);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_matched, container, false);
@@ -111,8 +105,10 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onResume() {
         super.onResume();
+        //
+        getLoaderManager().initLoader(MATCHED_LOADER, null, this);
+        //
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        // query to server only issued if no buddies locally
         intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
         intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
         getActivity().startService(intent);

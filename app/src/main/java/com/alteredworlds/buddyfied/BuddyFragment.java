@@ -46,15 +46,6 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     public static final String BUDDY_TIME_EXTRA = "buddy_time";
 
 
-    private static final int LOADER_ID_PLATFORM = 0;
-    private static final int LOADER_ID_PLAYING = 1;
-    private static final int LOADER_ID_GAMEPLAY = 2;
-    private static final int LOADER_ID_COUNTRY = 3;
-    private static final int LOADER_ID_LANGUAGE = 4;
-    private static final int LOADER_ID_SKILL = 5;
-    private static final int LOADER_ID_TIME = 6;
-    private static final int LOADER_ID_VOICE = 7;
-
     private final int ROW_INDEX_HEADER;
     private final int ROW_INDEX_PLATFORM;
     private final int ROW_INDEX_PLAYING;
@@ -75,15 +66,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     public BuddyFragment() {
         mData = new LoaderListItem[]{
                 new BuddyHeaderListItem("", ""),
-                new SearchListItem("Platform", "", "", LOADER_ID_PLATFORM),
-                new SearchListItem("Playing", "", "", LOADER_ID_PLAYING),
-                new SearchListItem("Gameplay", "", "", LOADER_ID_GAMEPLAY),
-                new SearchListItem("Country", "", "", LOADER_ID_COUNTRY),
-                new SearchListItem("Language", "", "", LOADER_ID_LANGUAGE),
-                new SearchListItem("Skill", "", "", LOADER_ID_SKILL),
-                new SearchListItem("Time", "", "", LOADER_ID_TIME),
+                new SearchListItem("Platform", "", "", LoaderListItem.LOADER_ID_PLATFORM),
+                new SearchListItem("Playing", "", "", LoaderListItem.LOADER_ID_PLAYING),
+                new SearchListItem("Gameplay", "", "", LoaderListItem.LOADER_ID_GAMEPLAY),
+                new SearchListItem("Country", "", "", LoaderListItem.LOADER_ID_COUNTRY),
+                new SearchListItem("Language", "", "", LoaderListItem.LOADER_ID_LANGUAGE),
+                new SearchListItem("Skill", "", "", LoaderListItem.LOADER_ID_SKILL),
+                new SearchListItem("Time", "", "", LoaderListItem.LOADER_ID_TIME),
                 new SearchListItem("Age", "", "", LoaderListItem.LOADER_ID_NONE),
-                new SearchListItem("Voice", "", "", LOADER_ID_VOICE),
+                new SearchListItem("Voice", "", "", LoaderListItem.LOADER_ID_VOICE),
                 new CommentsListItem("Comments", "", "")
         };
         ROW_INDEX_HEADER = 0;
@@ -130,9 +121,8 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // kick off loaders to transform the data
+    public void onResume() {
+        super.onResume();
         for (int i = 0; i < mData.length; i++) {
             if (LoaderListItem.LOADER_ID_NONE != mData[i].loaderId) {
                 getLoaderManager().initLoader(mData[i].loaderId, null, this);
@@ -141,53 +131,28 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Loader<Cursor> retVal = null;
+        // find the row information for this loader id
+        LoaderListItem row = null;
         for (int i = 0; i < mData.length; i++) {
-            if (LoaderListItem.LOADER_ID_NONE != mData[i].loaderId) {
-                getLoaderManager().restartLoader(mData[i].loaderId, null, this);
+            if (mData[i].loaderId == id) {
+                row = mData[i];
+                break;
             }
         }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        int idx = -1;
-        switch (id) {
-            case LOADER_ID_PLATFORM:
-                idx = ROW_INDEX_PLATFORM;
-                break;
-            case LOADER_ID_PLAYING:
-                idx = ROW_INDEX_PLAYING;
-                break;
-            case LOADER_ID_GAMEPLAY:
-                idx = ROW_INDEX_GAMEPLAY;
-                break;
-            case LOADER_ID_COUNTRY:
-                idx = ROW_INDEX_COUNTRY;
-                break;
-            case LOADER_ID_LANGUAGE:
-                idx = ROW_INDEX_LANGUAGE;
-                break;
-            case LOADER_ID_SKILL:
-                idx = ROW_INDEX_SKILL;
-                break;
-            case LOADER_ID_TIME:
-                idx = ROW_INDEX_TIME;
-                break;
-            case LOADER_ID_VOICE:
-                idx = ROW_INDEX_VOICE;
-                break;
+        if (null != row) {
+            //we have the comma separated list of AttributeEntry._ID values in row.extra
+            final String select = AttributeEntry._ID + " IN (" + row.extra + ")";
+            retVal = new CursorLoader(
+                    getActivity(),
+                    AttributeEntry.CONTENT_URI,
+                    new String[]{AttributeEntry.COLUMN_NAME},
+                    select,
+                    null,
+                    AttributeEntry.COLUMN_NAME + " ASC");
         }
-        final String idList = mData[idx].extra;
-        final String select = AttributeEntry._ID + " IN (" + idList + ")";
-        return new CursorLoader(
-                getActivity(),
-                AttributeEntry.CONTENT_URI,
-                new String[]{AttributeEntry.COLUMN_NAME},
-                select,
-                null,
-                AttributeEntry.COLUMN_NAME + " ASC");
+        return retVal;
     }
 
     @Override

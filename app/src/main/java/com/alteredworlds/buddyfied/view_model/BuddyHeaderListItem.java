@@ -2,6 +2,7 @@ package com.alteredworlds.buddyfied.view_model;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,8 +17,15 @@ public class BuddyHeaderListItem extends LoaderListItem {
 
     public static final int LIST_ITEM_VIEW_TYPE_ID = 2;
 
+    private final Boolean mHideButtons;
+
     public BuddyHeaderListItem(String name, String imageUrl) {
+        this(name, imageUrl, false);
+    }
+
+    public BuddyHeaderListItem(String name, String imageUrl, Boolean hideButtons) {
         super(name, imageUrl, "");
+        mHideButtons = hideButtons;
     }
 
     @Override
@@ -41,6 +49,8 @@ public class BuddyHeaderListItem extends LoaderListItem {
         if (!Utils.isNullOrEmpty(value)) {
             ImageDownloader.getInstance().download(value, holder.imageView);
         }
+        holder.messageButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);
+        holder.reportButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);
 
         return row;
     }
@@ -48,10 +58,14 @@ public class BuddyHeaderListItem extends LoaderListItem {
     static class ViewHolder {
         final TextView nameTextView;
         final ImageView imageView;
+        final ImageButton reportButton;
+        final ImageButton messageButton;
 
         public ViewHolder(View view) {
             nameTextView = (TextView) view.findViewById(R.id.buddy_name);
             imageView = (ImageView) view.findViewById(R.id.buddy_image);
+            reportButton = (ImageButton) view.findViewById(R.id.report_user_button);
+            messageButton = (ImageButton) view.findViewById(R.id.message_user_button);
         }
     }
 }

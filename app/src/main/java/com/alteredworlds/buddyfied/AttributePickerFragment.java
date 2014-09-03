@@ -101,7 +101,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().restartLoader(ATTRIBUTE_LOADER, null, this);
+        getLoaderManager().initLoader(ATTRIBUTE_LOADER, null, this);
     }
 
     @Override

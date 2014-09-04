@@ -25,9 +25,6 @@ import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String BUDDY_ID_EXTRA = "buddy_id";

@@ -33,10 +33,12 @@ public class BuddyQueryService extends IntentService {
 
     public static final String METHOD_EXTRA = "method";
     public static final String ID_EXTRA = "id";
+    public static final String SUBJECT_EXTRA = "subject";
+    public static final String BODY_EXTRA = "content";
 
     public static final String BUDDY_QUERY_SERVICE_RESULT_EVENT = "buddy_query_service_result";
+    public static final String RESULT_BUNDLE = "results";
     public static final String RESULT_CODE = "code";
-    public static final String RESULT_DATA = "data";
     public static final String RESULT_DESCRIPTION = "description";
 
     public static final String GetMatches = "bp.getMatches";
@@ -70,7 +72,7 @@ public class BuddyQueryService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String method = intent.getStringExtra(METHOD_EXTRA);
-        CallResult result = null;
+        Bundle result = null;
         if (0 == GetMatchesIfNeeded.compareTo(method)) {
             result = getMatches(intent, true);
         } else if (0 == GetMatches.compareTo(method)) {
@@ -86,32 +88,28 @@ public class BuddyQueryService extends IntentService {
         } else {
             String errorMessage = "Unknown xmlrpc method call: '" + method + "'";
             Log.e(LOG_TAG, errorMessage);
-            Bundle resultBundle = getResultBundleWithDescription(errorMessage);
-            result = new CallResult(-1, resultBundle);
+            result = resultBundle(-1, errorMessage);
         }
         reportResult(result);
     }
 
-    private void reportResult(CallResult result) {
+    private void reportResult(Bundle result) {
         if (null != result) {
             Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_QUERY_SERVICE_RESULT_EVENT);
-            intent.putExtra(RESULT_CODE, result.code);
-            if (null != result.results) {
-                intent.putExtra(RESULT_DATA, result.results);
-            }
+            intent.putExtra(RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
 
-    private CallResult deleteAllBuddies(Intent intent) {
+    private Bundle deleteAllBuddies(Intent intent) {
         getContentResolver().delete(BuddyEntry.CONTENT_URI, null, null);
-        return new CallResult(0, null);
+        return resultBundle(0, null);
     }
 
-    private CallResult verifyConnection(Intent intent) {
+    private Bundle verifyConnection(Intent intent) {
         int resultCode = 0;
-        Bundle resultBundle = null;
+        String resultDescription = null;
         String username = Settings.getUsername(this);
         String password = Settings.getPassword(this);
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
@@ -120,15 +118,15 @@ public class BuddyQueryService extends IntentService {
             client.call(VerifyConnection, username, password);
         } catch (XMLRPCException e) {
             e.printStackTrace();
-            resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+            resultDescription = e.getLocalizedMessage();
             resultCode = -1;
         }
-        return new CallResult(resultCode, resultBundle);
+        return resultBundle(resultCode, resultDescription);
     }
 
-    private CallResult getMemberInfo(Intent intent) {
+    private Bundle getMemberInfo(Intent intent) {
         int resultCode = 0;
-        Bundle resultBundle = null;
+        String resultDescription = null;
         String userId = Settings.getUserId(this);
 
         HashMap<String, Object> data = new HashMap<String, Object>();
@@ -142,32 +140,28 @@ public class BuddyQueryService extends IntentService {
                     Settings.getUsername(this),
                     Settings.getPassword(this),
                     data);
-            String resultMessage = processMemberInfoResults(res, userId);
-            if (!Utils.isNullOrEmpty(resultMessage)) {
-                resultBundle = getResultBundleWithDescription(resultMessage);
-            }
+            resultDescription = processMemberInfoResults(res, userId);
         } catch (XMLRPCException e) {
             e.printStackTrace();
-            resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+            resultDescription = e.getLocalizedMessage();
             resultCode = -1;
         }
-        return new CallResult(resultCode, resultBundle);
+        return resultBundle(resultCode, resultDescription);
     }
 
-    private CallResult sendMessage(Intent intent) {
+    private Bundle sendMessage(Intent intent) {
         //parameters:@[user, password, @{@"recipients": recipients, @"subject" : subject, @"content" : body}]
         int resultCode = 0;
-        Bundle resultBundle = null;
+        String resultDescription = null;
 
         HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("recipients", Settings.getUserId(this));
-        data.put("subject", Settings.getUserId(this));
-        data.put("content", Settings.getUserId(this));
+        data.put("recipients", intent.getStringExtra(ID_EXTRA));
+        data.put("subject", intent.getStringExtra(SUBJECT_EXTRA));
+        data.put("content", intent.getStringExtra(BODY_EXTRA));
 
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
         XMLRPCClient client = new XMLRPCClient(uri);
         try {
-            String resultMessage = null;
             Object res = client.call(
                     SendMessage,
                     Settings.getUsername(this),
@@ -176,18 +170,15 @@ public class BuddyQueryService extends IntentService {
             if (res instanceof HashMap) {
                 Object message = ((HashMap) res).get("message");
                 if (message instanceof String) {
-                    resultMessage = (String) message;
+                    resultDescription = (String) message;
                 }
-            }
-            if (!Utils.isNullOrEmpty(resultMessage)) {
-                resultBundle = getResultBundleWithDescription(resultMessage);
             }
         } catch (XMLRPCException e) {
             e.printStackTrace();
-            resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+            resultDescription = e.getLocalizedMessage();
             resultCode = -1;
         }
-        return new CallResult(resultCode, resultBundle);
+        return resultBundle(resultCode, resultDescription);
     }
 
     private HashMap<String, Object> getSearchParameters(Intent intent) {
@@ -245,16 +236,16 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private CallResult getMatches(Intent intent, Boolean onlyIfNeeded) {
+    private Bundle getMatches(Intent intent, Boolean onlyIfNeeded) {
         int resultCode = 0;
-        Bundle resultBundle = null;
+        String resultDescription = null;
         if (onlyIfNeeded && haveBuddiesAlready()) {
             // we don't need to make the call
         } else {
             // we need to retrieve buddies from the server
             HashMap<String, Object> data = getSearchParameters(intent);
             if (data.isEmpty()) {
-                resultBundle = getResultBundleWithDescription(getString(R.string.specify_query));
+                resultDescription = getString(R.string.specify_query);
             } else {
                 String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
                 XMLRPCClient client = new XMLRPCClient(uri);
@@ -264,23 +255,23 @@ public class BuddyQueryService extends IntentService {
                             Settings.getUsername(this),
                             Settings.getPassword(this),
                             data);
-                    String resultMessage = processSearchResults(res);
-                    if (!Utils.isNullOrEmpty(resultMessage)) {
-                        resultBundle = getResultBundleWithDescription(resultMessage);
-                    }
+                    resultDescription = processSearchResults(res);
                 } catch (XMLRPCException e) {
                     e.printStackTrace();
-                    resultBundle = getResultBundleWithDescription(e.getLocalizedMessage());
+                    resultDescription = e.getLocalizedMessage();
                     resultCode = -1;
                 }
             }
         }
-        return new CallResult(resultCode, resultBundle);
+        return resultBundle(resultCode, resultDescription);
     }
 
-    private Bundle getResultBundleWithDescription(String description) {
+    private Bundle resultBundle(int code, String description) {
         Bundle retVal = new Bundle();
-        retVal.putString(RESULT_DESCRIPTION, description);
+        retVal.putInt(RESULT_CODE, code);
+        if (!Utils.isNullOrEmpty(description)) {
+            retVal.putString(RESULT_DESCRIPTION, description);
+        }
         return retVal;
     }
 
@@ -434,16 +425,5 @@ public class BuddyQueryService extends IntentService {
             retVal = (String) ((HashMap) sub).get("full");
         }
         return retVal;
-    }
-
-
-    private static class CallResult {
-        public int code;
-        public Bundle results;
-
-        public CallResult(int code, Bundle results) {
-            this.code = code;
-            this.results = results;
-        }
     }
 }

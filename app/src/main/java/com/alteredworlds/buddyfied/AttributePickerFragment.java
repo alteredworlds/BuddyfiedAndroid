@@ -35,10 +35,7 @@ import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class AttributePickerFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AttributePickerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = AttributePickerFragment.class.getSimpleName();
 
@@ -81,8 +78,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
             mAttributeType = savedInstanceState.getString(ATTRIBUTE_TYPE_EXTRA);
             mProfileId = savedInstanceState.getInt(PROFILE_ID_EXTRA);
             mTitle = savedInstanceState.getString(ATTRIBUTE_DISPLAY_EXTRA);
-        }
-        else {
+        } else {
             Intent intent = getActivity().getIntent();
             mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
             mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
@@ -220,20 +216,19 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
 
 
     protected void associateAttribute(int position, boolean add) {
-        Cursor cursor = (Cursor)mCursorAdapter.getItem(position);
+        Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
         long attributeId = cursor.getLong(COL_ATTRIBUTE_ID);
         if (add) {
             ContentValues cv = new ContentValues();
             cv.put(ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID, attributeId);
             cv.put(ProfileAttributeEntry.COLUMN_PROFILE_ID, mProfileId);
             getActivity().getContentResolver().insert(ProfileAttributeEntry.CONTENT_URI, cv);
-        }
-        else {
+        } else {
             getActivity().getContentResolver().delete(
                     ProfileAttributeEntry.CONTENT_URI,
                     ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID + " = ? AND " +
                             ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ?",
-                    new String[] {String.valueOf(attributeId), String.valueOf(mProfileId)});
+                    new String[]{String.valueOf(attributeId), String.valueOf(mProfileId)});
         }
         getActivity().getContentResolver().notifyChange(mQuery, null);
     }

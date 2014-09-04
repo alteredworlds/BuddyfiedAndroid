@@ -73,7 +73,7 @@ public class BuddyActivity extends ActionBarActivity {
         } else {
             Intent intent = new Intent(this, MessageUserActivity.class);
             intent.putExtra(BuddyFragment.BUDDY_NAME_EXTRA, getIntent().getStringExtra(BuddyFragment.BUDDY_NAME_EXTRA));
-            intent.putExtra(BuddyFragment.BUDDY_ID_EXTRA, getIntent().getStringExtra(BuddyFragment.BUDDY_ID_EXTRA));
+            intent.putExtra(BuddyFragment.BUDDY_ID_EXTRA, String.valueOf(getIntent().getLongExtra(BuddyFragment.BUDDY_ID_EXTRA, -1)));
             startActivity(intent);
         }
     }

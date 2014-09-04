@@ -543,6 +543,7 @@ public class BuddyfiedProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(AttributeEntry.CONTENT_URI, null);
                 break;
             case BUDDY:
                 db.beginTransaction();

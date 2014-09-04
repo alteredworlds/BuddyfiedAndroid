@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.R;
@@ -33,8 +33,11 @@ public class BuddyQueryService extends IntentService {
 
     public static final String METHOD_EXTRA = "method";
     public static final String ID_EXTRA = "id";
-    public static final String RESULT_RECEIVER_EXTRA = "result_receiver";
-    public static final String RESULT_DESCRIPTION = "result_description";
+
+    public static final String BUDDY_QUERY_SERVICE_RESULT_EVENT = "buddy_query_service_result";
+    public static final String RESULT_CODE = "code";
+    public static final String RESULT_DATA = "data";
+    public static final String RESULT_DESCRIPTION = "description";
 
     public static final String GetMatches = "bp.getMatches";
     public static final String GetMatchesIfNeeded = "GetMatchesIfNeeded";
@@ -66,7 +69,6 @@ public class BuddyQueryService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER_EXTRA);
         String method = intent.getStringExtra(METHOD_EXTRA);
         CallResult result = null;
         if (0 == GetMatchesIfNeeded.compareTo(method)) {
@@ -87,8 +89,18 @@ public class BuddyQueryService extends IntentService {
             Bundle resultBundle = getResultBundleWithDescription(errorMessage);
             result = new CallResult(-1, resultBundle);
         }
-        if ((null != resultReceiver) && (null != result)) {
-            resultReceiver.send(result.code, result.results);
+        reportResult(result);
+    }
+
+    private void reportResult(CallResult result) {
+        if (null != result) {
+            Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
+            Intent intent = new Intent(BUDDY_QUERY_SERVICE_RESULT_EVENT);
+            intent.putExtra(RESULT_CODE, result.code);
+            if (null != result.results) {
+                intent.putExtra(RESULT_DATA, result.results);
+            }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
 

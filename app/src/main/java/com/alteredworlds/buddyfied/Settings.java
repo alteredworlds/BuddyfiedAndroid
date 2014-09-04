@@ -43,15 +43,18 @@ public class Settings {
 
     public static String getUserId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        // TODO: this is obviously TEMP DEV ONLY code!
-        return "2403"; //prefs.getString(pref_userid_key, null);
+        return prefs.getString(pref_userid_key, null);
     }
 
-    public static void setUserId(Context context, String username) {
+    public static void setUserId(Context context, String userId) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(pref_userid_key, username);
+        edit.putString(pref_userid_key, userId);
         edit.apply();
+    }
+
+    public static Boolean isGuestUser(Context context) {
+        return 0 == getGuestUsername(context).compareTo(getUsername(context));
     }
 
     public static String getGuestUsername(Context context) {

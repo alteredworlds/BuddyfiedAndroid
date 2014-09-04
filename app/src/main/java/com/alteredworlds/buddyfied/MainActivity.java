@@ -45,8 +45,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         //TODO - proper handling of usernames etc.
-        Settings.setUsername(this, "guest");
-        Settings.setPassword(this, "buddyfied");
+        Settings.setUsername(this, "tomg");
+        Settings.setPassword(this, "oc3Wyx0Y");
+        Settings.setUserId(this, "2403");
 
         mTitle = mDrawerTitle = getTitle();
         mMainMenuTitles = getResources().getStringArray(R.array.main_menu_names);

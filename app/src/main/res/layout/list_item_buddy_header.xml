@@ -52,7 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@drawable/message_user_button"
-                android:contentDescription="@string/message_user" />
+                android:contentDescription="@string/message_user"
+                android:onClick="messageUserButtonClick" />
         </FrameLayout>
     </LinearLayout>
 

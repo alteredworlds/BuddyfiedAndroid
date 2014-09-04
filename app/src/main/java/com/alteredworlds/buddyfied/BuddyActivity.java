@@ -1,5 +1,7 @@
 package com.alteredworlds.buddyfied;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -54,6 +56,26 @@ public class BuddyActivity extends ActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void messageUserButtonClick(View view) {
+        if (Settings.isGuestUser(this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.guest_user_message_alert_title))
+                    .setMessage(getString(R.string.guest_user_message_alert_message))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        } else {
+            Intent intent = new Intent(this, MessageUserActivity.class);
+            intent.putExtra(BuddyFragment.BUDDY_NAME_EXTRA, getIntent().getStringExtra(BuddyFragment.BUDDY_NAME_EXTRA));
+            intent.putExtra(BuddyFragment.BUDDY_ID_EXTRA, getIntent().getStringExtra(BuddyFragment.BUDDY_ID_EXTRA));
+            startActivity(intent);
+        }
     }
 
     public void reportUserButtonClick(View view) {

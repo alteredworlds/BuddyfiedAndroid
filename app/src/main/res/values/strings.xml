@@ -28,5 +28,13 @@
     <string name="comments">Comments</string>
     <string name="report_user">Report User</string>
     <string name="message_user">Message User</string>
+    <string name="title_activity_message_user">MessageUserActivity</string>
+
+    <string name="guest_user_message_alert_title">Guest User</string>
+    <string name="guest_user_message_alert_message">Please register with Buddified to message users!</string>
+
+    <string name="message_user_action_title">Message</string>
+    <string name="message_title_hint">Title</string>
+    <string name="message_body_hint">Message</string>
 
 </resources>

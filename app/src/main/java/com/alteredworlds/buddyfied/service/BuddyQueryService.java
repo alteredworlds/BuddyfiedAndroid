@@ -322,11 +322,15 @@ public class BuddyQueryService extends IntentService {
                                 valueObj = ((HashMap) field).get("value");
                                 if (valueObj instanceof String) {
                                     value = (String) valueObj;
-                                    if (serverFieldId == FIELD_ID_COMMENTS) {
+                                    if (FIELD_ID_COMMENTS == serverFieldId) {
                                         profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
-                                    } else if (serverFieldId == FIELD_ID_AGE) {
+                                    } else if (FIELD_ID_AGE == serverFieldId) {
                                         profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
                                     } else {
+                                        if (FIELD_ID_VOICE == serverFieldId) {
+                                            value = String.valueOf((0 == StaticDataService.VOICE_YES.compareToIgnoreCase(value)) ?
+                                                    StaticDataService.VOICE_ID_YES : StaticDataService.VOICE_ID_NO);
+                                        }
                                         addProfileAttributeEntriesForServerField(
                                                 profileAttributeCv, userId, serverFieldId, value);
                                     }

@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
+import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
@@ -32,15 +33,15 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
 
     public SearchFragment() {
         mData = new SearchListItem[]{
-                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderListItem.LOADER_ID_PLATFORM),
-                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderListItem.LOADER_ID_PLAYING),
-                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderListItem.LOADER_ID_GAMEPLAY),
-                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderListItem.LOADER_ID_COUNTRY),
-                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderListItem.LOADER_ID_LANGUAGE),
-                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderListItem.LOADER_ID_SKILL),
-                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderListItem.LOADER_ID_TIME),
-                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderListItem.LOADER_ID_AGERANGE),
-                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderListItem.LOADER_ID_VOICE)
+                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.SEARCH_PLATFORM),
+                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.SEARCH_PLAYING),
+                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.SEARCH_GAMEPLAY),
+                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.SEARCH_COUNTRY),
+                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.SEARCH_LANGUAGE),
+                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderID.SEARCH_SKILL),
+                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderID.SEARCH_TIME),
+                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderID.SEARCH_AGERANGE),
+                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderID.SEARCH_VOICE)
         };
     }
 

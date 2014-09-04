@@ -45,7 +45,12 @@ public class StaticDataService extends IntentService {
     "wp-content/themes/buddyfied/_inc/ajax/autocomplete.php?mode=";
 
     static final String AgeRangeJSON = "[{\"id\":\"900800\",\"name\":\"16-19\"},{\"id\":\"900801\",\"name\":\"20-25\"},{\"id\":\"900802\",\"name\":\"26-35\"},{\"id\":\"900803\",\"name\":\"36-44\"},{\"id\":\"900804\",\"name\":\"45+\"}]";
-    static final String VoiceJSON = "[{\"id\":\"900900\",\"name\":\"Yes\"},{\"id\":\"900901\",\"name\":\"No\"}]";
+    public static final int VOICE_ID_YES = 900900;
+    public static final int VOICE_ID_NO = 900901;
+    public static final String VOICE_YES = "Yes";
+    public static final String VOICE_NO = "No";
+    static final String VoiceJSON = "[{\"id\":\"" + VOICE_ID_YES + "\",\"name\":\"" + VOICE_YES +
+            "\"},{\"id\":\"" + VOICE_ID_NO + "\",\"name\":\"" + VOICE_NO + "\"}]";
 
     public StaticDataService() {
         super("StaticDataService");
@@ -133,7 +138,7 @@ public class StaticDataService extends IntentService {
                 Log.i(LOG_TAG, attribute.toString());
                 cv.put(AttributeEntry._ID, attribute.getInt("id"));
                 cv.put(AttributeEntry.COLUMN_TYPE, attributeType);
-                cv.put(AttributeEntry.COLUMN_NAME, attribute.getString("name"));
+                cv.put(AttributeEntry.COLUMN_NAME, attribute.getString("name").trim());
                 contentValues.add(cv);
             } catch (JSONException e) {
                 e.printStackTrace();

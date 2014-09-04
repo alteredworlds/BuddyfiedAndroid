@@ -18,6 +18,7 @@ import android.widget.GridView;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.MatchedAdapter;
 
 /**
@@ -25,8 +26,6 @@ import com.alteredworlds.buddyfied.view_model.MatchedAdapter;
  */
 public class MatchedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MatchedFragment.class.getSimpleName();
-
-    private static final int MATCHED_LOADER = 0;
 
     public static final String[] BuddyColumns = {
             BuddyEntry._ID,
@@ -106,7 +105,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
         //
-        getLoaderManager().initLoader(MATCHED_LOADER, null, this);
+        getLoaderManager().initLoader(LoaderID.MATCHED, null, this);
         //
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
         intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);

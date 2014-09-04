@@ -20,6 +20,7 @@ import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
 import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
+import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
@@ -33,7 +34,6 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private BuddyAdapter mAdapter;
     private long mProfileId;
 
-    private static final int LOADER_ID_MAIN = 20;
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
             ProfileEntry.COLUMN_IMAGE_URI,
@@ -52,15 +52,15 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public ProfileFragment() {
         mData = new LoaderListItem[]{
                 new BuddyHeaderListItem("", "", true),
-                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderListItem.LOADER_ID_PLATFORM),
-                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderListItem.LOADER_ID_PLAYING),
-                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderListItem.LOADER_ID_GAMEPLAY),
-                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderListItem.LOADER_ID_COUNTRY),
-                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderListItem.LOADER_ID_LANGUAGE),
-                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderListItem.LOADER_ID_SKILL),
-                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderListItem.LOADER_ID_TIME),
-                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderListItem.LOADER_ID_NONE),
-                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderListItem.LOADER_ID_VOICE),
+                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
+                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
+                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.PROFILE_GAMEPLAY),
+                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.PROFILE_COUNTRY),
+                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.PROFILE_LANGUAGE),
+                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderID.PROFILE_SKILL),
+                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderID.PROFILE_TIME),
+                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderID.NONE),
+                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderID.PROFILE_VOICE),
                 new CommentsListItem("Comments", "", "")
         };
         HEADER_ROW = 0;
@@ -89,9 +89,9 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         intent.putExtra(BuddyQueryService.ID_EXTRA, Settings.getUserId(getActivity()));
         getActivity().startService(intent);
         // start loaders
-        getLoaderManager().initLoader(LOADER_ID_MAIN, null, this);
+        getLoaderManager().initLoader(LoaderID.PROFILE_MAIN, null, this);
         for (int i = 0; i < mData.length; i++) {
-            if (LoaderListItem.LOADER_ID_NONE != mData[i].loaderId) {
+            if (LoaderID.NONE != mData[i].loaderId) {
                 getLoaderManager().initLoader(mData[i].loaderId, null, this);
             }
         }
@@ -100,7 +100,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Loader<Cursor> retVal = null;
-        if (LOADER_ID_MAIN == id) {
+        if (LoaderID.PROFILE_MAIN == id) {
             Uri query = BuddyfiedContract.ProfileEntry.buildProfileUri(mProfileId);
             retVal = new CursorLoader(
                     getActivity(),
@@ -137,7 +137,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         int loaderId = loader.getId();
-        if (LOADER_ID_MAIN == loaderId) {
+        if (LoaderID.PROFILE_MAIN == loaderId) {
             // we can unpack AGE, COMMENTS, IMAGE
             if (data.moveToFirst()) {
                 mData[COMMENTS_ROW].value = data.getString(COL_COMMENTS);

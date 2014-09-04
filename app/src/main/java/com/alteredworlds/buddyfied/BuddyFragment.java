@@ -20,6 +20,7 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
 import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
+import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
@@ -66,15 +67,15 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     public BuddyFragment() {
         mData = new LoaderListItem[]{
                 new BuddyHeaderListItem("", ""),
-                new SearchListItem("Platform", "", "", LoaderListItem.LOADER_ID_PLATFORM),
-                new SearchListItem("Playing", "", "", LoaderListItem.LOADER_ID_PLAYING),
-                new SearchListItem("Gameplay", "", "", LoaderListItem.LOADER_ID_GAMEPLAY),
-                new SearchListItem("Country", "", "", LoaderListItem.LOADER_ID_COUNTRY),
-                new SearchListItem("Language", "", "", LoaderListItem.LOADER_ID_LANGUAGE),
-                new SearchListItem("Skill", "", "", LoaderListItem.LOADER_ID_SKILL),
-                new SearchListItem("Time", "", "", LoaderListItem.LOADER_ID_TIME),
-                new SearchListItem("Age", "", "", LoaderListItem.LOADER_ID_NONE),
-                new SearchListItem("Voice", "", "", LoaderListItem.LOADER_ID_VOICE),
+                new SearchListItem("Platform", "", "", LoaderID.BUDDY_PLATFORM),
+                new SearchListItem("Playing", "", "", LoaderID.BUDDY_PLAYING),
+                new SearchListItem("Gameplay", "", "", LoaderID.BUDDY_GAMEPLAY),
+                new SearchListItem("Country", "", "", LoaderID.BUDDY_COUNTRY),
+                new SearchListItem("Language", "", "", LoaderID.BUDDY_LANGUAGE),
+                new SearchListItem("Skill", "", "", LoaderID.BUDDY_SKILL),
+                new SearchListItem("Time", "", "", LoaderID.BUDDY_TIME),
+                new SearchListItem("Age", "", "", LoaderID.NONE),
+                new SearchListItem("Voice", "", "", LoaderID.BUDDY_VOICE),
                 new CommentsListItem("Comments", "", "")
         };
         ROW_INDEX_HEADER = 0;
@@ -124,7 +125,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onResume() {
         super.onResume();
         for (int i = 0; i < mData.length; i++) {
-            if (LoaderListItem.LOADER_ID_NONE != mData[i].loaderId) {
+            if (LoaderID.NONE != mData[i].loaderId) {
                 getLoaderManager().initLoader(mData[i].loaderId, null, this);
             }
         }

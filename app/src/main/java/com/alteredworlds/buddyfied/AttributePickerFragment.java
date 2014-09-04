@@ -235,8 +235,7 @@ public class AttributePickerFragment extends Fragment  implements LoaderManager.
                             ProfileAttributeEntry.COLUMN_PROFILE_ID + " = ?",
                     new String[] {String.valueOf(attributeId), String.valueOf(mProfileId)});
         }
-        Uri test = AttributeEntry.buildAttributeTypeForProfile(mAttributeType, mProfileId);
-        getActivity().getContentResolver().notifyChange(test, null);
+        getActivity().getContentResolver().notifyChange(mQuery, null);
     }
 
     @Override

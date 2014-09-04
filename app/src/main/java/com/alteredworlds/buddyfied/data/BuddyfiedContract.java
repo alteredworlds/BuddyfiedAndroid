@@ -4,6 +4,10 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.alteredworlds.buddyfied.Utils;
+
+import java.util.List;
+
 /**
  * Created by twcgilbert on 25/07/2014.
  */
@@ -85,9 +89,22 @@ public class BuddyfiedContract {
         public static Uri buildAttributeTypeForProfileAll(String attributeType, long profileId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(attributeType)
-                    .appendPath(PATH_ATTRIBUTE_ALL)
                     .appendPath(String.valueOf(profileId))
+                    .appendPath(PATH_ATTRIBUTE_ALL)
                     .build();
+        }
+
+        public static long getProfileIdFromAttributeTypeForProfileAllUri(Uri uri) {
+            long retVal = -1;
+            final List<String> segments = uri.getPathSegments();
+            final int size = segments.size();
+            if (size > 1) {
+                String profileId = segments.get(size - 2);
+                if (!Utils.isNullOrEmpty(profileId)) {
+                    retVal = Long.parseLong(profileId);
+                }
+            }
+            return retVal;
         }
 
         public static String getAttributeTypeFromUri(Uri uri) {

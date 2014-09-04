@@ -260,7 +260,7 @@ public class BuddyfiedProvider extends ContentProvider {
 
     private Cursor getAllAttributesByTypeForProfile(Uri uri, String[] projection, String selection, String sortOrder) {
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
-        long profileId = AttributeEntry.getProfileIdFromUri(uri);
+        long profileId = AttributeEntry.getProfileIdFromAttributeTypeForProfileAllUri(uri);
         StringBuilder sb = new StringBuilder(sAllAttributesByTypeForProfileSelectionP1);
         sb.append(profileId + sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'");
         if (!Utils.isNullOrEmpty(selection)) {
@@ -472,7 +472,7 @@ public class BuddyfiedProvider extends ContentProvider {
         // all Attributes of a given type with indication if belong to specific Profile (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_ATTRIBUTE + "/*/" + BuddyfiedContract.PATH_ATTRIBUTE_ALL + "/#/",
+                BuddyfiedContract.PATH_ATTRIBUTE + "/*/#/" + BuddyfiedContract.PATH_ATTRIBUTE_ALL,
                 ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL);
         //
         // all Buddies

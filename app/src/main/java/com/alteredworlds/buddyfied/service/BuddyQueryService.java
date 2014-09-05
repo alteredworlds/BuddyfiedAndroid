@@ -48,7 +48,6 @@ public class BuddyQueryService extends IntentService {
     public static final String GetMemberInfo = "bp.getMemberData";
     public static final String VerifyConnection = "bp.verifyConnection";
 
-    public static final String GetMatchesIfNeeded = "GetMatchesIfNeeded";
     public static final String CreateSearchProfileIfNeeded = "CreateSearchProfileIfNeeded";
     public static final String ClearDataOnLogout = "ClearDataOnLogout";
 
@@ -78,10 +77,8 @@ public class BuddyQueryService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String method = intent.getStringExtra(METHOD_EXTRA);
         Bundle result = null;
-        if (0 == GetMatchesIfNeeded.compareTo(method)) {
-            result = getMatches(intent, true);
-        } else if (0 == GetMatches.compareTo(method)) {
-            result = getMatches(intent, false);
+        if (0 == GetMatches.compareTo(method)) {
+            result = getMatches(intent);
         } else if (0 == SendMessage.compareTo(method)) {
             result = sendMessage(intent);
         } else if (0 == GetMemberInfo.compareTo(method)) {
@@ -264,43 +261,27 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private Boolean haveBuddiesAlready() {
-        Cursor cursor = getContentResolver().query(
-                BuddyEntry.CONTENT_URI,
-                new String[]{BuddyEntry._ID},
-                null,
-                null,
-                null);
-        Boolean retVal = cursor.getCount() > 0;
-        cursor.close();
-        return retVal;
-    }
-
-    private Bundle getMatches(Intent intent, Boolean onlyIfNeeded) {
+    private Bundle getMatches(Intent intent) {
         int resultCode = 0;
         String resultDescription = null;
-        if (onlyIfNeeded && haveBuddiesAlready()) {
-            // we don't need to make the call
+        // we need to retrieve buddies from the server
+        HashMap<String, Object> data = getSearchParameters(intent);
+        if (data.isEmpty()) {
+            resultDescription = getString(R.string.specify_query);
         } else {
-            // we need to retrieve buddies from the server
-            HashMap<String, Object> data = getSearchParameters(intent);
-            if (data.isEmpty()) {
-                resultDescription = getString(R.string.specify_query);
-            } else {
-                String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-                XMLRPCClient client = new XMLRPCClient(uri);
-                try {
-                    Object res = client.call(
-                            GetMatches,
-                            Settings.getUsername(this),
-                            Settings.getPassword(this),
-                            data);
-                    resultDescription = processSearchResults(res);
-                } catch (XMLRPCException e) {
-                    e.printStackTrace();
-                    resultDescription = e.getLocalizedMessage();
-                    resultCode = -1;
-                }
+            String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
+            XMLRPCClient client = new XMLRPCClient(uri);
+            try {
+                Object res = client.call(
+                        GetMatches,
+                        Settings.getUsername(this),
+                        Settings.getPassword(this),
+                        data);
+                resultDescription = processSearchResults(res);
+            } catch (XMLRPCException e) {
+                e.printStackTrace();
+                resultDescription = e.getLocalizedMessage();
+                resultCode = -1;
             }
         }
         return resultBundle(resultCode, resultDescription);

@@ -135,7 +135,7 @@ public class StaticDataService extends IntentService {
             try {
                 ContentValues cv = new ContentValues();
                 JSONObject attribute = jsonArray.getJSONObject(idx);
-                Log.i(LOG_TAG, attribute.toString());
+                //Log.i(LOG_TAG, attribute.toString());
                 cv.put(AttributeEntry._ID, attribute.getInt("id"));
                 cv.put(AttributeEntry.COLUMN_TYPE, attributeType);
                 cv.put(AttributeEntry.COLUMN_NAME, attribute.getString("name").trim());

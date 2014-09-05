@@ -16,7 +16,7 @@
 
         <FrameLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:layout_height="match_parent">
 
             <ImageButton
@@ -37,9 +37,10 @@
             android:layout_weight="1"
             android:layout_height="match_parent">
 
-        <ImageView
+            <ImageView
                 android:id="@+id/buddy_image"
-                android:layout_width="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:scaleType="centerCrop"
@@ -51,7 +52,7 @@
 
         <FrameLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:layout_height="match_parent">
 
             <ImageButton

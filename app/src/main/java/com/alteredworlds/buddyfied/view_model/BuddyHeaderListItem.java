@@ -1,14 +1,8 @@
 package com.alteredworlds.buddyfied.view_model;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -78,28 +72,11 @@ public class BuddyHeaderListItem extends LoaderListItem {
     private void scaleBackground(ImageView view, int finalWidth, int finalHeight) {
         // Change ImageView's dimensions to match the square scaled image,
         // so that the shape background actually fits it
-        Drawable drawing = view.getDrawable();
-        Bitmap bitmap = ((BitmapDrawable) drawing).getBitmap();
-
-        // Get current dimensions
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        int testWidth = pxToDp(width, view) * 10;
-        int testHeight = pxToDp(height, view) * 10;
-
         int scaleToSquare = (finalWidth > finalHeight) ? finalHeight : finalWidth;
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
         params.width = scaleToSquare;
         params.height = scaleToSquare;
         view.setLayoutParams(params);
-    }
-
-    private int pxToDp(int px, View view) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((WindowManager) view.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(displayMetrics);
-        float density = displayMetrics.density;
-        return Math.round((float) px / density);
     }
 
     static class ViewHolder {

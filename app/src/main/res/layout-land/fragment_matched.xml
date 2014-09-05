@@ -7,9 +7,18 @@
     <TextView
         android:id="@+id/matched_text"
         style="@style/StandardText"
-        android:text="Matched Buddies placeholder text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/matched_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:visibility="gone" />
 
     <GridView

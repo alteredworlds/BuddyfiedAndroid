@@ -1,10 +1,8 @@
 package com.alteredworlds.buddyfied.data;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
@@ -21,6 +19,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "buddyfied.db";
 
     public static final int SEARCH_PROFILE_ID = 1;
+    public static final String SEARCH_PROFILE_NAME = "Default";
 
     public BuddyfiedDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -86,20 +85,28 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_ATTRIBUTE_TABLE);
         db.execSQL(SQL_CREATE_PROFILE_ATTRIBUTE_TABLE);
         //
-        insertSearchProfile(db);
+        //insertSearchProfileIfNeeded(db);
     }
 
-    protected void insertSearchProfile(SQLiteDatabase db) {
-        insertProfile(db, SEARCH_PROFILE_ID, "Default");
-    }
-
-    protected void insertProfile(SQLiteDatabase db, int id, String name) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(ProfileEntry._ID, id);
-        contentValues.put(ProfileEntry.COLUMN_NAME, name);
-        long profileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
-        Log.i(LOG_TAG, "Profile '" + name + "' has ID " + profileId);
-    }
+//    public void insertSearchProfileIfNeeded(SQLiteDatabase db) {
+//        Cursor cursor = db.query(ProfileEntry.TABLE_NAME,
+//                new String[]{ProfileEntry._ID},
+//                ProfileEntry._ID + " = " + SEARCH_PROFILE_ID,
+//                null, null, null, null);
+//        if ((null != cursor) && cursor.moveToFirst()) {
+//            // we have a search profile already
+//        } else {
+//            insertProfile(db, SEARCH_PROFILE_ID, SEARCH_PROFILE_NAME);
+//        }
+//    }
+//
+//    protected void insertProfile(SQLiteDatabase db, int id, String name) {
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put(ProfileEntry._ID, id);
+//        contentValues.put(ProfileEntry.COLUMN_NAME, name);
+//        long profileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
+//        Log.i(LOG_TAG, "Profile '" + name + "' has ID " + profileId);
+//    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

@@ -113,15 +113,9 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
                 Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
-                    if (0 != code) {
-                        // code other than 0 should trigger an alert
-                        String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
-                        if (Utils.isNullOrEmpty(description)) {
-                            description = getString(R.string.message_send_failed_message);
-                        }
-                        showMessage(description);
-                    }
+                    //int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                    showMessage(description);
                 }
             }
         };

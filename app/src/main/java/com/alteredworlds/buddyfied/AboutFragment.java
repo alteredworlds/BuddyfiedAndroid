@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.alteredworlds.buddyfied.service.BuddyQueryService;
+
 /**
  * Created by twcgilbert on 30/07/2014.
  */
@@ -45,6 +48,11 @@ public class AboutFragment extends Fragment {
                                 Settings.setUsername(getActivity(), "");
                                 Settings.setUserId(getActivity(), -1);
                                 Settings.setPosition(getActivity(), 0);
+                                //
+                                Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
+                                clearDataIntent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+                                getActivity().startService(clearDataIntent);
+                                //
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                                 getActivity().startActivity(intent);
                                 getActivity().finish();

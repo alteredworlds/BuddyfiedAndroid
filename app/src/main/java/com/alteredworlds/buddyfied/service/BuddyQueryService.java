@@ -17,6 +17,7 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
 import org.xmlrpc.android.XMLRPCClient;
@@ -43,10 +44,13 @@ public class BuddyQueryService extends IntentService {
     public static final String RESULT_DESCRIPTION = "description";
 
     public static final String GetMatches = "bp.getMatches";
-    public static final String GetMatchesIfNeeded = "GetMatchesIfNeeded";
     public static final String SendMessage = "bp.sendMessage";
     public static final String GetMemberInfo = "bp.getMemberData";
     public static final String VerifyConnection = "bp.verifyConnection";
+
+    public static final String GetMatchesIfNeeded = "GetMatchesIfNeeded";
+    public static final String CreateSearchProfileIfNeeded = "CreateSearchProfileIfNeeded";
+    public static final String ClearDataOnLogout = "ClearDataOnLogout";
 
     // this last one is a bit naughty - easiest way of providing
     // asynchronous delete
@@ -86,12 +90,39 @@ public class BuddyQueryService extends IntentService {
             result = verifyConnection(intent);
         } else if (0 == DeleteBuddies.compareTo(method)) {
             result = deleteAllBuddies(intent);
+        } else if (0 == CreateSearchProfileIfNeeded.compareTo(method)) {
+            result = createSearchProfileIfNeeded(intent);
+        } else if (0 == ClearDataOnLogout.compareTo(method)) {
+            result = clearDataOnLogout(intent);
         } else {
             String errorMessage = "Unknown xmlrpc method call: '" + method + "'";
             Log.e(LOG_TAG, errorMessage);
             result = resultBundle(-1, errorMessage);
         }
         reportResult(result);
+    }
+
+    private Bundle clearDataOnLogout(Intent intent) {
+        getContentResolver().delete(ProfileAttributeEntry.CONTENT_URI, null, null);
+        getContentResolver().delete(ProfileEntry.CONTENT_URI, null, null);
+        getContentResolver().delete(BuddyEntry.CONTENT_URI, null, null);
+        return null;
+    }
+
+    private Bundle createSearchProfileIfNeeded(Intent intent) {
+        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
+                new String[]{ProfileEntry._ID},
+                ProfileEntry._ID + " = " + BuddyfiedDbHelper.SEARCH_PROFILE_ID,
+                null, null);
+        if ((null != cursor) && cursor.moveToFirst()) {
+            // we have a search profile already
+        } else {
+            ContentValues row = new ContentValues();
+            row.put(ProfileEntry._ID, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
+            row.put(ProfileEntry.COLUMN_NAME, BuddyfiedDbHelper.SEARCH_PROFILE_NAME);
+            getContentResolver().insert(ProfileEntry.CONTENT_URI, row);
+        }
+        return null;
     }
 
     private void reportResult(Bundle result) {

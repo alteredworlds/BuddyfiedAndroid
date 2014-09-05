@@ -92,9 +92,7 @@ public class MessageUserFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Register to receive messages.
-        // We are registering an observer (mMessageReceiver) to receive Intents
-        // with actions named "custom-event-name".
+        // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
     }

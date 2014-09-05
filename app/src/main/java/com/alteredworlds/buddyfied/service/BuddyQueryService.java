@@ -21,6 +21,7 @@ import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
 import org.xmlrpc.android.XMLRPCClient;
 import org.xmlrpc.android.XMLRPCException;
+import org.xmlrpc.android.XMLRPCFault;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -116,6 +117,10 @@ public class BuddyQueryService extends IntentService {
         XMLRPCClient client = new XMLRPCClient(uri);
         try {
             client.call(VerifyConnection, username, password);
+        } catch (XMLRPCFault e) {
+            e.printStackTrace();
+            resultDescription = e.getFaultString();
+            resultCode = e.getFaultCode();
         } catch (XMLRPCException e) {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();

@@ -3,6 +3,7 @@ package com.alteredworlds.buddyfied;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -140,12 +142,23 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
         //
+        // Register an observer to receive specific named Intents ('events')
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+        //
         getLoaderManager().initLoader(LoaderID.MATCHED, null, this);
         //
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
         intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
         intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
         getActivity().startService(intent);
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        super.onPause();
     }
 
     @Override

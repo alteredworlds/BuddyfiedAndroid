@@ -1,11 +1,14 @@
 package com.alteredworlds.buddyfied;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.os.Build;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -14,6 +17,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.alteredworlds.buddyfied.service.BuddyQueryService;
 
 
 /**
@@ -24,8 +29,12 @@ public class LoginActivity extends Activity {
     // UI references.
     private EditText mUsernameView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    private Button mSignInButton;
+    private Button mGuestSignInButton;
+    private Button mForgotPasswordButton;
+
+    private BroadcastReceiver mMessageReceiver;
+    private View mFocusDummy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,8 @@ public class LoginActivity extends Activity {
 
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.email);
+
+        mFocusDummy = findViewById(R.id.focus_dummy);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -47,15 +58,106 @@ public class LoginActivity extends Activity {
             }
         });
 
-        Button signInButton = (Button) findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(new OnClickListener() {
+        mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
+        mGuestSignInButton = (Button) findViewById(R.id.guest_sign_in_button);
+        mGuestSignInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptGuestLogin();
+            }
+        });
+
+        mForgotPasswordButton = (Button) findViewById(R.id.forgot_password_button);
+        mForgotPasswordButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                forgotPassword();
+            }
+        });
+
+        mMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
+                if (null != results) {
+                    // we want a code 0 indicating success.
+                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    if (0 != code) {
+                        // code other than 0 should trigger an alert
+                        Settings.setUsername(context, "");
+                        Settings.setPassword(context, "");
+                        String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                        if (Utils.isNullOrEmpty(description)) {
+                            description = getString(R.string.sign_in_failed_message_default);
+                        }
+                        showErrorAlert(description);
+                        enableButtons(true);
+                    } else {
+                        // LOGIN SUCCESSFUL...
+                        Intent main = new Intent(context, MainActivity.class);
+                        main.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(main);
+                        finish();
+                    }
+                }
+            }
+        };
+
+    }
+
+    private void showErrorAlert(String description) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.sign_in_failed_title))
+                .setMessage(description)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Register an observer to receive specific named Intents ('events')
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }
+
+    private void enableButtons(Boolean enabled) {
+        mGuestSignInButton.setEnabled(enabled);
+        mSignInButton.setEnabled(enabled);
+        mForgotPasswordButton.setEnabled(enabled);
+    }
+
+    public void forgotPassword() {
+        ;
+    }
+
+    public void attemptGuestLogin() {
+        enableButtons(false);
+        mFocusDummy.requestFocus();
+        Settings.setUsername(this, Settings.getGuestUsername(this));
+        Settings.setPassword(this, Settings.getGuestPassword(this));
+        Intent intent = new Intent(this, BuddyQueryService.class);
+        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+        startService(intent);
     }
 
     /**
@@ -64,33 +166,31 @@ public class LoginActivity extends Activity {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
+        enableButtons(false);
+        mFocusDummy.requestFocus();
         // Reset errors.
         mUsernameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mUsernameView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(username)) {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mUsernameView.setError(getString(R.string.error_invalid_email));
-            focusView = mUsernameView;
+        } else if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (!isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
             cancel = true;
         }
 
@@ -101,8 +201,13 @@ public class LoginActivity extends Activity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+
             // TRY LOGGING IN NOW...
+            Settings.setUsername(this, username);
+            Settings.setPassword(this, password);
+            Intent intent = new Intent(this, BuddyQueryService.class);
+            intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+            startService(intent);
         }
     }
 
@@ -112,42 +217,6 @@ public class LoginActivity extends Activity {
 
     private boolean isPasswordValid(String password) {
         return password.length() > 4;
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    public void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
     }
 }
 

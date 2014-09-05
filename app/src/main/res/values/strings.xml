@@ -16,7 +16,7 @@
     <string name="buddy_report_user_email_body2">.\n\n from </string>
     <string name="email_chooser_title">Send email...</string>
     <string name="guest_username">guest</string>
-    <string name="guest_password"></string>
+    <string name="guest_password">buddyfied</string>
     <string name="about_help_link"><a href="http://www.buddyfied.com/buddyfied-ios-app/">Buddyfied Help</a></string>
     <string name="about_description">Buddyfied is a great way to find new people to play online games with. You can search for players based on your location, what games you play, and when you play. Stay connected with old friends and make new ones!</string>
     <string name="title_activity_attribute_picker">AttributePickerActivity</string>
@@ -44,5 +44,8 @@
 
     <string name="sign_in_failed_title">Sign In Failed</string>
     <string name="sign_in_failed_message_default">Incorrect username or password</string>
+
+    <string name="sign_out_alert_title">Sign Out</string>
+    <string name="sign_out_alert_message">Please confirm you want to sign out from Buddyfied</string>
 
 </resources>

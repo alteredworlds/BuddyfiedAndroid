@@ -116,7 +116,11 @@ public class BuddyQueryService extends IntentService {
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
         XMLRPCClient client = new XMLRPCClient(uri);
         try {
-            client.call(VerifyConnection, username, password);
+            Object res = client.call(VerifyConnection, username, password);
+            if (res instanceof HashMap) {
+                Integer userId = (Integer) ((HashMap) res).get("user_id");
+                Settings.setUserId(this, userId);
+            }
         } catch (XMLRPCFault e) {
             e.printStackTrace();
             resultDescription = e.getFaultString();
@@ -132,7 +136,7 @@ public class BuddyQueryService extends IntentService {
     private Bundle getMemberInfo(Intent intent) {
         int resultCode = 0;
         String resultDescription = null;
-        String userId = Settings.getUserId(this);
+        Integer userId = Settings.getUserId(this);
 
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("user_id", userId);
@@ -300,7 +304,7 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private String processMemberInfoResults(Object res, String userIdStr) {
+    private String processMemberInfoResults(Object res, Integer userId) {
         String retVal = null;
         if (res instanceof HashMap) {
             Object message = ((HashMap) res).get("message");
@@ -308,7 +312,6 @@ public class BuddyQueryService extends IntentService {
                 retVal = (String) message;
             } else if (message instanceof HashMap) {
                 // this should be member info...
-                int userId = Integer.parseInt(userIdStr);
                 // start building Profile record to insert
                 HashMap data = (HashMap) message;
                 ContentValues profileCv = new ContentValues();

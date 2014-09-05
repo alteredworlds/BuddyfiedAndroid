@@ -41,15 +41,15 @@ public class Settings {
         edit.apply();
     }
 
-    public static String getUserId(Context context) {
+    public static Integer getUserId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(pref_userid_key, null);
+        return prefs.getInt(pref_userid_key, -1);
     }
 
-    public static void setUserId(Context context, String userId) {
+    public static void setUserId(Context context, Integer userId) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(pref_userid_key, userId);
+        edit.putInt(pref_userid_key, userId);
         edit.apply();
     }
 

@@ -71,8 +71,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        String userIdStr = Settings.getUserId(getActivity());
-        mProfileId = Long.parseLong(userIdStr);
+        mProfileId = Settings.getUserId(getActivity());
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_profile);

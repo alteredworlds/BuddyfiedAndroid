@@ -39,6 +39,13 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!Utils.isNullOrEmpty(Settings.getUsername(this)) &&
+                !Utils.isNullOrEmpty(Settings.getPassword(this))) {
+            //we're logged in already, just move on to app
+            Intent main = new Intent(this, MainActivity.class);
+            this.startActivity(main);
+            finish();
+        }
         setContentView(R.layout.activity_login);
 
         // Set up the login form.

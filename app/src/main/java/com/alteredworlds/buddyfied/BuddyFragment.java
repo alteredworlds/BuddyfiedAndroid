@@ -115,6 +115,7 @@ public class BuddyFragment extends Fragment implements LoaderManager.LoaderCallb
         mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_buddy);
         listView.setAdapter(mAdapter);
+
         return rootView;
     }
 

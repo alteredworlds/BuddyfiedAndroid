@@ -2,6 +2,8 @@ package com.alteredworlds.buddyfied.view_model;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,7 +54,29 @@ public class BuddyHeaderListItem extends LoaderListItem {
         holder.messageButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);
         holder.reportButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);
 
+        final ImageView buddyIcon = (ImageView) row.findViewById((R.id.buddy_image));
+        ViewTreeObserver vto = buddyIcon.getViewTreeObserver();
+        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            public boolean onPreDraw() {
+                // Remove after the first run so it doesn't fire forever
+                buddyIcon.getViewTreeObserver().removeOnPreDrawListener(this);
+                int finalHeight = buddyIcon.getMeasuredHeight();
+                int finalWidth = buddyIcon.getMeasuredWidth();
+                scaleBackground(buddyIcon, finalWidth, finalHeight);
+                return true;
+            }
+        });
         return row;
+    }
+
+    private void scaleBackground(ImageView view, int finalWidth, int finalHeight) {
+        // Change ImageView's dimensions to match the square scaled image,
+        // so that the shape background actually fits it
+        int scaleToSquare = (finalWidth > finalHeight) ? finalHeight : finalWidth;
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+        params.width = scaleToSquare;
+        params.height = scaleToSquare;
+        view.setLayoutParams(params);
     }
 
     static class ViewHolder {

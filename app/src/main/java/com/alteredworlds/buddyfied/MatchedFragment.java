@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
@@ -66,6 +67,8 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     private MatchedAdapter mMatchedAdaptor;
     private BroadcastReceiver mMessageReceiver;
     private TextView mMatchedText;
+    private ProgressBar mProgressBar;
+    private GridView mGridView;
 
     public MatchedFragment() {
         mQuery = BuddyEntry.CONTENT_URI;
@@ -77,12 +80,13 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         View rootView = inflater.inflate(R.layout.fragment_matched, container, false);
 
         mMatchedText = (TextView) rootView.findViewById(R.id.matched_text);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.matched_progress);
 
         mMatchedAdaptor = new MatchedAdapter(getActivity(), null, 0);
 
-        final GridView gridView = (GridView) rootView.findViewById(R.id.matched_gridview);
-        gridView.setAdapter(mMatchedAdaptor);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView = (GridView) rootView.findViewById(R.id.matched_gridview);
+        mGridView.setAdapter(mMatchedAdaptor);
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) mMatchedAdaptor.getItem(position);
@@ -110,6 +114,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                showProgressIndicator(false);
                 Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
@@ -124,11 +129,35 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void showMessage(String message) {
-        if (Utils.isNullOrEmpty(message)) {
-            mMatchedText.setVisibility(View.GONE);
-        } else {
-            mMatchedText.setVisibility(View.VISIBLE);
-            mMatchedText.setText(message);
+        if (null != mMatchedText) {
+            if (Utils.isNullOrEmpty(message)) {
+                showTextOrProgress(false, false);
+            } else {
+                showTextOrProgress(true, false);
+                mMatchedText.setText(message);
+            }
+        }
+    }
+
+    private void showTextOrProgress(Boolean text, Boolean progress) {
+        if (null != mGridView) {
+            mGridView.setVisibility((!text && !progress) ? View.VISIBLE : View.GONE);
+        }
+        if (null != mProgressBar) {
+            mProgressBar.setVisibility(progress ? View.VISIBLE : View.GONE);
+        }
+        if (null != mMatchedText) {
+            mMatchedText.setVisibility(text ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void showProgressIndicator(Boolean show) {
+        if (null != mProgressBar) {
+            if (show) {
+                showTextOrProgress(false, true);
+            } else {
+                showTextOrProgress(false, false);
+            }
         }
     }
 
@@ -142,10 +171,25 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         //
         getLoaderManager().initLoader(LoaderID.MATCHED, null, this);
         //
-        Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatchesIfNeeded);
-        intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
-        getActivity().startService(intent);
+        if (!haveBuddiesAlready()) {
+            Intent intent = new Intent(getActivity(), BuddyQueryService.class);
+            intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatches);
+            intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
+            getActivity().startService(intent);
+            showProgressIndicator(true);
+        }
+    }
+
+    private Boolean haveBuddiesAlready() {
+        Cursor cursor = getActivity().getContentResolver().query(
+                BuddyEntry.CONTENT_URI,
+                new String[]{BuddyEntry._ID},
+                null,
+                null,
+                null);
+        Boolean retVal = cursor.getCount() > 0;
+        cursor.close();
+        return retVal;
     }
 
     @Override

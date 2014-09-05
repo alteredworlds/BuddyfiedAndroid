@@ -11,6 +11,14 @@
     android:background="@color/black"
     tools:context="com.alteredworlds.buddyfied.LoginActivity">
 
+    <LinearLayout
+        android:id="@+id/focus_dummy"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:orientation="horizontal" />
+
     <!-- Login progress -->
     <ScrollView
         android:id="@+id/login_form"
@@ -63,9 +71,6 @@
                     android:layout_marginTop="6dp"
                     android:hint="@string/prompt_password"
                     android:padding="5dp"
-                    android:imeActionId="@+id/login"
-                    android:imeActionLabel="@string/action_sign_in"
-                    android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -80,9 +85,9 @@
                     android:gravity="center"
                     android:text="@string/action_sign_in"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
                     android:textSize="26dp"
-                    android:background="@android:color/transparent" />
+                    android:background="@android:color/transparent"
+                    android:textColor="@drawable/button_text" />
 
                 <Button
                     android:id="@+id/guest_sign_in_button"
@@ -93,7 +98,7 @@
                     android:gravity="center"
                     android:text="@string/action_guest_sign_in"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
+                    android:textColor="@drawable/button_text"
                     android:textSize="26dp"
                     android:background="@android:color/transparent" />
             </LinearLayout>
@@ -113,7 +118,7 @@
                     android:gravity="center"
                     android:text="@string/action_forgot_password"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
+                    android:textColor="@drawable/button_text"
                     android:background="@android:color/transparent" />
             </LinearLayout>
         </LinearLayout>

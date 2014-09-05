@@ -1,5 +1,7 @@
 package com.alteredworlds.buddyfied;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
@@ -59,6 +62,8 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
 
     private Uri mQuery;
     private MatchedAdapter mMatchedAdaptor;
+    private BroadcastReceiver mMessageReceiver;
+    private TextView mMatchedText;
 
     public MatchedFragment() {
         mQuery = BuddyEntry.CONTENT_URI;
@@ -68,6 +73,8 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_matched, container, false);
+
+        mMatchedText = (TextView) rootView.findViewById(R.id.matched_text);
 
         mMatchedAdaptor = new MatchedAdapter(getActivity(), null, 0);
 
@@ -98,7 +105,35 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
             }
         });
 
+        mMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
+                if (null != results) {
+                    // we want a code 0 indicating success.
+                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    if (0 != code) {
+                        // code other than 0 should trigger an alert
+                        String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                        if (Utils.isNullOrEmpty(description)) {
+                            description = getString(R.string.message_send_failed_message);
+                        }
+                        showMessage(description);
+                    }
+                }
+            }
+        };
+
         return rootView;
+    }
+
+    private void showMessage(String message) {
+        if (Utils.isNullOrEmpty(message)) {
+            mMatchedText.setVisibility(View.GONE);
+        } else {
+            mMatchedText.setVisibility(View.VISIBLE);
+            mMatchedText.setText(message);
+        }
     }
 
     @Override

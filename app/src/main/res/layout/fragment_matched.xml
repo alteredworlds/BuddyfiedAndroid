@@ -7,7 +7,6 @@
     <TextView
         android:id="@+id/matched_text"
         style="@style/StandardText"
-        android:text="Matched Buddies placeholder text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />

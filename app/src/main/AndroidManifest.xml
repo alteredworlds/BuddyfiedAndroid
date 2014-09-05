@@ -54,6 +54,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.BuddyActivity" />
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
     </application>
-
 </manifest>

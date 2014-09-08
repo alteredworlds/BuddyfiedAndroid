@@ -14,13 +14,16 @@ import org.apache.http.params.HttpProtocolParams;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -197,11 +200,40 @@ public class XMLRPCClient extends XMLRPCCommon {
             // setup pull parser
             XmlPullParser pullParser = XmlPullParserFactory.newInstance().newPullParser();
             entity = response.getEntity();
-            Reader reader = new InputStreamReader(new BufferedInputStream(entity.getContent()));
-// for testing purposes only
-// reader = new StringReader("<?xml version='1.0'?><methodResponse><params><param><value>\n\n\n</value></param></params></methodResponse>");
-            pullParser.setInput(reader);
+            InputStream is = entity.getContent();
 
+            // Many WordPress configs can output junk before the xml response (php warnings for example), this cleans it.
+            int bomCheck = -1;
+            int stopper = 0;
+            while ((bomCheck = is.read()) != -1 && stopper <= 5000) {
+                stopper++;
+                String snippet = "";
+                //60 == '<' character
+                if (bomCheck == 60) {
+                    for (int i = 0; i < 4; i++) {
+                        byte[] chunk = new byte[1];
+                        is.read(chunk);
+                        snippet += new String(chunk, "UTF-8");
+                    }
+                    if (snippet.equals("?xml")) {
+                        //it's all good, add xml tag back and start parsing
+                        String start = "<" + snippet;
+                        List<InputStream> streams = Arrays.asList(
+                                new ByteArrayInputStream(start.getBytes()),
+                                is);
+                        is = new SequenceInputStream(Collections.enumeration(streams));
+                        break;
+                    } else {
+                        //keep searching...
+                        List<InputStream> streams = Arrays.asList(
+                                new ByteArrayInputStream(snippet.getBytes()),
+                                is);
+                        is = new SequenceInputStream(Collections.enumeration(streams));
+                    }
+                }
+            }
+
+            pullParser.setInput(is, "UTF-8");
             // lets start pulling...
             pullParser.nextTag();
             pullParser.require(XmlPullParser.START_TAG, null, Tag.METHOD_RESPONSE);

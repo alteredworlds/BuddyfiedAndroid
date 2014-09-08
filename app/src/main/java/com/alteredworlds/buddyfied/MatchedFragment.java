@@ -1,7 +1,9 @@
 package com.alteredworlds.buddyfied;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -118,9 +120,26 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
                 Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    //int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
                     String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
-                    showMessage(description);
+                    if (0 == code) {
+                        // server response valid, show any non-empty message
+                        showMessage(description);
+                    } else {
+                        // error case, e.g.: malformed XML.
+                        // show standard message 'No matches found' & popup an alert with error
+                        showMessage(getString(R.string.no_matches_found));
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(getString(R.string.search_failed))
+                                .setMessage(description)
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue with delete
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
                 }
             }
         };

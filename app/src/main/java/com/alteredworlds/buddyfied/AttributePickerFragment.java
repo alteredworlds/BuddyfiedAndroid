@@ -17,7 +17,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -107,19 +106,18 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
         View rootView = inflater.inflate(R.layout.fragment_attribute_picker, container, false);
         setHasOptionsMenu(true);
 
-        mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0, this);
+        final Boolean singleChoice = getActivity().getIntent().getBooleanExtra(ATTIBUTE_SINGLE_CHOICE_EXTRA, false);
+        mCursorAdapter = new AttributePickerAdapter(getActivity(), null, 0, singleChoice, this);
         mLastCheckedPosition = NO_ROW_CHECKED;
 
         final ListView listView = (ListView) rootView.findViewById(R.id.listview_attribute_picker);
         listView.setAdapter(mCursorAdapter);
         listView.setItemsCanFocus(false);
-        listView.setChoiceMode(getActivity().getIntent().getBooleanExtra(ATTIBUTE_SINGLE_CHOICE_EXTRA, false) ?
-                ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_MULTIPLE);
+        listView.setChoiceMode(singleChoice ? ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_MULTIPLE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if ((ListView.CHOICE_MODE_SINGLE == listView.getChoiceMode()) &&
-                        (NO_ROW_CHECKED != mLastCheckedPosition)) {
+                if (singleChoice && (NO_ROW_CHECKED != mLastCheckedPosition)) {
                     if (position == mLastCheckedPosition) {
                         // user clicked on checked row, meaning to UN-CHECK it
                         listView.setItemChecked(position, false);
@@ -265,13 +263,13 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d(LOG_TAG, "onLoadFinished");
+        //Log.d(LOG_TAG, "onLoadFinished");
         mCursorAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(LOG_TAG, "onLoaderReset");
+        //Log.d(LOG_TAG, "onLoaderReset");
         mCursorAdapter.swapCursor(null);
     }
 

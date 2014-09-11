@@ -17,15 +17,22 @@ import com.alteredworlds.buddyfied.AttributePickerFragment;
 public class AttributePickerAdapter extends CursorAdapter {
 
     final private AttributePickerFragment mPicker;
+    final private int mListItemResourceId;
+    private Boolean mIsFirstTime = true;
 
-    public AttributePickerAdapter(Context context, Cursor c, int flags, AttributePickerFragment picker) {
+    public AttributePickerAdapter(Context context, Cursor c, int flags,
+                                  Boolean singleChoice, AttributePickerFragment picker) {
         super(context, c, flags);
         mPicker = picker;
+//        mListItemResourceId = singleChoice ?
+//                android.R.layout.simple_list_item_single_choice :
+//                android.R.layout.simple_list_item_multiple_choice;
+        mListItemResourceId = android.R.layout.simple_list_item_multiple_choice;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_checked, parent, false);
+        View view = LayoutInflater.from(context).inflate(mListItemResourceId, parent, false);
         ViewHolder holder = new ViewHolder(view, (ListView) parent);
         view.setTag(holder);
         return view;
@@ -43,8 +50,11 @@ public class AttributePickerAdapter extends CursorAdapter {
             checked = 1 == cursor.getInt(AttributePickerFragment.COL_ATTRIBUTE_IN_PROFILE);
         }
         viewHolder.listView.setItemChecked(position, checked);
-        if (checked)
+        if (checked && mIsFirstTime) {
+            // initial checked value may have come from database rather than user interaction
             mPicker.setLastCheckedPosition(position);
+            mIsFirstTime = false;
+        }
     }
 
     /**

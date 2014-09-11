@@ -10,10 +10,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 
@@ -28,7 +30,7 @@ public class LoginActivity extends Activity {
     private EditText mPasswordView;
     private Button mSignInButton;
     private Button mGuestSignInButton;
-    private Button mForgotPasswordButton;
+    private TextView mForgotPasswordLink;
 
     private BroadcastReceiver mMessageReceiver;
     private View mFocusDummy;
@@ -68,13 +70,8 @@ public class LoginActivity extends Activity {
             }
         });
 
-        mForgotPasswordButton = (Button) findViewById(R.id.forgot_password_button);
-        mForgotPasswordButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                forgotPassword();
-            }
-        });
+        mForgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
+        mForgotPasswordLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         mMessageReceiver = new BroadcastReceiver() {
             @Override
@@ -137,11 +134,7 @@ public class LoginActivity extends Activity {
     private void enableButtons(Boolean enabled) {
         mGuestSignInButton.setEnabled(enabled);
         mSignInButton.setEnabled(enabled);
-        mForgotPasswordButton.setEnabled(enabled);
-    }
-
-    public void forgotPassword() {
-        ;
+        mForgotPasswordLink.setEnabled(enabled);
     }
 
     public void attemptGuestLogin() {

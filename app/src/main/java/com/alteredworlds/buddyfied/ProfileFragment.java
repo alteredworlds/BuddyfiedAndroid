@@ -1,5 +1,6 @@
 package com.alteredworlds.buddyfied;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -33,6 +34,9 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private LoaderListItem[] mData;
     private BuddyAdapter mAdapter;
     private long mProfileId;
+    private int COMMENTS_ROW;
+    private int AGE_ROW;
+    private int HEADER_ROW;
 
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
@@ -45,27 +49,38 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int COL_AGE = 2;
     private static final int COL_COMMENTS = 3;
 
-    private final int COMMENTS_ROW;
-    private final int AGE_ROW;
-    private final int HEADER_ROW;
-
     public ProfileFragment() {
-        mData = new LoaderListItem[]{
-                new BuddyHeaderListItem("", "", true),
-                new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
-                new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
-                new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.PROFILE_GAMEPLAY),
-                new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.PROFILE_COUNTRY),
-                new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.PROFILE_LANGUAGE),
-                new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderID.PROFILE_SKILL),
-                new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderID.PROFILE_TIME),
-                new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderID.NONE),
-                new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderID.PROFILE_VOICE),
-                new CommentsListItem("Comments", "", "")
-        };
-        HEADER_ROW = 0;
-        AGE_ROW = 8;
-        COMMENTS_ROW = 10;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Settings.isGuestUser(getActivity())) {
+            mData = new LoaderListItem[]{
+                    new BuddyHeaderListItem("", "", true),
+                    new CommentsListItem("Comments", "", "")
+            };
+            HEADER_ROW = 0;
+            AGE_ROW = -1;
+            COMMENTS_ROW = 1;
+        } else {
+            mData = new LoaderListItem[]{
+                    new BuddyHeaderListItem("", "", true),
+                    new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
+                    new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
+                    new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.PROFILE_GAMEPLAY),
+                    new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.PROFILE_COUNTRY),
+                    new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.PROFILE_LANGUAGE),
+                    new SearchListItem("Skill", "", AttributeEntry.TypeSkill, LoaderID.PROFILE_SKILL),
+                    new SearchListItem("Time", "", AttributeEntry.TypeTime, LoaderID.PROFILE_TIME),
+                    new SearchListItem("Age", "", AttributeEntry.TypeAgeRange, LoaderID.NONE),
+                    new SearchListItem("Voice", "", AttributeEntry.TypeVoice, LoaderID.PROFILE_VOICE),
+                    new CommentsListItem("Comments", "", "")
+            };
+            HEADER_ROW = 0;
+            AGE_ROW = 8;
+            COMMENTS_ROW = 10;
+        }
     }
 
     @Override
@@ -133,16 +148,28 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         return retVal;
     }
 
+    private void setRowName(int row, String value) {
+        if ((-1 != row) && (mData.length > row)) {
+            mData[row].name = value;
+        }
+    }
+
+    private void setRowValue(int row, String value) {
+        if ((-1 != row) && (mData.length > row)) {
+            mData[row].value = value;
+        }
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         int loaderId = loader.getId();
         if (LoaderID.PROFILE_MAIN == loaderId) {
             // we can unpack AGE, COMMENTS, IMAGE
             if (data.moveToFirst()) {
-                mData[COMMENTS_ROW].value = data.getString(COL_COMMENTS);
-                mData[AGE_ROW].value = data.getString(COL_AGE);
-                mData[HEADER_ROW].name = data.getString(COL_NAME);
-                mData[HEADER_ROW].value = data.getString(COL_IMAGE_URI);
+                setRowValue(COMMENTS_ROW, data.getString(COL_COMMENTS));
+                setRowValue(AGE_ROW, data.getString(COL_AGE));
+                setRowName(HEADER_ROW, data.getString(COL_NAME));
+                setRowValue(HEADER_ROW, data.getString(COL_IMAGE_URI));
             }
         } else {
             // find the correct ProfileRow to update based on the loaderId

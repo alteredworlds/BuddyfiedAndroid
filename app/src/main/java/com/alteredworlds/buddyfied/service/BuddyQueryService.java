@@ -20,12 +20,17 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
-import org.xmlrpc.android.XMLRPCClient;
-import org.xmlrpc.android.XMLRPCException;
-import org.xmlrpc.android.XMLRPCFault;
-
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Vector;
+
+import de.timroes.axmlrpc.XMLRPCClient;
+import de.timroes.axmlrpc.XMLRPCException;
+
+//
+//import org.xmlrpc.android.XMLRPCClient;
+//import org.xmlrpc.android.XMLRPCException;
+//import org.xmlrpc.android.XMLRPCFault;
 
 /**
  * Created by twcgilbert on 21/08/2014.
@@ -142,22 +147,25 @@ public class BuddyQueryService extends IntentService {
         String username = Settings.getUsername(this);
         String password = Settings.getPassword(this);
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-        XMLRPCClient client = new XMLRPCClient(uri);
         try {
+            XMLRPCClient client = new XMLRPCClient(uri);
             Object res = client.call(VerifyConnection, username, password);
             if (res instanceof HashMap) {
                 Integer userId = (Integer) ((HashMap) res).get("user_id");
                 Settings.setUserId(this, userId);
             }
-        } catch (XMLRPCFault e) {
-            e.printStackTrace();
-            resultDescription = e.getFaultString();
-            resultCode = e.getFaultCode();
+//        } catch (XMLRPCFault e) {
+//            e.printStackTrace();
+//            resultDescription = e.getFaultString();
+//            resultCode = e.getFaultCode();
         } catch (XMLRPCException e) {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
             resultCode = -1;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
+
         return resultBundle(resultCode, resultDescription);
     }
 
@@ -170,8 +178,8 @@ public class BuddyQueryService extends IntentService {
         data.put("user_id", userId);
 
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-        XMLRPCClient client = new XMLRPCClient(uri);
         try {
+            XMLRPCClient client = new XMLRPCClient(uri);
             Object res = client.call(
                     GetMemberInfo,
                     Settings.getUsername(this),
@@ -182,6 +190,8 @@ public class BuddyQueryService extends IntentService {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
             resultCode = -1;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
         return resultBundle(resultCode, resultDescription);
     }
@@ -197,8 +207,9 @@ public class BuddyQueryService extends IntentService {
         data.put("content", intent.getStringExtra(BODY_EXTRA));
 
         String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-        XMLRPCClient client = new XMLRPCClient(uri);
+
         try {
+            XMLRPCClient client = new XMLRPCClient(uri);
             Object res = client.call(
                     SendMessage,
                     Settings.getUsername(this),
@@ -214,6 +225,8 @@ public class BuddyQueryService extends IntentService {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
             resultCode = -1;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
         return resultBundle(resultCode, resultDescription);
     }
@@ -270,8 +283,9 @@ public class BuddyQueryService extends IntentService {
             resultDescription = getString(R.string.specify_query);
         } else {
             String uri = Settings.getBuddySite(this) + BuddyXmlRpcRoot;
-            XMLRPCClient client = new XMLRPCClient(uri);
+
             try {
+                XMLRPCClient client = new XMLRPCClient(uri);
                 Object res = client.call(
                         GetMatches,
                         Settings.getUsername(this),
@@ -282,6 +296,8 @@ public class BuddyQueryService extends IntentService {
                 e.printStackTrace();
                 resultDescription = e.getLocalizedMessage();
                 resultCode = -1;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
         }
         return resultBundle(resultCode, resultDescription);

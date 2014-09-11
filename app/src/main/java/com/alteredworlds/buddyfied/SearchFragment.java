@@ -26,7 +26,7 @@ import com.alteredworlds.buddyfied.view_model.SearchListItem;
 /**
  * Created by twcgilbert on 30/07/2014.
  */
-public class SearchFragment extends Fragment   implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SearchFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     final protected int mProfileId = BuddyfiedDbHelper.SEARCH_PROFILE_ID;
     protected LoaderListItem[] mData;
@@ -65,7 +65,7 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
         View rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
         mAdapter = new SearchAdapter(getActivity(), mData);
-        ListView listView = (ListView)rootView.findViewById(R.id.listview_search);
+        ListView listView = (ListView) rootView.findViewById(R.id.listview_search);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -118,7 +118,7 @@ public class SearchFragment extends Fragment   implements LoaderManager.LoaderCa
         int loaderId = loader.getId();
         // find the correct ProfileRow to update based on the loaderId
         LoaderListItem row = null;
-        for (int i =0; i < mData.length; i++) {
+        for (int i = 0; i < mData.length; i++) {
             if (mData[i].loaderId == loaderId) {
                 row = mData[i];
                 break;

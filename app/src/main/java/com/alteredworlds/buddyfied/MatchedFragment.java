@@ -25,7 +25,7 @@ import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddySearchService;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.MatchedAdapter;
 
@@ -117,11 +117,11 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
             @Override
             public void onReceive(Context context, Intent intent) {
                 showProgressIndicator(false);
-                Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
+                Bundle results = intent.getBundleExtra(BuddySearchService.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
-                    String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                    int code = results.getInt(BuddySearchService.RESULT_CODE, 0);
+                    String description = results.getString(BuddySearchService.RESULT_DESCRIPTION, "");
                     if (0 == code) {
                         // server response valid, show any non-empty message
                         showMessage(description);
@@ -186,14 +186,14 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         //
         // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+                new IntentFilter(BuddySearchService.BUDDY_SEARCH_SERVICE_RESULT_EVENT));
         //
         getLoaderManager().initLoader(LoaderID.MATCHED, null, this);
         //
         if (!haveBuddiesAlready()) {
-            Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-            intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMatches);
-            intent.putExtra(BuddyQueryService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
+            Intent intent = new Intent(getActivity(), BuddySearchService.class);
+            intent.putExtra(BuddySearchService.METHOD_EXTRA, BuddySearchService.GetMatches);
+            intent.putExtra(BuddySearchService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
             getActivity().startService(intent);
             showProgressIndicator(true);
         }

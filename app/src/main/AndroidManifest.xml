@@ -24,6 +24,9 @@
         <service
             android:name=".service.BuddyQueryService"
             android:authorities="com.alteredworlds.buddyfied" />
+        <service
+            android:name=".service.BuddySearchService"
+            android:authorities="com.alteredworlds.buddyfied" />
 
         <activity
             android:name=".AttributePickerActivity"

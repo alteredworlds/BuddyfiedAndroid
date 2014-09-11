@@ -224,8 +224,7 @@ public class BuddyfiedProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        if (null != retCursor)
-        {
+        if (null != retCursor) {
             retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return retCursor;
@@ -252,7 +251,7 @@ public class BuddyfiedProvider extends ContentProvider {
         return sAttributeByTypeForProfileQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
                 sb.toString(),
-                new String[] {attributeType, String.valueOf(profileId)},
+                new String[]{attributeType, String.valueOf(profileId)},
                 null,
                 null,
                 sortOrder);
@@ -282,7 +281,7 @@ public class BuddyfiedProvider extends ContentProvider {
                 AttributeEntry.TABLE_NAME,
                 projection,
                 sAttributeTypeSelection,
-                new String[] {attributeType},
+                new String[]{attributeType},
                 null,
                 null,
                 null,
@@ -294,8 +293,7 @@ public class BuddyfiedProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
-        switch (match)
-        {
+        switch (match) {
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID_ALL:
                 return AttributeEntry.CONTENT_TYPE;
             case ATTRIBUTE_TYPE_FOR_PROFILE_ID:
@@ -330,8 +328,7 @@ public class BuddyfiedProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri retVal = null;
-        switch (match)
-        {
+        switch (match) {
             case ATTRIBUTE: {
                 long _id = db.insert(AttributeEntry.TABLE_NAME, null, contentValues);
                 if (_id >= 0)
@@ -347,7 +344,7 @@ public class BuddyfiedProvider extends ContentProvider {
                 else
                     throw new SQLException("Failed to insert row into " + ProfileEntry.TABLE_NAME);
             }
-                break;
+            break;
             case BUDDY: {
                 long _id = db.insert(BuddyEntry.TABLE_NAME, null, contentValues);
                 if (_id >= 0)
@@ -376,8 +373,7 @@ public class BuddyfiedProvider extends ContentProvider {
         int numRows = 0;
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        switch (match)
-        {
+        switch (match) {
             case ATTRIBUTE:
                 numRows = db.delete(AttributeEntry.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -393,8 +389,7 @@ public class BuddyfiedProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
-        if ((null == selection) || (0 != numRows))
-        {
+        if ((null == selection) || (0 != numRows)) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return numRows;
@@ -405,8 +400,7 @@ public class BuddyfiedProvider extends ContentProvider {
         int numRows = 0;
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        switch (match)
-        {
+        switch (match) {
             case ATTRIBUTE:
                 numRows = db.update(AttributeEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
@@ -421,16 +415,14 @@ public class BuddyfiedProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
-        if ((null == selection) || (0 != numRows))
-        {
+        if ((null == selection) || (0 != numRows)) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return numRows;
     }
 
 
-    private static UriMatcher buildUriMatcher()
-    {
+    private static UriMatcher buildUriMatcher() {
         final UriMatcher retVal = new UriMatcher(UriMatcher.NO_MATCH);
         //
         // all Profiles
@@ -448,19 +440,19 @@ public class BuddyfiedProvider extends ContentProvider {
         // all Attributes
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_ATTRIBUTE ,
+                BuddyfiedContract.PATH_ATTRIBUTE,
                 ATTRIBUTE);
         //
         // a specific Attribute (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_ATTRIBUTE + "/#" ,
+                BuddyfiedContract.PATH_ATTRIBUTE + "/#",
                 ATTRIBUTE_ID);
         //
         // all Attributes of a given type
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_ATTRIBUTE + "/*" ,
+                BuddyfiedContract.PATH_ATTRIBUTE + "/*",
                 ATTRIBUTE_TYPE);
         //
         // all Attributes of a given type for a specific Profile (by ID)
@@ -478,25 +470,25 @@ public class BuddyfiedProvider extends ContentProvider {
         // all Buddies
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_BUDDY ,
+                BuddyfiedContract.PATH_BUDDY,
                 BUDDY);
         //
         // a specific Buddy (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_BUDDY + "/#" ,
+                BuddyfiedContract.PATH_BUDDY + "/#",
                 BUDDY_ID);
         //
         // all Profile Attributes
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_PROFILE_ATTRIBUTE ,
+                BuddyfiedContract.PATH_PROFILE_ATTRIBUTE,
                 PROFILE_ATTRIBUTE);
         //
         // a specific ProfileAttribute (by ID)
         retVal.addURI(
                 BuddyfiedContract.CONTENT_AUTHORITY,
-                BuddyfiedContract.PATH_PROFILE_ATTRIBUTE + "/#" ,
+                BuddyfiedContract.PATH_PROFILE_ATTRIBUTE + "/#",
                 PROFILE_ATTRIBUTE_ID);
         //
         //
@@ -523,8 +515,7 @@ public class BuddyfiedProvider extends ContentProvider {
                         }
                     }
                     db.setTransactionSuccessful();
-                }
-                finally {
+                } finally {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -555,8 +546,7 @@ public class BuddyfiedProvider extends ContentProvider {
                         }
                     }
                     db.setTransactionSuccessful();
-                }
-                finally {
+                } finally {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);

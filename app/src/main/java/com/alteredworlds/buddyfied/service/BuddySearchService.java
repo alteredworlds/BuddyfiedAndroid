@@ -257,14 +257,25 @@ public class BuddySearchService extends Service {
         retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_COMMENTS, (String) buddy.get("field_167"));
         retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_IMAGE_URI, getBuddyImageUrl(buddy));
         retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_AGE, (String) buddy.get("field_8"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_COUNTRY, (String) buddy.get("field_6"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_GAMEPLAY, (String) buddy.get("field_5"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_LANGUAGE, (String) buddy.get("field_153"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_PLATFORM, (String) buddy.get("field_2"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_PLAYING, (String) buddy.get("field_4"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_SKILL, (String) buddy.get("field_7"));
-        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_TIME, (String) buddy.get("field_152"));
         retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_VOICE, (String) buddy.get("field_9"));
+
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_COUNTRY, cleanIdList(buddy, "field_6"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_GAMEPLAY, cleanIdList(buddy, "field_5"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_LANGUAGE, cleanIdList(buddy, "field_153"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_PLATFORM, cleanIdList(buddy, "field_2"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_PLAYING, cleanIdList(buddy, "field_4"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_SKILL, cleanIdList(buddy, "field_7"));
+        retVal.put(BuddyfiedContract.BuddyEntry.COLUMN_TIME, cleanIdList(buddy, "field_152"));
+
+        return retVal;
+    }
+
+    private static String cleanIdList(HashMap buddy, String key) {
+        String retVal = null;
+        String inStr = (String) buddy.get(key);
+        if ((null != inStr) && inStr.matches("[0-9]+(,[0-9]+)*")) {
+            retVal = inStr;
+        }
         return retVal;
     }
 

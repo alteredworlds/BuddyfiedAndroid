@@ -76,31 +76,52 @@
                     android:singleLine="true"
                     android:background="@drawable/attribute_search" />
 
-                <Button
-                    android:id="@+id/sign_in_button"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center"
-                    android:text="@string/action_sign_in"
-                    android:textStyle="bold"
-                    android:textSize="26dp"
-                    android:background="@android:color/transparent"
-                    android:textColor="@drawable/button_text" />
+                    android:layout_marginTop="10dp">
 
-                <Button
-                    android:id="@+id/guest_sign_in_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center"
-                    android:text="@string/action_guest_sign_in"
-                    android:textStyle="bold"
-                    android:textColor="@drawable/button_text"
-                    android:textSize="26dp"
-                    android:background="@android:color/transparent" />
+                    <TextView
+                        android:id="@+id/position_view"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:textColor="@color/white"
+                        android:layout_alignParentRight="false"
+                        android:layout_alignParentEnd="false"
+                        android:layout_centerInParent="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp" />
+
+                    <Button
+                        android:id="@+id/sign_in_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="center"
+                        android:text="@string/action_sign_in"
+                        android:textStyle="bold"
+                        android:textColor="@drawable/button_text"
+                        android:textSize="26sp"
+                        android:background="@android:color/transparent"
+                        android:layout_toStartOf="@id/position_view" />
+
+                    <Button
+                        android:id="@+id/guest_sign_in_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="center"
+                        android:text="@string/action_guest_sign_in"
+                        android:textStyle="bold"
+                        android:textColor="@drawable/button_text"
+                        android:textSize="26sp"
+                        android:background="@android:color/transparent"
+                        android:layout_alignBottom="@+id/sign_in_button"
+                        android:layout_gravity="right"
+                        android:layout_alignParentStart="false"
+                        android:layout_toEndOf="@id/position_view" />
+
+                </RelativeLayout>
             </LinearLayout>
 
             <LinearLayout

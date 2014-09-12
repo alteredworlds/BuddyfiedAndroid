@@ -19,7 +19,8 @@
             style="@style/StandardText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true" />
 
         <TextView
             android:id="@+id/about_username_text_view"
@@ -38,7 +39,8 @@
             android:textStyle="bold"
             android:textColor="@drawable/button_text"
             android:background="@android:color/transparent"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true" />
     </RelativeLayout>
 
     <LinearLayout

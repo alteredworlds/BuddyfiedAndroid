@@ -99,8 +99,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         super.onResume();
         //
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
-        intent.putExtra(BuddyQueryService.ID_EXTRA, Settings.getUserId(getActivity()));
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
+        intent.putExtra(Constants.ID_EXTRA, Settings.getUserId(getActivity()));
         getActivity().startService(intent);
         // start loaders
         getLoaderManager().initLoader(LoaderID.PROFILE_MAIN, null, this);

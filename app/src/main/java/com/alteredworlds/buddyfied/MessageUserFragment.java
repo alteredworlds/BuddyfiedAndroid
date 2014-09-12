@@ -58,13 +58,13 @@ public class MessageUserFragment extends Fragment {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
+                Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    int code = results.getInt(Constants.RESULT_CODE, 0);
                     if (0 != code) {
                         // code other than 0 should trigger an alert
-                        String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                        String description = results.getString(Constants.RESULT_DESCRIPTION, "");
                         if (Utils.isNullOrEmpty(description)) {
                             description = getString(R.string.message_send_failed_message);
                         }
@@ -156,8 +156,8 @@ public class MessageUserFragment extends Fragment {
             enableSendMenuItem(false);
             String recipient = getActivity().getIntent().getStringExtra(BuddyFragment.BUDDY_ID_EXTRA);
             Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-            intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.SendMessage);
-            intent.putExtra(BuddyQueryService.ID_EXTRA, recipient);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.SendMessage);
+            intent.putExtra(Constants.ID_EXTRA, recipient);
             intent.putExtra(BuddyQueryService.SUBJECT_EXTRA, messageSubject);
             intent.putExtra(BuddyQueryService.BODY_EXTRA, messageBody);
             getActivity().startService(intent);

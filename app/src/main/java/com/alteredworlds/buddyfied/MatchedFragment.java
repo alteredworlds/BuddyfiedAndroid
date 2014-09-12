@@ -116,11 +116,11 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
             @Override
             public void onReceive(Context context, Intent intent) {
                 showProgressIndicator(false);
-                Bundle results = intent.getBundleExtra(BuddySearchService.RESULT_BUNDLE);
+                Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    int code = results.getInt(BuddySearchService.RESULT_CODE, 0);
-                    String description = results.getString(BuddySearchService.RESULT_DESCRIPTION, "");
+                    int code = results.getInt(Constants.RESULT_CODE, 0);
+                    String description = results.getString(Constants.RESULT_DESCRIPTION, "");
                     if (0 == code) {
                         // server response valid, show any non-empty message
                         showMessage(description);
@@ -191,8 +191,8 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
         //
         if (!haveBuddiesAlready()) {
             Intent intent = new Intent(getActivity(), BuddySearchService.class);
-            intent.putExtra(BuddySearchService.METHOD_EXTRA, BuddySearchService.GetMatches);
-            intent.putExtra(BuddySearchService.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddySearchService.GetMatches);
+            intent.putExtra(Constants.ID_EXTRA, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
             getActivity().startService(intent);
             showProgressIndicator(true);
         }

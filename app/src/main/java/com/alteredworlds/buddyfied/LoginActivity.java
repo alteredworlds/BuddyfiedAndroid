@@ -76,15 +76,15 @@ public class LoginActivity extends Activity {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Bundle results = intent.getBundleExtra(BuddyQueryService.RESULT_BUNDLE);
+                Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
-                    int code = results.getInt(BuddyQueryService.RESULT_CODE, 0);
+                    int code = results.getInt(Constants.RESULT_CODE, 0);
                     if (0 != code) {
                         // code other than 0 should trigger an alert
                         Settings.setUsername(context, "");
                         Settings.setPassword(context, "");
-                        String description = results.getString(BuddyQueryService.RESULT_DESCRIPTION, "");
+                        String description = results.getString(Constants.RESULT_DESCRIPTION, "");
                         if (Utils.isNullOrEmpty(description)) {
                             description = getString(R.string.sign_in_failed_message_default);
                         }
@@ -143,7 +143,7 @@ public class LoginActivity extends Activity {
         Settings.setUsername(this, Settings.getGuestUsername(this));
         Settings.setPassword(this, Settings.getGuestPassword(this));
         Intent intent = new Intent(this, BuddyQueryService.class);
-        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
         startService(intent);
     }
 
@@ -194,7 +194,7 @@ public class LoginActivity extends Activity {
             Settings.setUsername(this, username);
             Settings.setPassword(this, password);
             Intent intent = new Intent(this, BuddyQueryService.class);
-            intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
             startService(intent);
         }
     }

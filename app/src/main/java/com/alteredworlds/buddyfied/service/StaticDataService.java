@@ -2,13 +2,17 @@ package com.alteredworlds.buddyfied.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.alteredworlds.buddyfied.Constants;
+import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
+import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 
 import org.apache.http.HttpEntity;
@@ -21,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Vector;
@@ -31,7 +36,12 @@ import java.util.Vector;
 public class StaticDataService extends IntentService {
     private static final String LOG_TAG = StaticDataService.class.getSimpleName();
 
-    static public final String STATIC_QUERY_EXTRA = "type";
+    public static final String STATIC_DATA_SERVICE_RESULT_EVENT = "static_data_service_result_event";
+
+    public static final String GET_ALL_IF_NEEDED = "get_all_if_needed";
+    public static final String UPDATE_ALL = "update_all";
+    public static final String GET_IF_NEEDED = "get_if_needed";
+    public static final String UPDATE = "update";
 
     public static final String PlatformKey = "platform";
     public static final String CountryKey = "country";
@@ -52,27 +62,69 @@ public class StaticDataService extends IntentService {
     static final String VoiceJSON = "[{\"id\":\"" + VOICE_ID_YES + "\",\"name\":\"" + VOICE_YES +
             "\"},{\"id\":\"" + VOICE_ID_NO + "\",\"name\":\"" + VOICE_NO + "\"}]";
 
+    private final static String[] AttributeTypes = {
+            AttributeEntry.TypePlatform,
+            AttributeEntry.TypeCountry,
+            AttributeEntry.TypeGameplay,
+            AttributeEntry.TypePlaying,
+            AttributeEntry.TypeLanguage,
+            AttributeEntry.TypeSkill,
+            AttributeEntry.TypeTime,
+            AttributeEntry.TypeAgeRange,
+            AttributeEntry.TypeVoice
+    };
+
     public StaticDataService() {
         super("StaticDataService");
     }
 
-    public static void initialStaticDataLoadIfNeeded(ContextWrapper context) {
-        // for each Attribute Type, see if we already have data
-        // if not, kick off a request and load.
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypePlatform, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeCountry, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeGameplay, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypePlaying, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeLanguage, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeSkill, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeTime, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeAgeRange, context);
-        loadStaticIfNecessaryForAttributeType(AttributeEntry.TypeVoice, context);
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Bundle result = null;
+        String method = intent.getStringExtra(Constants.METHOD_EXTRA);
+        String attributeType = intent.getStringExtra(Constants.ID_EXTRA);
+        if (0 == GET_ALL_IF_NEEDED.compareTo(method)) {
+            result = loadAllAttributesIfNeeded();
+        } else if (0 == UPDATE_ALL.compareTo(method)) {
+            result = loadAllAttributes();
+        } else if (0 == GET_IF_NEEDED.compareTo(method)) {
+            result = loadAttributeIfNeeded(attributeType);
+        } else if (0 == UPDATE.compareTo(method)) {
+            result = loadAttribute(attributeType);
+        } else {
+            String errorMessage = "Unknown StaticDataService method call: '" + method + "'";
+            Log.e(LOG_TAG, errorMessage);
+            result = resultBundle(-1, errorMessage);
+        }
+        reportResult(result);
     }
 
-    public static void loadStaticIfNecessaryForAttributeType(String attributeType, ContextWrapper context) {
+    private Bundle loadAllAttributesIfNeeded() {
+        Bundle retVal = null;
+        for (String attributeType : AttributeTypes) {
+            retVal = loadAttributeIfNeeded(attributeType);
+            if (Constants.RESULT_OK != getResultCode(retVal)) {
+                break;
+            }
+        }
+        return retVal;
+    }
+
+    private Bundle loadAllAttributes() {
+        Bundle retVal = null;
+        for (String attributeType : AttributeTypes) {
+            retVal = loadAttribute(attributeType);
+            if (Constants.RESULT_OK != getResultCode(retVal)) {
+                break;
+            }
+        }
+        return retVal;
+    }
+
+    private Bundle loadAttributeIfNeeded(String attributeType) {
+        Bundle retVal = null;
         Uri query = AttributeEntry.buildAttributeType(attributeType);
-        Cursor cursor = context.getContentResolver().query(
+        Cursor cursor = getContentResolver().query(
                 query,  // Table to Query
                 null, // all columns
                 null, // Columns for the "where" clause
@@ -81,51 +133,72 @@ public class StaticDataService extends IntentService {
         );
         boolean needToLoadStatic = 0 == cursor.getCount();
         cursor.close();
-        if (needToLoadStatic)
-            loadStaticForAttributeType(attributeType, context);
-    }
-
-    public static void loadStaticForAttributeType(String attributeType, ContextWrapper context) {
-        Intent intent = new Intent(context, StaticDataService.class);
-        intent.putExtra(StaticDataService.STATIC_QUERY_EXTRA, attributeType);
-        context.startService(intent);
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        String type = intent.getStringExtra(STATIC_QUERY_EXTRA);
-
-        ContentValues[] cvArray = null;
-        long numRows = 0l;
-        if (0 == AttributeEntry.TypeAgeRange.compareTo(type)) {
-            cvArray = createArrayOfAttributeValues(AgeRangeJSON, AttributeEntry.TypeAgeRange);
-        }
-        else if (0 == AttributeEntry.TypeVoice.compareTo(type)) {
-            cvArray = createArrayOfAttributeValues(VoiceJSON, AttributeEntry.TypeVoice);
-        }
-        else {
-            // static data request for Attribute type
-            String url = Settings.getBuddySite(this) + BuddifiedStaticDataUrl + remoteKeyForEntityNamed(type) + "&q=";
-            JSONArray staticData = getJson(url);
-            // JSON must now be parsed and converted to series of records to be inserted into database
-            cvArray = createArrayOfAttributeValues(staticData, type);
-        }
-        if (null != cvArray) {
-            numRows = getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
-        }
-        Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI + " type " + type +
-                " num rows: " + numRows);
-    }
-
-    static ContentValues[] createArrayOfAttributeValues(String jsonString, String attributeType) {
-        ContentValues[] retVal = null;
-        try {
-            JSONArray jsonArray = new JSONArray(jsonString);
-            retVal = createArrayOfAttributeValues(jsonArray, attributeType);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (needToLoadStatic) {
+            retVal = loadAttribute(attributeType);
         }
         return retVal;
+    }
+
+    private Bundle loadAttribute(String type) {
+        Bundle retVal = null;
+        ContentValues[] cvArray = null;
+        long numRows = 0l;
+        try {
+            if (0 == AttributeEntry.TypeAgeRange.compareTo(type)) {
+                cvArray = createArrayOfAttributeValues(AgeRangeJSON, AttributeEntry.TypeAgeRange);
+            } else if (0 == AttributeEntry.TypeVoice.compareTo(type)) {
+                cvArray = createArrayOfAttributeValues(VoiceJSON, AttributeEntry.TypeVoice);
+            } else {
+                // static data request for Attribute type
+                String url = Settings.getBuddySite(this) + BuddifiedStaticDataUrl + remoteKeyForEntityNamed(type) + "&q=";
+                JSONArray staticData = getJson(url);
+                // JSON must now be parsed and converted to series of records to be inserted into database
+                cvArray = createArrayOfAttributeValues(staticData, type);
+            }
+            if (null != cvArray) {
+                numRows = getContentResolver().bulkInsert(AttributeEntry.CONTENT_URI, cvArray);
+                Log.i(LOG_TAG, "Inserted for for Uri:" + AttributeEntry.CONTENT_URI + " type " + type +
+                        " num rows: " + numRows);
+            }
+        } catch (JSONException e) {
+            retVal = resultBundle(Constants.RESULT_FAIL,
+                    getString(R.string.static_load_failed) + e.getLocalizedMessage());
+        } catch (IOException e) {
+            retVal = resultBundle(Constants.RESULT_FAIL,
+                    getString(R.string.static_load_failed) + e.getLocalizedMessage());
+        }
+        return retVal;
+    }
+
+    private Bundle resultBundle(int code, String description) {
+        Bundle retVal = new Bundle();
+        retVal.putInt(Constants.RESULT_CODE, code);
+        if (!Utils.isNullOrEmpty(description)) {
+            retVal.putString(Constants.RESULT_DESCRIPTION, description);
+        }
+        return retVal;
+    }
+
+    private int getResultCode(Bundle bundle) {
+        int retVal = 0;
+        if (null != bundle) {
+            retVal = bundle.getInt(Constants.RESULT_CODE);
+        }
+        return retVal;
+    }
+
+    private void reportResult(Bundle result) {
+        if (null != result) {
+            Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
+            Intent intent = new Intent(STATIC_DATA_SERVICE_RESULT_EVENT);
+            intent.putExtra(Constants.RESULT_BUNDLE, result);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
+
+    static ContentValues[] createArrayOfAttributeValues(String jsonString, String attributeType) throws JSONException {
+        JSONArray jsonArray = new JSONArray(jsonString);
+        return createArrayOfAttributeValues(jsonArray, attributeType);
     }
 
 
@@ -142,6 +215,7 @@ public class StaticDataService extends IntentService {
                 contentValues.add(cv);
             } catch (JSONException e) {
                 e.printStackTrace();
+                Log.i(LOG_TAG, "Ignoring malformed attribute of type " + attributeType + "at position " + idx);
             }
         }
         ContentValues[] retVal = new ContentValues[contentValues.size()];
@@ -149,49 +223,29 @@ public class StaticDataService extends IntentService {
         return retVal;
     }
 
-    static JSONArray getJson(String url){
-
+    static JSONArray getJson(String url) throws IOException, JSONException {
         InputStream is = null;
         String result = "";
-        JSONArray jsonArray = null;
 
         // HTTP
-        try {
-            HttpClient httpclient = new DefaultHttpClient(); // for port 80 requests!
-            HttpGet httpGet = new HttpGet(url);
-            HttpResponse response = httpclient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            is = entity.getContent();
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        HttpClient httpclient = new DefaultHttpClient(); // for port 80 requests!
+        HttpGet httpGet = new HttpGet(url);
+        HttpResponse response = httpclient.execute(httpGet);
+        HttpEntity entity = response.getEntity();
+        is = entity.getContent();
 
         // Read response to string
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is,"utf-8"),8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            is.close();
-            result = sb.toString();
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line + "\n");
         }
+        is.close();
+        result = sb.toString();
 
         // Convert string to object
-        try {
-            jsonArray = new JSONArray(result);
-        } catch(JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return jsonArray;
-
+        return new JSONArray(result);
     }
 
     static String remoteKeyForEntityNamed(String entityName) {

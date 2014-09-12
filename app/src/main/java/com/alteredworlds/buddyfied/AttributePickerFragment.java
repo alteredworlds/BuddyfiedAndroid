@@ -4,9 +4,11 @@ package com.alteredworlds.buddyfied;
  * Created by twcgilbert on 19/08/2014.
  */
 
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -27,11 +30,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.service.BuddySearchService;
+import com.alteredworlds.buddyfied.service.StaticDataService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 
@@ -63,6 +68,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
     private EditText mFilterEditText;
     private String mFilterString;
     private Boolean mShowOnlyCheckedItems = false;
+    private BroadcastReceiver mMessageReceiver;
 
     public AttributePickerFragment() {
     }
@@ -98,6 +104,17 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
     public void onResume() {
         super.onResume();
         getLoaderManager().initLoader(LoaderID.ATTRIBUTE, null, this);
+        //
+        // Register an observer to receive specific named Intents ('events')
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter(StaticDataService.STATIC_DATA_SERVICE_RESULT_EVENT));
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        super.onPause();
     }
 
     @Override
@@ -133,12 +150,12 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
                 // if the search has changed, we need to:
                 // stop any running search
                 Intent intent = new Intent(getActivity(), BuddySearchService.class);
-                intent.putExtra(BuddySearchService.METHOD_EXTRA, BuddySearchService.Cancel);
+                intent.putExtra(Constants.METHOD_EXTRA, BuddySearchService.Cancel);
                 getActivity().startService(intent);
                 //
                 // remove all Buddies
                 intent = new Intent(getActivity(), BuddyQueryService.class);
-                intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
+                intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
                 getActivity().startService(intent);
             }
         });
@@ -185,6 +202,22 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
             // get rid of the filter EditText
             mFilterEditText.setVisibility(View.GONE);
         }
+        // static data retrieval error indication
+        mMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
+                if (null != results) {
+                    int code = results.getInt(Constants.RESULT_CODE, Constants.RESULT_OK);
+                    String description = results.getString(Constants.RESULT_DESCRIPTION, "");
+                    if ((Constants.RESULT_FAIL == code) && !Utils.isNullOrEmpty(description)) {
+                        // error case, e.g.: problem with server, network
+                        Toast toast = Toast.makeText(context, description, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+            }
+        };
         return rootView;
     }
 
@@ -205,13 +238,23 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.attribute_picker_filter) {
-            // do the refresh
-            toggleCheckedFilter();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.attribute_picker_filter:
+                toggleCheckedFilter();
+                return true;
+            case R.id.action_settings:
+                refreshStaticData();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshStaticData() {
+        // refresh the static data for this particular attribute type only
+        Intent staticDataIntent = new Intent(getActivity(), StaticDataService.class);
+        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.UPDATE);
+        staticDataIntent.putExtra(Constants.ID_EXTRA, mAttributeType);
+        getActivity().startService(staticDataIntent);
     }
 
     private void toggleCheckedFilter() {

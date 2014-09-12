@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
 import com.alteredworlds.buddyfied.Utils;
@@ -27,37 +28,25 @@ import java.util.Vector;
 import de.timroes.axmlrpc.XMLRPCClient;
 import de.timroes.axmlrpc.XMLRPCException;
 
-//
-//import org.xmlrpc.android.XMLRPCClient;
-//import org.xmlrpc.android.XMLRPCException;
-//import org.xmlrpc.android.XMLRPCFault;
-
 /**
  * Created by twcgilbert on 21/08/2014.
  */
 public class BuddyQueryService extends IntentService {
     private static final String LOG_TAG = BuddyQueryService.class.getSimpleName();
 
-    public static final String METHOD_EXTRA = "method";
-    public static final String ID_EXTRA = "id";
     public static final String SUBJECT_EXTRA = "subject";
     public static final String BODY_EXTRA = "content";
 
     public static final String BUDDY_QUERY_SERVICE_RESULT_EVENT = "buddy_query_service_result";
-    public static final String RESULT_BUNDLE = "results";
-    public static final String RESULT_CODE = "code";
-    public static final String RESULT_DESCRIPTION = "description";
 
     public static final String GetMatches = "bp.getMatches";
     public static final String SendMessage = "bp.sendMessage";
     public static final String GetMemberInfo = "bp.getMemberData";
     public static final String VerifyConnection = "bp.verifyConnection";
 
+    // these are just used to provide asynchronous database processing
     public static final String CreateSearchProfileIfNeeded = "CreateSearchProfileIfNeeded";
     public static final String ClearDataOnLogout = "ClearDataOnLogout";
-
-    // this last one is a bit naughty - easiest way of providing
-    // asynchronous delete
     public static final String DeleteBuddies = "deleteBuddies";
 
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
@@ -80,7 +69,7 @@ public class BuddyQueryService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String method = intent.getStringExtra(METHOD_EXTRA);
+        String method = intent.getStringExtra(Constants.METHOD_EXTRA);
         Bundle result = null;
         if (0 == GetMatches.compareTo(method)) {
             result = getMatches(intent);
@@ -131,7 +120,7 @@ public class BuddyQueryService extends IntentService {
         if (null != result) {
             Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_QUERY_SERVICE_RESULT_EVENT);
-            intent.putExtra(RESULT_BUNDLE, result);
+            intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
@@ -142,7 +131,7 @@ public class BuddyQueryService extends IntentService {
     }
 
     private Bundle verifyConnection(Intent intent) {
-        int resultCode = 0;
+        int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
         String username = Settings.getUsername(this);
         String password = Settings.getPassword(this);
@@ -154,14 +143,10 @@ public class BuddyQueryService extends IntentService {
                 Integer userId = (Integer) ((HashMap) res).get("user_id");
                 Settings.setUserId(this, userId);
             }
-//        } catch (XMLRPCFault e) {
-//            e.printStackTrace();
-//            resultDescription = e.getFaultString();
-//            resultCode = e.getFaultCode();
         } catch (XMLRPCException e) {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
-            resultCode = -1;
+            resultCode = Constants.RESULT_FAIL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -170,7 +155,7 @@ public class BuddyQueryService extends IntentService {
     }
 
     private Bundle getMemberInfo(Intent intent) {
-        int resultCode = 0;
+        int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
         Integer userId = Settings.getUserId(this);
 
@@ -189,7 +174,7 @@ public class BuddyQueryService extends IntentService {
         } catch (XMLRPCException e) {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
-            resultCode = -1;
+            resultCode = Constants.RESULT_FAIL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -198,11 +183,11 @@ public class BuddyQueryService extends IntentService {
 
     private Bundle sendMessage(Intent intent) {
         //parameters:@[user, password, @{@"recipients": recipients, @"subject" : subject, @"content" : body}]
-        int resultCode = 0;
+        int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
 
         HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("recipients", intent.getStringExtra(ID_EXTRA));
+        data.put("recipients", intent.getStringExtra(Constants.ID_EXTRA));
         data.put("subject", intent.getStringExtra(SUBJECT_EXTRA));
         data.put("content", intent.getStringExtra(BODY_EXTRA));
 
@@ -224,7 +209,7 @@ public class BuddyQueryService extends IntentService {
         } catch (XMLRPCException e) {
             e.printStackTrace();
             resultDescription = e.getLocalizedMessage();
-            resultCode = -1;
+            resultCode = Constants.RESULT_FAIL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -233,7 +218,7 @@ public class BuddyQueryService extends IntentService {
 
     private HashMap<String, Object> getSearchParameters(Intent intent) {
         HashMap<String, Object> retVal = new HashMap<String, Object>();
-        int profileId = intent.getIntExtra(ID_EXTRA, -1);
+        int profileId = intent.getIntExtra(Constants.ID_EXTRA, -1);
         if (-1 != profileId) {
             Uri query = ProfileAttributeListEntry.buildProfileAttributeListUri(profileId);
             Cursor cursor = getContentResolver().query(query, null, null, null, null);
@@ -275,7 +260,7 @@ public class BuddyQueryService extends IntentService {
     }
 
     private Bundle getMatches(Intent intent) {
-        int resultCode = 0;
+        int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
         // we need to retrieve buddies from the server
         HashMap<String, Object> data = getSearchParameters(intent);
@@ -295,7 +280,7 @@ public class BuddyQueryService extends IntentService {
             } catch (XMLRPCException e) {
                 e.printStackTrace();
                 resultDescription = e.getLocalizedMessage();
-                resultCode = -1;
+                resultCode = Constants.RESULT_FAIL;
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -305,9 +290,9 @@ public class BuddyQueryService extends IntentService {
 
     private Bundle resultBundle(int code, String description) {
         Bundle retVal = new Bundle();
-        retVal.putInt(RESULT_CODE, code);
+        retVal.putInt(Constants.RESULT_CODE, code);
         if (!Utils.isNullOrEmpty(description)) {
-            retVal.putString(RESULT_DESCRIPTION, description);
+            retVal.putString(Constants.RESULT_DESCRIPTION, description);
         }
         return retVal;
     }

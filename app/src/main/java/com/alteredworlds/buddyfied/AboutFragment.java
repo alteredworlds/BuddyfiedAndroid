@@ -25,10 +25,10 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_about, container, false);
-        TextView buddyfiedHelpLink = (TextView)rootView.findViewById(R.id.about_help_link_textview);
+        TextView buddyfiedHelpLink = (TextView) rootView.findViewById(R.id.about_help_link_textview);
         buddyfiedHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
         //
-        TextView usernameTextView = (TextView)rootView.findViewById(R.id.about_username_text_view);
+        TextView usernameTextView = (TextView) rootView.findViewById(R.id.about_username_text_view);
         usernameTextView.setText(Settings.getUsername(getActivity()));
 
         TextView signOutTextView = (TextView) rootView.findViewById(R.id.sign_out_button);
@@ -49,7 +49,7 @@ public class AboutFragment extends Fragment {
                                 Settings.setPosition(getActivity(), 0);
                                 //
                                 Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
-                                clearDataIntent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+                                clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
                                 getActivity().startService(clearDataIntent);
                                 //
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -69,7 +69,7 @@ public class AboutFragment extends Fragment {
 
         int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;
-        TextView versionTextView = (TextView)rootView.findViewById(R.id.about_version);
+        TextView versionTextView = (TextView) rootView.findViewById(R.id.about_version);
         versionTextView.setText("Version " + versionName + "  build " + versionCode);
         return rootView;
     }

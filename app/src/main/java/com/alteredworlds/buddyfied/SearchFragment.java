@@ -51,7 +51,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         super.onResume();
         // ensure we have a search profile available
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(BuddyQueryService.METHOD_EXTRA, BuddyQueryService.CreateSearchProfileIfNeeded);
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CreateSearchProfileIfNeeded);
         getActivity().startService(intent);
         //
         for (int i = 0; i < mData.length; i++) {

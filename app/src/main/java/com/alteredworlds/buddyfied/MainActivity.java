@@ -1,11 +1,16 @@
 package com.alteredworlds.buddyfied;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -18,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
@@ -31,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mDrawerList;
+    private BroadcastReceiver mMessageReceiver;
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
@@ -113,7 +120,24 @@ public class MainActivity extends ActionBarActivity {
         }
         //
         // pull static data if needed
-        StaticDataService.initialStaticDataLoadIfNeeded(this);
+        mMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
+                if (null != results) {
+                    int code = results.getInt(Constants.RESULT_CODE, Constants.RESULT_OK);
+                    String description = results.getString(Constants.RESULT_DESCRIPTION, "");
+                    if ((Constants.RESULT_FAIL == code) && !Utils.isNullOrEmpty(description)) {
+                        // error case, e.g.: problem with server, network
+                        Toast toast = Toast.makeText(context, description, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+            }
+        };
+        Intent staticDataIntent = new Intent(this, StaticDataService.class);
+        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.GET_ALL_IF_NEEDED);
+        startService(staticDataIntent);
     }
 
     /**
@@ -166,6 +190,22 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        //
+        // Register an observer to receive specific named Intents ('events')
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter(StaticDataService.STATIC_DATA_SERVICE_RESULT_EVENT));
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         // The action bar home/up action should open or close the drawer.
@@ -180,9 +220,15 @@ public class MainActivity extends ActionBarActivity {
         // ActionBarDrawerToggle will take care of this.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            ;
+            refreshStaticData();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshStaticData() {
+        Intent staticDataIntent = new Intent(this, StaticDataService.class);
+        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.UPDATE_ALL);
+        startService(staticDataIntent);
     }
 
     /**

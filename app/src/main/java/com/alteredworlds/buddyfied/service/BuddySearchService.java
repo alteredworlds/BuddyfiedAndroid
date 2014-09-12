@@ -15,6 +15,7 @@ import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
 import com.alteredworlds.buddyfied.Utils;
@@ -35,15 +36,10 @@ import de.timroes.axmlrpc.XMLRPCServerException;
 public class BuddySearchService extends Service {
     private static final String LOG_TAG = BuddySearchService.class.getSimpleName();
 
-    public static final String METHOD_EXTRA = "method";
     public static final String GetMatches = "bp.getMatches";
     public static final String Cancel = "cancel";
-    public static final String ID_EXTRA = "id";
 
     public static final String BUDDY_SEARCH_SERVICE_RESULT_EVENT = "buddy_search_service_result";
-    public static final String RESULT_BUNDLE = "results";
-    public static final String RESULT_CODE = "code";
-    public static final String RESULT_DESCRIPTION = "description";
 
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
 
@@ -53,7 +49,7 @@ public class BuddySearchService extends Service {
     // Handler that receives messages from the thread
     private final class ServiceHandler extends Handler {
         private static final int NO_TASK = -1;
-        private static final int NO_SEARCH = 0;
+        private static final int NO_SEARCH = -1;
         private long mRunningTaskId = NO_TASK;
         private int mRunningTaskSearchIdentifier = NO_SEARCH;
         private XMLRPCClient mClient;
@@ -108,38 +104,39 @@ public class BuddySearchService extends Service {
                     if (data.isEmpty()) {
                         String resultDescription = getString(R.string.specify_query);
                         // not gonna search, report why...
-                        reportResult(0, resultDescription);
+                        reportResult(Constants.RESULT_OK, resultDescription);
                         // Stop the service using the startId
                         stopSelf(startID);
                     } else {
                         // we need to retrieve buddies from the server
                         // ok, time to make the call
                         mRunningTaskSearchIdentifier = currentSearchIdentifier;
-                        mRunningTaskId = mClient.callAsync(new XMLRPCCallback() {
-                                                               @Override
-                                                               public void onResponse(long id, Object result) {
-                                                                   String resultDescription = processSearchResults(result);
-                                                                   reportResult(0, resultDescription);
-                                                                   clearRunningTaskData();
-                                                                   stopSelf(startID);
-                                                               }
+                        mRunningTaskId = mClient.callAsync(
+                                new XMLRPCCallback() {
+                                    @Override
+                                    public void onResponse(long id, Object result) {
+                                        String resultDescription = processSearchResults(result);
+                                        reportResult(Constants.RESULT_OK, resultDescription);
+                                        clearRunningTaskData();
+                                        stopSelf(startID);
+                                    }
 
-                                                               @Override
-                                                               public void onError(long id, XMLRPCException error) {
-                                                                   error.printStackTrace();
-                                                                   reportResult(-1, error.getLocalizedMessage());
-                                                                   clearRunningTaskData();
-                                                                   stopSelf(startID);
-                                                               }
+                                    @Override
+                                    public void onError(long id, XMLRPCException error) {
+                                        error.printStackTrace();
+                                        reportResult(Constants.RESULT_FAIL, error.getLocalizedMessage());
+                                        clearRunningTaskData();
+                                        stopSelf(startID);
+                                    }
 
-                                                               @Override
-                                                               public void onServerError(long id, XMLRPCServerException error) {
-                                                                   error.printStackTrace();
-                                                                   reportResult(-1, error.getLocalizedMessage());
-                                                                   clearRunningTaskData();
-                                                                   stopSelf(startID);
-                                                               }
-                                                           },
+                                    @Override
+                                    public void onServerError(long id, XMLRPCServerException error) {
+                                        error.printStackTrace();
+                                        reportResult(Constants.RESULT_FAIL, error.getLocalizedMessage());
+                                        clearRunningTaskData();
+                                        stopSelf(startID);
+                                    }
+                                },
                                 GetMatches,
                                 Settings.getUsername(BuddySearchService.this),
                                 Settings.getPassword(BuddySearchService.this),
@@ -152,13 +149,13 @@ public class BuddySearchService extends Service {
 
         private void reportResult(int code, String description) {
             Bundle result = new Bundle();
-            result.putInt(RESULT_CODE, code);
+            result.putInt(Constants.RESULT_CODE, code);
             if (!Utils.isNullOrEmpty(description)) {
-                result.putString(RESULT_DESCRIPTION, description);
+                result.putString(Constants.RESULT_DESCRIPTION, description);
             }
             Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_SEARCH_SERVICE_RESULT_EVENT);
-            intent.putExtra(RESULT_BUNDLE, result);
+            intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(BuddySearchService.this).sendBroadcast(intent);
         }
     }
@@ -187,13 +184,13 @@ public class BuddySearchService extends Service {
         // start ID so we know which request we're stopping when we finish the job
         //
         int method = SEARCH;
-        if (0 == Cancel.compareTo(intent.getStringExtra(METHOD_EXTRA))) {
+        if (0 == Cancel.compareTo(intent.getStringExtra(Constants.METHOD_EXTRA))) {
             method = CANCEL_ALL;
         }
         Message msg = mServiceHandler.obtainMessage();
         msg.what = method;
         msg.arg1 = startId;
-        msg.arg2 = intent.getIntExtra(ID_EXTRA, -1);
+        msg.arg2 = intent.getIntExtra(Constants.ID_EXTRA, -1);
         mServiceHandler.sendMessage(msg);
 
         // If we get killed, after returning from here, restart

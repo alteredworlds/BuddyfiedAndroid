@@ -138,7 +138,7 @@ public class BuddyQueryService extends IntentService {
 
     private Bundle deleteAllBuddies(Intent intent) {
         getContentResolver().delete(BuddyEntry.CONTENT_URI, null, null);
-        return resultBundle(0, null);
+        return null; // no need to report a result here
     }
 
     private Bundle verifyConnection(Intent intent) {

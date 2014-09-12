@@ -53,7 +53,9 @@ public class BuddySearchService extends Service {
     // Handler that receives messages from the thread
     private final class ServiceHandler extends Handler {
         private static final int NO_TASK = -1;
+        private static final int NO_SEARCH = 0;
         private long mRunningTaskId = NO_TASK;
+        private int mRunningTaskSearchIdentifier = NO_SEARCH;
         private XMLRPCClient mClient;
 
         public ServiceHandler(Looper looper) {
@@ -72,55 +74,77 @@ public class BuddySearchService extends Service {
                 if (null != mClient) {
                     mClient.cancel(mRunningTaskId);
                 }
-                mRunningTaskId = NO_TASK;
+                clearRunningTaskData();
             }
+        }
+
+        private void clearRunningTaskData() {
+            mRunningTaskId = NO_TASK;
+            mRunningTaskSearchIdentifier = NO_SEARCH;
         }
 
         @Override
         public void handleMessage(Message msg) {
             final int startID = msg.arg1;
-            // only support one search at a time
-            cancelRunningTask();
-            if (CANCEL_ALL == msg.what) {
-                // if this is a cancel, we're done
+            if ((CANCEL_ALL == msg.what) || (null == mClient)) {
+                // if this is a cancel or a faulty config we're done
+                cancelRunningTask();
+                Log.d(LOG_TAG, "Cancelling Search");
                 stopSelf(startID);
             } else {
-                // we need to retrieve buddies from the server
+                // let's see what the requested search might be...
                 HashMap<String, Object> data = getSearchParameters(msg.arg2);
-                if (data.isEmpty()) {
-                    String resultDescription = getString(R.string.specify_query);
-                    // not gonna search, report why...
-                    reportResult(0, resultDescription);
-                    // Stop the service using the startId
+                int currentSearchIdentifier = data.hashCode();
+                if (currentSearchIdentifier == mRunningTaskSearchIdentifier) {
+                    // we are already running this search, no point repeating it
+                    // don't report a result, just stop this particular invocation of
+                    // the service since surplus to requirements
+                    Log.d(LOG_TAG, "Search already running, no need to re-issue");
                     stopSelf(startID);
-                } else if (null != mClient) {
-                    // ok, time to make the call
-                    mRunningTaskId = mClient.callAsync(new XMLRPCCallback() {
-                                                           @Override
-                                                           public void onResponse(long id, Object result) {
-                                                               String resultDescription = processSearchResults(result);
-                                                               reportResult(0, resultDescription);
-                                                               stopSelf(startID);
-                                                           }
+                } else {
+                    // this is a new search
+                    // only support one search at a time, kill any that might be running
+                    cancelRunningTask();
+                    if (data.isEmpty()) {
+                        String resultDescription = getString(R.string.specify_query);
+                        // not gonna search, report why...
+                        reportResult(0, resultDescription);
+                        // Stop the service using the startId
+                        stopSelf(startID);
+                    } else {
+                        // we need to retrieve buddies from the server
+                        // ok, time to make the call
+                        mRunningTaskSearchIdentifier = currentSearchIdentifier;
+                        mRunningTaskId = mClient.callAsync(new XMLRPCCallback() {
+                                                               @Override
+                                                               public void onResponse(long id, Object result) {
+                                                                   String resultDescription = processSearchResults(result);
+                                                                   reportResult(0, resultDescription);
+                                                                   clearRunningTaskData();
+                                                                   stopSelf(startID);
+                                                               }
 
-                                                           @Override
-                                                           public void onError(long id, XMLRPCException error) {
-                                                               error.printStackTrace();
-                                                               reportResult(-1, error.getLocalizedMessage());
-                                                               stopSelf(startID);
-                                                           }
+                                                               @Override
+                                                               public void onError(long id, XMLRPCException error) {
+                                                                   error.printStackTrace();
+                                                                   reportResult(-1, error.getLocalizedMessage());
+                                                                   clearRunningTaskData();
+                                                                   stopSelf(startID);
+                                                               }
 
-                                                           @Override
-                                                           public void onServerError(long id, XMLRPCServerException error) {
-                                                               error.printStackTrace();
-                                                               reportResult(-1, error.getLocalizedMessage());
-                                                               stopSelf(startID);
-                                                           }
-                                                       },
-                            GetMatches,
-                            Settings.getUsername(BuddySearchService.this),
-                            Settings.getPassword(BuddySearchService.this),
-                            data);
+                                                               @Override
+                                                               public void onServerError(long id, XMLRPCServerException error) {
+                                                                   error.printStackTrace();
+                                                                   reportResult(-1, error.getLocalizedMessage());
+                                                                   clearRunningTaskData();
+                                                                   stopSelf(startID);
+                                                               }
+                                                           },
+                                GetMatches,
+                                Settings.getUsername(BuddySearchService.this),
+                                Settings.getPassword(BuddySearchService.this),
+                                data);
+                    }
                 }
             }
         }

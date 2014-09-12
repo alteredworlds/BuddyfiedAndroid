@@ -68,17 +68,17 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
                 BuddyEntry._ID + " INTEGER NOT NULL PRIMARY KEY ON CONFLICT REPLACE," +
                 BuddyEntry.COLUMN_DISPLAY_ORDER + " INTEGER NOT NULL, " +
                 BuddyEntry.COLUMN_NAME + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_COMMENTS + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_IMAGE_URI + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_AGE + " TEXT NOT NULL," +
-                BuddyEntry.COLUMN_COUNTRY + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_GAMEPLAY + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_LANGUAGE + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_PLATFORM + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_PLAYING + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_SKILL + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_TIME + " TEXT NOT NULL, " +
-                BuddyEntry.COLUMN_VOICE + " TEXT NOT NULL);";
+                BuddyEntry.COLUMN_COMMENTS + " TEXT, " +
+                BuddyEntry.COLUMN_IMAGE_URI + " TEXT, " +
+                BuddyEntry.COLUMN_AGE + " TEXT," +
+                BuddyEntry.COLUMN_COUNTRY + " TEXT, " +
+                BuddyEntry.COLUMN_GAMEPLAY + " TEXT, " +
+                BuddyEntry.COLUMN_LANGUAGE + " TEXT, " +
+                BuddyEntry.COLUMN_PLATFORM + " TEXT, " +
+                BuddyEntry.COLUMN_PLAYING + " TEXT, " +
+                BuddyEntry.COLUMN_SKILL + " TEXT, " +
+                BuddyEntry.COLUMN_TIME + " TEXT, " +
+                BuddyEntry.COLUMN_VOICE + " TEXT);";
 
         db.execSQL(SQL_CREATE_BUDDY_TABLE);
         db.execSQL(SQL_CREATE_PROFILE_TABLE);

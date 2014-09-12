@@ -9,7 +9,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
@@ -32,8 +31,8 @@ public class AboutFragment extends Fragment {
         TextView usernameTextView = (TextView)rootView.findViewById(R.id.about_username_text_view);
         usernameTextView.setText(Settings.getUsername(getActivity()));
 
-        Button signOutButton = (Button) rootView.findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(new View.OnClickListener() {
+        TextView signOutTextView = (TextView) rootView.findViewById(R.id.sign_out_button);
+        signOutTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String signOutAlertTitle = getString(R.string.sign_out_alert_title) +

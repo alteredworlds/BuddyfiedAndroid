@@ -162,10 +162,10 @@ public class StaticDataService extends IntentService {
             }
         } catch (JSONException e) {
             retVal = resultBundle(Constants.RESULT_FAIL,
-                    getString(R.string.static_load_failed) + e.getLocalizedMessage());
+                    getString(R.string.static_load_failed) + "\n" + e.getLocalizedMessage());
         } catch (IOException e) {
             retVal = resultBundle(Constants.RESULT_FAIL,
-                    getString(R.string.static_load_failed) + e.getLocalizedMessage());
+                    getString(R.string.static_load_failed) + "\n" + e.getLocalizedMessage());
         }
         return retVal;
     }

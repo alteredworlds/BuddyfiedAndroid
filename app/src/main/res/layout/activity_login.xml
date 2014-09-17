@@ -41,7 +41,7 @@
             android:orientation="vertical">
 
             <EditText
-                android:id="@+id/email"
+                android:id="@+id/login_username"
                 style="@style/StandardText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                 android:textCursorDrawable="@drawable/colour_cursor" />
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/login_password"
                 style="@style/StandardText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,33 +74,31 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/sign_in_button"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:layout_height="wrap_content"
-                    android:gravity="right|center_vertical"
-                    android:text="@string/action_sign_in"
-                    android:textStyle="bold"
-                    android:textColor="@drawable/button_text"
-                    android:textSize="26sp"
-                    android:background="@android:color/transparent" />
-
-                <TextView
+                    android:id="@+id/login_sign_in_button"
+                    style="@style/LargeTextViewButton"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="0dp" />
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/action_sign_in" />
 
                 <Button
-                    android:id="@+id/guest_sign_in_button"
+                    android:id="@+id/login_join_button"
+                    style="@style/LargeTextViewButton"
                     android:layout_width="0dp"
-                    android:layout_weight="3"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:gravity="left|center_vertical"
+                    android:gravity="center"
+                    android:text="@string/join_action" />
+
+                <Button
+                    android:id="@+id/login_guest_button"
+                    style="@style/LargeTextViewButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="@string/action_guest_sign_in"
-                    android:textStyle="bold"
-                    android:textColor="@drawable/button_text"
-                    android:textSize="26sp"
-                    android:background="@android:color/transparent"
                     android:layout_gravity="right" />
 
             </LinearLayout>

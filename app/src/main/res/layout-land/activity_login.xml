@@ -52,7 +52,7 @@
                 android:orientation="vertical">
 
                 <EditText
-                    android:id="@+id/email"
+                    android:id="@+id/login_username"
                     style="@style/StandardText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
                     android:background="@drawable/attribute_search" />
 
                 <EditText
-                    android:id="@+id/password"
+                    android:id="@+id/login_password"
                     style="@style/StandardText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/sign_in_button"
+                        android:id="@+id/login_sign_in_button"
                         android:layout_width="0dp"
                         android:layout_weight="3"
                         android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                         android:layout_height="0dp" />
 
                     <Button
-                        android:id="@+id/guest_sign_in_button"
+                        android:id="@+id/login_guest_button"
                         android:layout_width="0dp"
                         android:layout_weight="3"
                         android:layout_height="wrap_content"

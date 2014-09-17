@@ -33,6 +33,7 @@ public class LoginActivity extends Activity {
     private EditText mPasswordView;
     private Button mSignInButton;
     private Button mGuestSignInButton;
+    private Button mJoinButton;
     private TextView mForgotPasswordLink;
 
     private BroadcastReceiver mMessageReceiver;
@@ -51,13 +52,13 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mUsernameView = (EditText) findViewById(R.id.email);
+        mUsernameView = (EditText) findViewById(R.id.login_username);
 
         mFocusDummy = findViewById(R.id.focus_dummy);
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = (EditText) findViewById(R.id.login_password);
 
-        mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        mSignInButton = (Button) findViewById(R.id.login_sign_in_button);
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,11 +66,19 @@ public class LoginActivity extends Activity {
             }
         });
 
-        mGuestSignInButton = (Button) findViewById(R.id.guest_sign_in_button);
+        mGuestSignInButton = (Button) findViewById(R.id.login_guest_button);
         mGuestSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptGuestLogin();
+            }
+        });
+
+        mJoinButton = (Button) findViewById(R.id.login_join_button);
+        mJoinButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptJoin();
             }
         });
 
@@ -138,6 +147,11 @@ public class LoginActivity extends Activity {
         mGuestSignInButton.setEnabled(enabled);
         mSignInButton.setEnabled(enabled);
         mForgotPasswordLink.setEnabled(enabled);
+        mJoinButton.setEnabled(enabled);
+    }
+
+    private void attemptJoin() {
+
     }
 
     public void attemptGuestLogin() {

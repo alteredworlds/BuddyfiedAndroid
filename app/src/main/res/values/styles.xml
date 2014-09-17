@@ -9,8 +9,8 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="StandardTextViewButton" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">@drawable/button_text</item>
+    <style name="StandardTextViewButton" parent="@android:style/TextAppearance.Medium">
+    <item name="android:textColor">@drawable/button_text</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@android:color/transparent</item>
     </style>

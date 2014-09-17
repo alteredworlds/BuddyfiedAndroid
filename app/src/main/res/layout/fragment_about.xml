@@ -31,38 +31,43 @@
             android:layout_toRightOf="@id/about_username_label" />
 
         <TextView
-            android:id="@+id/sign_out_action"
-            style="@style/StandardTextViewButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sign_out_action"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:layout_gravity="top"
-        android:orientation="vertical">
-
-        <TextView
             android:id="@+id/about_help_link_textview"
             style="@style/StandardLink"
             android:text="@string/about_help_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentBottom="true" />
 
-        <TextView
-            android:id="@+id/join_action"
-            style="@style/StandardTextViewButton"
+        <GridLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/join_action"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true" />
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:columnCount="1">
+
+            <TextView
+                android:id="@+id/sign_out_action"
+                style="@style/StandardTextViewButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign_out_action" />
+
+            <TextView
+                android:id="@+id/join_action"
+                style="@style/StandardTextViewButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/join_action"
+                android:layout_gravity="bottom|center_horizontal"
+                android:gravity="center" />
+        </GridLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_gravity="top"
+        android:orientation="vertical">
 
         <TextView
             android:text="@string/about_description"
@@ -72,14 +77,9 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
         <TextView
             android:id="@+id/about_version"
             style="@style/StandardText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
 </LinearLayout>

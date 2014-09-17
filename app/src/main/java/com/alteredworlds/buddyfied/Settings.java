@@ -13,6 +13,7 @@ public class Settings {
     private final static String pref_userid_key = "pref_userid_key";
     private final static String pref_position_key = "pref_position_key";
     private final static String pref_join_required_key = "pref_join_required";
+    private final static String pref_email_key = "pref_email";
 
     public static String getBuddySite(Context context) {
         return context.getString(R.string.buddy_site);
@@ -27,6 +28,18 @@ public class Settings {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(pref_username_key, username);
+        edit.apply();
+    }
+
+    public static String getEmail(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(pref_email_key, null);
+    }
+
+    public static void setEmail(Context context, String email) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(pref_email_key, email);
         edit.apply();
     }
 

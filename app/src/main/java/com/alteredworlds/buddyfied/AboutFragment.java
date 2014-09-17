@@ -74,12 +74,16 @@ public class AboutFragment extends Fragment {
             }
         });
         TextView joinTextView = (TextView) rootView.findViewById(R.id.join_action);
-        joinTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOut(true);
-            }
-        });
+        if (Settings.isGuestUser(getActivity())) {
+            joinTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    signOut(true);
+                }
+            });
+        } else {
+            joinTextView.setVisibility(View.GONE);
+        }
 
         int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;

@@ -93,6 +93,11 @@ public class JoinActivity extends ActionBarActivity {
             focusView.requestFocus();
         } else {
             // time to move to the next phase of the Join sequence
+            //
+            // first, persist the values derived from this form
+            Settings.setUsername(this, username);
+            Settings.setPassword(this, password);
+            Settings.setEmail(this, email);
         }
     }
 

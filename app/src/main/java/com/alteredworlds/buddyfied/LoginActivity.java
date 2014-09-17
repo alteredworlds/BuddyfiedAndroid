@@ -219,10 +219,6 @@ public class LoginActivity extends Activity {
         }
     }
 
-    private boolean isEmailValid(String email) {
-        return email.contains("@") && email.contains(".");
-    }
-
     private boolean isPasswordValid(String password) {
         return password.length() > 4;
     }

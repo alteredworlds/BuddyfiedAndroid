@@ -53,5 +53,8 @@
     <string name="prompt_email">Email address</string>
     <string name="prompt_password_with_hint">Password (at least 6 chars)</string>
     <string name="confirm_password">Confirm password</string>
+    <string name="next_action">Next></string>
+    <string name="error_passwords_must_match">Passwords must match</string>
+    <string name="error_invalid_email">Valid email required</string>
 
 </resources>

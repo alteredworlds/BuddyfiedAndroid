@@ -36,13 +36,13 @@
             <!--android:layout_weight="1">-->
 
             <com.alteredworlds.buddyfied.ScalingImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:padding="25dp"
-                    android:src="@drawable/buddyfied_logo"
-                    android:scaleType="centerCrop"
-                    android:adjustViewBounds="true" />
+                android:src="@drawable/buddyfied_logo"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true" />
             <!--</LinearLayout>-->
 
             <LinearLayout
@@ -79,37 +79,35 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/login_sign_in_button"
-                        android:layout_width="0dp"
-                        android:layout_weight="3"
-                        android:layout_height="wrap_content"
-                        android:gravity="right|center_vertical"
-                        android:text="@string/action_sign_in"
-                        android:textStyle="bold"
-                        android:textColor="@drawable/button_text"
-                        android:textSize="26sp"
-                        android:background="@android:color/transparent" />
-
-                    <TextView
+                        style="@style/LargeTextViewButton"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="0dp" />
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/action_sign_in" />
+
+                    <Button
+                        android:id="@+id/login_join_button"
+                        style="@style/LargeTextViewButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/join_action" />
 
                     <Button
                         android:id="@+id/login_guest_button"
+                        style="@style/LargeTextViewButton"
                         android:layout_width="0dp"
-                        android:layout_weight="3"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:gravity="left|center_vertical"
+                        android:gravity="center"
                         android:text="@string/action_guest_sign_in"
-                        android:textStyle="bold"
-                        android:textColor="@drawable/button_text"
-                        android:textSize="26sp"
-                        android:background="@android:color/transparent"
                         android:layout_gravity="right" />
 
                 </LinearLayout>

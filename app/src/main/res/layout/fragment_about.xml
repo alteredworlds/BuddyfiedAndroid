@@ -31,19 +31,16 @@
             android:layout_toRightOf="@id/about_username_label" />
 
         <TextView
-            android:id="@+id/sign_out_button"
-            style="@android:style/TextAppearance.Medium"
+            android:id="@+id/sign_out_action"
+            style="@style/StandardTextViewButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sign_out"
-            android:textStyle="bold"
-            android:textColor="@drawable/button_text"
-            android:background="@android:color/transparent"
+            android:text="@string/sign_out_action"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true" />
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4"
@@ -54,17 +51,26 @@
             android:id="@+id/about_help_link_textview"
             style="@style/StandardLink"
             android:text="@string/about_help_link"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/join_action"
+            style="@style/StandardTextViewButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/join_action"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true" />
 
         <TextView
             android:text="@string/about_description"
             style="@style/StandardText"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="4" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

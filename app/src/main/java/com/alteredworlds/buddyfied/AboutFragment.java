@@ -21,6 +21,25 @@ public class AboutFragment extends Fragment {
     public AboutFragment() {
     }
 
+    private void signOut(Boolean joinRequested) {
+        // continue with sign out
+        Settings.setPassword(getActivity(), "");
+        Settings.setUsername(getActivity(), "");
+        Settings.setUserId(getActivity(), -1);
+        Settings.setPosition(getActivity(), 0);
+        //
+        Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
+        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+        getActivity().startService(clearDataIntent);
+        //
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        if (joinRequested) {
+            intent.putExtra(LoginActivity.JOIN_REQUESTED_EXTRA, true);
+        }
+        getActivity().startActivity(intent);
+        getActivity().finish();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -31,7 +50,7 @@ public class AboutFragment extends Fragment {
         TextView usernameTextView = (TextView) rootView.findViewById(R.id.about_username_text_view);
         usernameTextView.setText(Settings.getUsername(getActivity()));
 
-        TextView signOutTextView = (TextView) rootView.findViewById(R.id.sign_out_button);
+        TextView signOutTextView = (TextView) rootView.findViewById(R.id.sign_out_action);
         signOutTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,19 +61,7 @@ public class AboutFragment extends Fragment {
                         .setMessage(getString(R.string.sign_out_alert_message))
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // continue with sign out
-                                Settings.setPassword(getActivity(), "");
-                                Settings.setUsername(getActivity(), "");
-                                Settings.setUserId(getActivity(), -1);
-                                Settings.setPosition(getActivity(), 0);
-                                //
-                                Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
-                                clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
-                                getActivity().startService(clearDataIntent);
-                                //
-                                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                                getActivity().startActivity(intent);
-                                getActivity().finish();
+                                signOut(false);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -64,6 +71,13 @@ public class AboutFragment extends Fragment {
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
+            }
+        });
+        TextView joinTextView = (TextView) rootView.findViewById(R.id.join_action);
+        joinTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signOut(true);
             }
         });
 

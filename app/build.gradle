@@ -8,7 +8,7 @@ android {
         applicationId "com.alteredworlds.buddyfied"
         minSdkVersion 14
         targetSdkVersion 19
-        versionCode 2
+        versionCode 3
         versionName "1.0.0"
     }
     buildTypes {

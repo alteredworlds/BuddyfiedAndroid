@@ -24,6 +24,9 @@ import com.alteredworlds.buddyfied.service.BuddyQueryService;
  * A login screen that offers login via username/password.
  */
 public class LoginActivity extends Activity {
+    private static final String LOG_TAG = LoginActivity.class.getSimpleName();
+
+    public static final String JOIN_REQUESTED_EXTRA = "join_requested";
 
     // UI references.
     private EditText mUsernameView;

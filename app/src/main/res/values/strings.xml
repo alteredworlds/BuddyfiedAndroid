@@ -7,7 +7,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="user">User:</string>
-    <string name="sign_out">Sign Out</string>
+    <string name="sign_out_action">Sign Out</string>
     <string name="about_version">Version 1.0.0</string>
     <string name="buddy_site">http://www.buddyfied.com/</string>
     <string name="buddy_report_user_email">reportuser@buddyfied.com</string>
@@ -51,4 +51,6 @@
     <string name="sign_out_alert_message">Please confirm you want to sign out from Buddyfied</string>
 
     <string name="static_load_failed">Static data load failed</string>
+
+    <string name="join_action">Join</string>
 </resources>

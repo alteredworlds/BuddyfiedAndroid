@@ -31,10 +31,8 @@
     <string name="report_user">Report User</string>
     <string name="message_user">Message User</string>
     <string name="title_activity_message_user">MessageUserActivity</string>
-
     <string name="guest_user_message_alert_title">Guest User</string>
     <string name="guest_user_message_alert_message">Please register with Buddified to message users!</string>
-
     <string name="message_user_action_title">Message</string>
     <string name="message_title_hint">Title</string>
     <string name="message_body_hint">Message</string>
@@ -43,14 +41,17 @@
     <string name="message_invalid_body">Please supply a subject and message</string>
     <string name="message_send_failed_title">Message Not Sent</string>
     <string name="message_send_failed_message">Please try again</string>
-
     <string name="sign_in_failed_title">Sign In Failed</string>
     <string name="sign_in_failed_message_default">Incorrect username or password</string>
-
     <string name="sign_out_alert_title">Sign Out</string>
     <string name="sign_out_alert_message">Please confirm you want to sign out from Buddyfied</string>
-
     <string name="static_load_failed">Static data load failed</string>
-
     <string name="join_action">Join</string>
+    <string name="title_activity_join">Join Buddyfied</string>
+
+    <string name="join_buddyfied_info">Join Buddyfied now so you can message users and show up in searches.\n\nWe respect your privacy and won\'t share your email address with anyone else.</string>
+    <string name="prompt_email">Email address</string>
+    <string name="prompt_password_with_hint">Password (at least 6 chars)</string>
+    <string name="confirm_password">Confirm password</string>
+
 </resources>

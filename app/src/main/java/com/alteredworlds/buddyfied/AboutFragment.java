@@ -34,7 +34,7 @@ public class AboutFragment extends Fragment {
         //
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         if (joinRequested) {
-            intent.putExtra(LoginActivity.JOIN_REQUESTED_EXTRA, true);
+            Settings.setJoinRequired(getActivity(), true);
         }
         getActivity().startActivity(intent);
         getActivity().finish();

@@ -26,8 +26,6 @@ import com.alteredworlds.buddyfied.service.BuddyQueryService;
 public class LoginActivity extends Activity {
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
 
-    public static final String JOIN_REQUESTED_EXTRA = "join_requested";
-
     // UI references.
     private EditText mUsernameView;
     private EditText mPasswordView;
@@ -134,6 +132,10 @@ public class LoginActivity extends Activity {
         // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+        if (Settings.getJoinRequired(this)) {
+            Settings.setJoinRequired(this, false);
+            attemptJoin();
+        }
     }
 
     @Override
@@ -151,7 +153,8 @@ public class LoginActivity extends Activity {
     }
 
     private void attemptJoin() {
-
+        Intent joinIntent = new Intent(this, JoinActivity.class);
+        startActivity(joinIntent);
     }
 
     public void attemptGuestLogin() {

@@ -12,6 +12,7 @@ public class Settings {
     private final static String pref_password_key = "pref_password_key";
     private final static String pref_userid_key = "pref_userid_key";
     private final static String pref_position_key = "pref_position_key";
+    private final static String pref_join_required_key = "pref_join_required";
 
     public static String getBuddySite(Context context) {
         return context.getString(R.string.buddy_site);
@@ -50,6 +51,18 @@ public class Settings {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
         edit.putInt(pref_userid_key, userId);
+        edit.apply();
+    }
+
+    public static Boolean getJoinRequired(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(pref_join_required_key, false);
+    }
+
+    public static void setJoinRequired(Context context, Boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putBoolean(pref_join_required_key, value);
         edit.apply();
     }
 

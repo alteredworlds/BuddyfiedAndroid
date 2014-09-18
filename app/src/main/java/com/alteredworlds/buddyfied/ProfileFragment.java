@@ -24,6 +24,7 @@ import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
+import com.alteredworlds.buddyfied.view_model.ProfileListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
 /**
@@ -69,8 +70,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         } else {
             mData = new LoaderListItem[]{
                     new BuddyHeaderListItem("", "", true),
-                    new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
-                    new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
+                    new ProfileListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
+                    new ProfileListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
                     new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.PROFILE_GAMEPLAY),
                     new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.PROFILE_COUNTRY),
                     new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.PROFILE_LANGUAGE),

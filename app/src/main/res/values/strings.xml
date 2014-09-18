@@ -48,7 +48,6 @@
     <string name="static_load_failed">Static data load failed</string>
     <string name="join_action">Join</string>
     <string name="title_activity_join">Join Buddyfied</string>
-
     <string name="join_buddyfied_info">Join Buddyfied now so you can message users and show up in searches.\n\nWe respect your privacy and won\'t share your email address with anyone else.</string>
     <string name="prompt_email">Email address</string>
     <string name="prompt_password_with_hint">Password (at least 6 chars)</string>
@@ -56,5 +55,7 @@
     <string name="next_action">Next></string>
     <string name="error_passwords_must_match">Passwords must match</string>
     <string name="error_invalid_email">Valid email required</string>
+    <string name="title_activity_profile">My Profile</string>
+    <string name="username_too_short">Username must be at least 4 characters</string>
 
 </resources>

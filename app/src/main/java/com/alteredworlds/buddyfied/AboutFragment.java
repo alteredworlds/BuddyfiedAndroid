@@ -23,10 +23,7 @@ public class AboutFragment extends Fragment {
 
     private void signOut(Boolean joinRequested) {
         // continue with sign out
-        Settings.setPassword(getActivity(), "");
-        Settings.setUsername(getActivity(), "");
-        Settings.setUserId(getActivity(), -1);
-        Settings.setPosition(getActivity(), 0);
+        Settings.clearPersonalSettings(getActivity());
         //
         Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
         clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);

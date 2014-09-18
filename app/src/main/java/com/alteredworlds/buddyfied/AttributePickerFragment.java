@@ -61,7 +61,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
     private static final int NO_ROW_CHECKED = -1;
     private String mAttributeType;
     private AttributePickerAdapter mCursorAdapter;
-    private int mProfileId;
+    private long mProfileId;
     private String mTitle;
     private Uri mQuery;
     private int mLastCheckedPosition;
@@ -82,12 +82,12 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
         super.onActivityCreated(savedInstanceState);
         if (null != savedInstanceState) {
             mAttributeType = savedInstanceState.getString(ATTRIBUTE_TYPE_EXTRA);
-            mProfileId = savedInstanceState.getInt(PROFILE_ID_EXTRA);
+            mProfileId = savedInstanceState.getLong(PROFILE_ID_EXTRA);
             mTitle = savedInstanceState.getString(ATTRIBUTE_DISPLAY_EXTRA);
         } else {
             Intent intent = getActivity().getIntent();
             mAttributeType = intent.getStringExtra(ATTRIBUTE_TYPE_EXTRA);
-            mProfileId = intent.getIntExtra(PROFILE_ID_EXTRA, 0);
+            mProfileId = intent.getLongExtra(PROFILE_ID_EXTRA, 0);
         }
         getLoaderManager().initLoader(LoaderID.ATTRIBUTE, null, this);
     }
@@ -96,7 +96,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(ATTRIBUTE_TYPE_EXTRA, mAttributeType);
-        outState.putInt(PROFILE_ID_EXTRA, mProfileId);
+        outState.putLong(PROFILE_ID_EXTRA, mProfileId);
         outState.putString(ATTRIBUTE_DISPLAY_EXTRA, mTitle);
     }
 

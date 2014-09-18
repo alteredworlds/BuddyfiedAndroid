@@ -12,6 +12,7 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
@@ -37,6 +38,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private int COMMENTS_ROW;
     private int AGE_ROW;
     private int HEADER_ROW;
+
+    public Boolean mEditMode = false;
 
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
@@ -91,6 +94,27 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_profile);
         listView.setAdapter(mAdapter);
+        if (mEditMode) {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (HEADER_ROW == position) {
+
+                    } else if (AGE_ROW == position) {
+
+                    } else if (COMMENTS_ROW == position) {
+
+                    } else {
+                        LoaderListItem row = (LoaderListItem) mAdapter.getItem(position);
+                        Intent intent = new Intent(getActivity(), AttributePickerActivity.class);
+                        intent.putExtra(AttributePickerFragment.PROFILE_ID_EXTRA, mProfileId);
+                        intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.extra);
+                        intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);
+                        startActivity(intent);
+                    }
+                }
+            });
+        }
         return rootView;
     }
 
@@ -98,10 +122,12 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
         //
-        Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
-        intent.putExtra(Constants.ID_EXTRA, Settings.getUserId(getActivity()));
-        getActivity().startService(intent);
+        if (!mEditMode) {
+            Intent intent = new Intent(getActivity(), BuddyQueryService.class);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
+            intent.putExtra(Constants.ID_EXTRA, Settings.getUserId(getActivity()));
+            getActivity().startService(intent);
+        }
         // start loaders
         getLoaderManager().initLoader(LoaderID.PROFILE_MAIN, null, this);
         for (int i = 0; i < mData.length; i++) {

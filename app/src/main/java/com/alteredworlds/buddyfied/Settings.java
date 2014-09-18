@@ -55,15 +55,15 @@ public class Settings {
         edit.apply();
     }
 
-    public static Integer getUserId(Context context) {
+    public static Long getUserId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(pref_userid_key, -1);
+        return prefs.getLong(pref_userid_key, -1);
     }
 
-    public static void setUserId(Context context, Integer userId) {
+    public static void setUserId(Context context, Long userId) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
-        edit.putInt(pref_userid_key, userId);
+        edit.putLong(pref_userid_key, userId);
         edit.apply();
     }
 
@@ -101,5 +101,13 @@ public class Settings {
         SharedPreferences.Editor edit = prefs.edit();
         edit.putInt(pref_position_key, position);
         edit.apply();
+    }
+
+    public static void clearPersonalSettings(Context context) {
+        setPassword(context, "");
+        setUsername(context, "");
+        setUserId(context, -1l);
+        setPosition(context, 0);
+        setEmail(context, "");
     }
 }

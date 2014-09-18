@@ -28,7 +28,7 @@ import com.alteredworlds.buddyfied.view_model.SearchListItem;
  */
 public class SearchFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    final protected int mProfileId = BuddyfiedDbHelper.SEARCH_PROFILE_ID;
+    final protected long mProfileId = BuddyfiedDbHelper.SEARCH_PROFILE_ID;
     protected LoaderListItem[] mData;
     protected SearchAdapter mAdapter;
 
@@ -75,7 +75,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                 intent.putExtra(AttributePickerFragment.PROFILE_ID_EXTRA, mProfileId);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.extra);
                 intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);
-                intent.putExtra(AttributePickerFragment.ATTIBUTE_SINGLE_CHOICE_EXTRA, singleChoice(row));
+                intent.putExtra(AttributePickerFragment.ATTIBUTE_SINGLE_CHOICE_EXTRA, singleChoice(row.extra));
                 startActivity(intent);
             }
         });
@@ -83,9 +83,9 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-    private boolean singleChoice(LoaderListItem row) {
-        return (0 == AttributeEntry.TypeAgeRange.compareTo(row.extra)) ||
-                (0 == AttributeEntry.TypeVoice.compareTo(row.extra));
+    private boolean singleChoice(String extra) {
+        return (0 == AttributeEntry.TypeAgeRange.compareTo(extra)) ||
+                (0 == AttributeEntry.TypeVoice.compareTo(extra));
     }
 
     @Override

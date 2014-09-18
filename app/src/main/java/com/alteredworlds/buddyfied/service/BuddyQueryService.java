@@ -140,7 +140,7 @@ public class BuddyQueryService extends IntentService {
             XMLRPCClient client = new XMLRPCClient(uri);
             Object res = client.call(VerifyConnection, username, password);
             if (res instanceof HashMap) {
-                Integer userId = (Integer) ((HashMap) res).get("user_id");
+                Long userId = (Long) ((HashMap) res).get("user_id");
                 Settings.setUserId(this, userId);
             }
         } catch (XMLRPCException e) {
@@ -157,7 +157,7 @@ public class BuddyQueryService extends IntentService {
     private Bundle getMemberInfo(Intent intent) {
         int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
-        Integer userId = Settings.getUserId(this);
+        Long userId = Settings.getUserId(this);
 
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("user_id", userId);
@@ -317,7 +317,7 @@ public class BuddyQueryService extends IntentService {
         return retVal;
     }
 
-    private String processMemberInfoResults(Object res, Integer userId) {
+    private String processMemberInfoResults(Object res, Long userId) {
         String retVal = null;
         if (res instanceof HashMap) {
             Object message = ((HashMap) res).get("message");
@@ -387,7 +387,7 @@ public class BuddyQueryService extends IntentService {
     }
 
     private void addProfileAttributeEntriesForServerField(Vector<ContentValues> cvs,
-                                                          int userId,
+                                                          long userId,
                                                           int serverFieldId,
                                                           String value) {
         switch (serverFieldId) {

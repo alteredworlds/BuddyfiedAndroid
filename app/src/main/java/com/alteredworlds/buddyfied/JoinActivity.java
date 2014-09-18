@@ -1,5 +1,10 @@
 package com.alteredworlds.buddyfied;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -7,6 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
+import com.alteredworlds.buddyfied.service.BuddyQueryService;
 
 
 public class JoinActivity extends ActionBarActivity {
@@ -23,10 +31,18 @@ public class JoinActivity extends ActionBarActivity {
         setContentView(R.layout.activity_join);
 
         mFocusDummy = findViewById(R.id.focus_dummy);
+
         mUsernameEditText = (EditText) findViewById(R.id.join_username);
+        mUsernameEditText.setText(Settings.getUsername(this));
+
         mEmailEditText = (EditText) findViewById(R.id.join_email);
+        mEmailEditText.setText(Settings.getEmail(this));
+
         mPasswordEditText = (EditText) findViewById(R.id.join_password);
+        mPasswordEditText.setText(Settings.getPassword(this));
+
         mPasswordConfirmEditText = (EditText) findViewById(R.id.join_confirm_password);
+        mPasswordConfirmEditText.setText(Settings.getPassword(this));
     }
 
 
@@ -39,13 +55,38 @@ public class JoinActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here.
+        // see: http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
+        // comment by Mazvél at bottom.
+        //
+        // This code will override the "up" button to behave the same way as the back button so
+        // in the case of Listview -> Details -> Back to Listview (and no other options) this is the
+        // simplest code to maintain the scrollposition and the content in the listview.
+        //
+        // Caution: If you can go to another activity from the details activity the up button will
+        // return you back to that activity so you will have to manipulate the backbutton history
+        // in order for this to work.
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
             case R.id.action_next:
                 onNext();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // clear username, password, email
+        Settings.clearPersonalSettings(this);
+        // clear all data in database
+        Intent clearDataIntent = new Intent(this, BuddyQueryService.class);
+        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+        startService(clearDataIntent);
+        super.onBackPressed();
     }
 
     private void onNext() {
@@ -65,6 +106,10 @@ public class JoinActivity extends ActionBarActivity {
 
         if (TextUtils.isEmpty(username)) {
             mUsernameEditText.setError(getString(R.string.error_field_required));
+            focusView = mUsernameEditText;
+            cancel = true;
+        } else if (!isUsernameValid(username)) {
+            mUsernameEditText.setError(getString(R.string.username_too_short));
             focusView = mUsernameEditText;
             cancel = true;
         } else if (TextUtils.isEmpty(email)) {
@@ -98,14 +143,43 @@ public class JoinActivity extends ActionBarActivity {
             Settings.setUsername(this, username);
             Settings.setPassword(this, password);
             Settings.setEmail(this, email);
+            //
+            long userId = createUserProfileIfNeeded(username);
+            Settings.setUserId(this, userId);
+            //
+            // now transition to the
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
         }
     }
 
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+    private long createUserProfileIfNeeded(String name) {
+        long retVal = -1;
+        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
+                new String[]{ProfileEntry._ID},
+                ProfileEntry.COLUMN_NAME + " = '" + name + "'",
+                null, null);
+        if ((null != cursor) && cursor.moveToFirst()) {
+            // we have a user profile already, just get the ID
+            retVal = cursor.getLong(0);
+        } else {
+            ContentValues row = new ContentValues();
+            row.put(ProfileEntry.COLUMN_NAME, name);
+            Uri rowUri = getContentResolver().insert(ProfileEntry.CONTENT_URI, row);
+            retVal = ContentUris.parseId(rowUri);
+        }
+        return retVal;
     }
 
-    private boolean isEmailValid(String email) {
-        return email.contains("@") && email.contains(".");
+    private boolean isUsernameValid(String value) {
+        return value.length() > 3;
+    }
+
+    private boolean isPasswordValid(String value) {
+        return value.length() > 4;
+    }
+
+    private boolean isEmailValid(String value) {
+        return value.contains("@") && value.contains(".");
     }
 }

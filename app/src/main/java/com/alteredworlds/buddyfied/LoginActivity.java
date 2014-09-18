@@ -129,6 +129,7 @@ public class LoginActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        enableButtons(true);
         // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
@@ -153,18 +154,30 @@ public class LoginActivity extends Activity {
     }
 
     private void attemptJoin() {
+        cleanupActiveStatePriorToTransition();
         Intent joinIntent = new Intent(this, JoinActivity.class);
         startActivity(joinIntent);
     }
 
     public void attemptGuestLogin() {
-        enableButtons(false);
-        mFocusDummy.requestFocus();
+        cleanupActiveStatePriorToTransition();
         Settings.setUsername(this, Settings.getGuestUsername(this));
         Settings.setPassword(this, Settings.getGuestPassword(this));
         Intent intent = new Intent(this, BuddyQueryService.class);
         intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
         startService(intent);
+    }
+
+    private void cleanupActiveStatePriorToTransition() {
+        enableButtons(false);
+        mFocusDummy.requestFocus();
+        resetErrors();
+    }
+
+    private void resetErrors() {
+        // Reset errors.
+        mUsernameView.setError(null);
+        mPasswordView.setError(null);
     }
 
     /**
@@ -173,11 +186,7 @@ public class LoginActivity extends Activity {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        enableButtons(false);
-        mFocusDummy.requestFocus();
-        // Reset errors.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
+        cleanupActiveStatePriorToTransition();
 
         // Store values at the time of the login attempt.
         String username = mUsernameView.getText().toString();

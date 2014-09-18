@@ -140,7 +140,8 @@ public class BuddyQueryService extends IntentService {
             XMLRPCClient client = new XMLRPCClient(uri);
             Object res = client.call(VerifyConnection, username, password);
             if (res instanceof HashMap) {
-                Long userId = (Long) ((HashMap) res).get("user_id");
+                // we get a blasted Integer here for some reason
+                Long userId = new Long((Integer) ((HashMap) res).get("user_id"));
                 Settings.setUserId(this, userId);
             }
         } catch (XMLRPCException e) {

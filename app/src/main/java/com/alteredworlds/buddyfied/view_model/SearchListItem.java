@@ -11,8 +11,6 @@ import com.alteredworlds.buddyfied.R;
  */
 public class SearchListItem extends LoaderListItem {
 
-    public static final int LIST_ITEM_VIEW_TYPE_ID = 0;
-
     public SearchListItem(String name, String value, String extra, int loaderId) {
         super(name, value, extra, loaderId);
     }
@@ -23,7 +21,7 @@ public class SearchListItem extends LoaderListItem {
 
     @Override
     public int getViewType() {
-        return LIST_ITEM_VIEW_TYPE_ID;
+        return ListItemID.SEARCH_VIEW_TYPE_ID;
     }
 
     @Override

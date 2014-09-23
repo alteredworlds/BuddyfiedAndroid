@@ -33,6 +33,8 @@ import com.alteredworlds.buddyfied.view_model.SearchListItem;
 public class ProfileFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ProfileFragment.class.getSimpleName();
 
+    private static final String EDIT_MODE_KEY = "edit_mode";
+
     private LoaderListItem[] mData;
     private BuddyAdapter mAdapter;
     private long mProfileId;
@@ -88,6 +90,14 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (null != savedInstanceState) {
+            mEditMode = savedInstanceState.getBoolean(EDIT_MODE_KEY, false);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mProfileId = Settings.getUserId(getActivity());
@@ -136,6 +146,11 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                 getLoaderManager().initLoader(mData[i].loaderId, null, this);
             }
         }
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EDIT_MODE_KEY, mEditMode);
     }
 
     @Override

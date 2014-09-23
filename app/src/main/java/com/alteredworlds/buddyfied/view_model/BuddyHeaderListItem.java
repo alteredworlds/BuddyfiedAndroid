@@ -17,8 +17,6 @@ import com.alteredworlds.buddyfied.Utils;
  */
 public class BuddyHeaderListItem extends LoaderListItem {
 
-    public static final int LIST_ITEM_VIEW_TYPE_ID = 2;
-
     private final Boolean mHideButtons;
 
     public BuddyHeaderListItem(String name, String imageUrl) {
@@ -32,7 +30,7 @@ public class BuddyHeaderListItem extends LoaderListItem {
 
     @Override
     public int getViewType() {
-        return LIST_ITEM_VIEW_TYPE_ID;
+        return ListItemID.BUDDY_HEADER_VIEW_TYPE_ID;
     }
 
     @Override

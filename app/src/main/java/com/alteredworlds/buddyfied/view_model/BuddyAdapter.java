@@ -15,9 +15,10 @@ public class BuddyAdapter extends ArrayAdapter<ListItem> {
 
     // NOTE: these constants must all be distinct values
     public int[] RowType = new int[]{
-            SearchListItem.LIST_ITEM_VIEW_TYPE_ID,
-            CommentsListItem.LIST_ITEM_VIEW_TYPE_ID,
-            BuddyHeaderListItem.LIST_ITEM_VIEW_TYPE_ID
+            ListItemID.SEARCH_VIEW_TYPE_ID,
+            ListItemID.COMMENTS_VIEW_TYPE_ID,
+            ListItemID.BUDDY_HEADER_VIEW_TYPE_ID,
+            ListItemID.PROFILE_VIEW_TYPE_ID
     };
 
     public BuddyAdapter(Context context, ListItem[] objects) {

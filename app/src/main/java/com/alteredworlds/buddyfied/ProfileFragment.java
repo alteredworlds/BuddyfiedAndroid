@@ -107,7 +107,10 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                     if (HEADER_ROW == position) {
 
                     } else if (AGE_ROW == position) {
-
+                        Intent intent = new Intent(getActivity(), AgeSelectionActivity.class);
+                        intent.putExtra(Constants.ID_EXTRA, mProfileId);
+                        intent.putExtra(AgeSelectionActivity.AGE_EXTRA, mData[position].value);
+                        startActivity(intent);
                     } else if (COMMENTS_ROW == position) {
                         Intent intent = new Intent(getActivity(), CommentEditorActivity.class);
                         intent.putExtra(Constants.ID_EXTRA, mProfileId);
@@ -118,6 +121,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                         intent.putExtra(AttributePickerFragment.PROFILE_ID_EXTRA, mProfileId);
                         intent.putExtra(AttributePickerFragment.ATTRIBUTE_TYPE_EXTRA, row.extra);
                         intent.putExtra(AttributePickerFragment.ATTRIBUTE_DISPLAY_EXTRA, row.name);
+                        intent.putExtra(AttributePickerFragment.ATTIBUTE_SINGLE_CHOICE_EXTRA,
+                                (0 == AttributeEntry.TypeVoice.compareTo(row.extra)));
                         startActivity(intent);
                     }
                 }

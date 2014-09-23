@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
 
@@ -49,7 +48,7 @@ public class CommentEditorActivity extends Activity {
         String commentText = mEditText.getText().toString();
 
         ContentValues updatedValues = new ContentValues();
-        updatedValues.put(BuddyfiedContract.BuddyEntry.COLUMN_COMMENTS, commentText);
+        updatedValues.put(ProfileEntry.COLUMN_COMMENTS, commentText);
         getContentResolver().update(
                 ProfileEntry.CONTENT_URI, updatedValues, ProfileEntry._ID + "= ?",
                 new String[]{Long.toString(profileId)});

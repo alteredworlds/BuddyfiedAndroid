@@ -8,7 +8,7 @@
     style="@style/StandardListItemStyle"
     android:background="@drawable/touch_selector">
 
-<TextView
+    <TextView
         android:id="@+id/list_item_name"
         style="@style/StandardText"
         android:layout_gravity="center_vertical"

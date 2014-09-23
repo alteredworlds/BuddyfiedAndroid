@@ -1,6 +1,5 @@
 package com.alteredworlds.buddyfied;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -59,8 +58,11 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (null != savedInstanceState) {
+            mEditMode = savedInstanceState.getBoolean(EDIT_MODE_KEY, false);
+        }
         if (Settings.isGuestUser(getActivity())) {
             mData = new LoaderListItem[]{
                     new BuddyHeaderListItem("", "", true),
@@ -90,15 +92,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (null != savedInstanceState) {
-            mEditMode = savedInstanceState.getBoolean(EDIT_MODE_KEY, false);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         mProfileId = Settings.getUserId(getActivity());
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
@@ -109,12 +103,15 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // move to relevant editor for given row
                     if (HEADER_ROW == position) {
 
                     } else if (AGE_ROW == position) {
 
                     } else if (COMMENTS_ROW == position) {
-
+                        Intent intent = new Intent(getActivity(), CommentEditorActivity.class);
+                        intent.putExtra(Constants.ID_EXTRA, mProfileId);
+                        startActivity(intent);
                     } else {
                         LoaderListItem row = (LoaderListItem) mAdapter.getItem(position);
                         Intent intent = new Intent(getActivity(), AttributePickerActivity.class);
@@ -128,6 +125,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         }
         return rootView;
     }
+
 
     @Override
     public void onResume() {

@@ -31,7 +31,7 @@
             android:name=".AttributePickerActivity"
             android:label="@string/title_activity_attribute_picker"
             android:parentActivityName=".MainActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.MainActivity" />
         </activity>
@@ -39,7 +39,7 @@
             android:name=".BuddyActivity"
             android:label="@string/title_activity_buddy"
             android:parentActivityName=".MainActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.MainActivity" />
         </activity>
@@ -47,7 +47,7 @@
             android:name=".MessageUserActivity"
             android:label="@string/title_activity_message_user"
             android:parentActivityName=".BuddyActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.BuddyActivity" />
         </activity>
@@ -57,7 +57,7 @@
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="adjustResize|stateVisible">
             <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -66,7 +66,7 @@
             android:name=".JoinActivity"
             android:label="@string/title_activity_join"
             android:parentActivityName=".LoginActivity">
-        <meta-data
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.LoginActivity" />
         </activity>
@@ -74,9 +74,17 @@
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".JoinActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alteredworlds.buddyfied.JoinActivity" />
+        </activity>
+        <activity
+            android:name=".CommentEditorActivity"
+            android:label="@string/title_activity_comment_editor"
+            android:parentActivityName=".ProfileActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.alteredworlds.buddyfied.ProfileActivity" />
         </activity>
     </application>
 

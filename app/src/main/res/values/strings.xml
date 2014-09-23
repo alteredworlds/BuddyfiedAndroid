@@ -57,5 +57,6 @@
     <string name="error_invalid_email">Valid email required</string>
     <string name="title_activity_profile">My Profile</string>
     <string name="username_too_short">Username must be at least 4 characters</string>
+    <string name="title_activity_comment_editor">Comments</string>
 
 </resources>

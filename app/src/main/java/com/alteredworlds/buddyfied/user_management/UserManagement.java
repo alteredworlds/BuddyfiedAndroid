@@ -2,7 +2,7 @@ package com.alteredworlds.buddyfied.user_management;
 
 import android.content.Context;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import java.util.HashMap;
 
@@ -13,16 +13,16 @@ public interface UserManagement {
 
     public void cancel(Context context);
 
-    public void registerNewUser(Context context,
-                                String user,
-                                String password,
-                                String email,
-                                HashMap<String, Object> profileData,
-                                AsyncHttpResponseHandler responseHandler);
+    public void registerNewUser(final Context context,
+                                final String user,
+                                final String password,
+                                final String email,
+                                final HashMap<String, Object> profileData,
+                                final JsonHttpResponseHandler responseHandler);
 
-    public void updateProfileForUser(Context context,
-                                     String user,
-                                     String password,
-                                     HashMap<String, Object> profileData,
-                                     AsyncHttpResponseHandler responseHandler);
+    public void updateProfileForUser(final Context context,
+                                     final String user,
+                                     final String password,
+                                     final HashMap<String, Object> profileData,
+                                     final JsonHttpResponseHandler responseHandler);
 }

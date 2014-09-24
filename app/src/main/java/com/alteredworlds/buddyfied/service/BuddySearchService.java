@@ -50,8 +50,8 @@ public class BuddySearchService extends Service {
     private final class ServiceHandler extends Handler {
         private static final int NO_TASK = -1;
         private static final int NO_SEARCH = -1;
-        private long mRunningTaskId = NO_TASK;
-        private int mRunningTaskSearchIdentifier = NO_SEARCH;
+        private volatile long mRunningTaskId = NO_TASK;
+        private volatile int mRunningTaskSearchIdentifier = NO_SEARCH;
         private XMLRPCClient mClient;
 
         public ServiceHandler(Looper looper) {

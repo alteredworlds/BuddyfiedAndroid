@@ -190,7 +190,7 @@ public class BuddySearchService extends Service {
         Message msg = mServiceHandler.obtainMessage();
         msg.what = method;
         msg.arg1 = startId;
-        msg.arg2 = intent.getIntExtra(Constants.ID_EXTRA, -1);
+        msg.arg2 = (int) intent.getLongExtra(Constants.ID_EXTRA, -1);
         mServiceHandler.sendMessage(msg);
 
         return START_NOT_STICKY;

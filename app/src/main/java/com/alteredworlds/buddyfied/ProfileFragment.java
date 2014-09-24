@@ -1,6 +1,7 @@
 package com.alteredworlds.buddyfied;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,6 +28,7 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.user_management.BuddyUserManagement;
 import com.alteredworlds.buddyfied.view_model.BuddyAdapter;
 import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
@@ -51,6 +53,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private int HEADER_ROW;
 
     public Boolean mEditMode = false;
+    private final BuddyUserManagement mApi = new BuddyUserManagement();
 
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
@@ -192,6 +195,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     Log.i(LOG_TAG, "Fucking JOIN already...!");
+                                    dontKeepThisHere();
                                 }
                             })
                     .setNegativeButton(android.R.string.cancel,
@@ -203,6 +207,16 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                     .create()
                     .show();
         }
+    }
+
+    private void dontKeepThisHere() {
+        Context activity = getActivity();
+        mApi.registerNewUser(activity,
+                Settings.getUsername(activity),
+                Settings.getPassword(activity),
+                Settings.getEmail(activity),
+                null,
+                null);
     }
 
     private Boolean validateProfileForSignUp() {

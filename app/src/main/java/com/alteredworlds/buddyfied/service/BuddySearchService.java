@@ -193,7 +193,6 @@ public class BuddySearchService extends Service {
         msg.arg2 = intent.getIntExtra(Constants.ID_EXTRA, -1);
         mServiceHandler.sendMessage(msg);
 
-        // If we get killed, after returning from here, restart
         return START_NOT_STICKY;
     }
 

@@ -84,8 +84,10 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         } else {
             mData = new LoaderListItem[]{
                     new BuddyHeaderListItem("", "", true),
-                    new ProfileListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
-                    new ProfileListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
+                    mEditMode ? new ProfileListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM) :
+                            new SearchListItem("Platform", "", AttributeEntry.TypePlatform, LoaderID.PROFILE_PLATFORM),
+                    mEditMode ? new ProfileListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING) :
+                            new SearchListItem("Playing", "", AttributeEntry.TypePlaying, LoaderID.PROFILE_PLAYING),
                     new SearchListItem("Gameplay", "", AttributeEntry.TypeGameplay, LoaderID.PROFILE_GAMEPLAY),
                     new SearchListItem("Country", "", AttributeEntry.TypeCountry, LoaderID.PROFILE_COUNTRY),
                     new SearchListItem("Language", "", AttributeEntry.TypeLanguage, LoaderID.PROFILE_LANGUAGE),

@@ -8,11 +8,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
@@ -94,6 +98,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         mProfileId = Settings.getUserId(getActivity());
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         mAdapter = new BuddyAdapter(getActivity(), mData);
@@ -154,6 +159,40 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EDIT_MODE_KEY, mEditMode);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_next:
+                onNext();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void onNext() {
+        if (validateProfileForSignUp()) {
+
+        }
+    }
+
+    private Boolean validateProfileForSignUp() {
+        Boolean retVal = true;
+        for (LoaderListItem lli : mData) {
+            if (lli instanceof ProfileListItem) {
+                retVal &= !TextUtils.isEmpty(lli.value);
+                if (!retVal) {
+                    String description = lli.name + " " + getString(R.string.supply_value_for_required_field);
+                    Toast toast = Toast.makeText(getActivity(), description, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    break;
+                }
+            }
+        }
+        return retVal;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.alteredworlds.buddyfied;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,20 @@ public class CommentEditorActivity extends Activity {
         setContentView(R.layout.activity_comment_editor);
 
         mEditText = (EditText) findViewById(R.id.comment_edit_text);
+
+        // get the initial comments value
+        // NOTE: not just passing via intent because could potentially get large
+        // so may as well read it from database. Easy to change either way.
+        long profileId = getIntent().getLongExtra(Constants.ID_EXTRA, -1);
+        Cursor cursor = getContentResolver().query(
+                ProfileEntry.CONTENT_URI,
+                new String[]{ProfileEntry.COLUMN_COMMENTS},
+                ProfileEntry._ID + "= ?",
+                new String[]{Long.toString(profileId)}, null);
+        if ((null != cursor) && cursor.moveToFirst()) {
+            mEditText.setText(cursor.getString(0));
+        }
+        cursor.close();
     }
 
 
@@ -50,7 +65,9 @@ public class CommentEditorActivity extends Activity {
         ContentValues updatedValues = new ContentValues();
         updatedValues.put(ProfileEntry.COLUMN_COMMENTS, commentText);
         getContentResolver().update(
-                ProfileEntry.CONTENT_URI, updatedValues, ProfileEntry._ID + "= ?",
+                ProfileEntry.CONTENT_URI,
+                updatedValues,
+                ProfileEntry._ID + "= ?",
                 new String[]{Long.toString(profileId)});
 
         finish();

@@ -7,13 +7,13 @@ import android.util.Log;
 import com.alteredworlds.buddyfied.Settings;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class BuddyUserManagement implements UserManagement {
             final String user,
             final String password,
             final String email,
-            final HashMap<String, Object> profileData,
+            final HashMap<String, String> profileData,
             final JsonHttpResponseHandler responseHandler) {
         grabNonce(context,
                 "register",
@@ -82,26 +82,44 @@ public class BuddyUserManagement implements UserManagement {
 
     }
 
+    private String escapedString(String value) {
+        String retVal = null;
+        try {
+            retVal = java.net.URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            //WTF is the point of this?
+        }
+        return retVal;
+    }
+
     private void registerUser(Context context,
                               String nonce,
                               String user,
                               String password,
                               String email,
-                              HashMap<String, Object> profileData,
+                              HashMap<String, String> profileData,
                               final JsonHttpResponseHandler responseHandler) {
-        //username=%@&nonce=%@&email=%@&password=%@
-        String urlStr = Settings.getBuddySite(context) + sBuddyfiedRegisterUserURL;
-        RequestParams params = new RequestParams();
-        params.put("username", user);
-        params.put("nonce", nonce);
-        params.put("email", email);
-        params.put("password", password);
+        StringBuilder urlStr = new StringBuilder(Settings.getBuddySite(context));
+        urlStr.append(sBuddyfiedRegisterUserURL);
+        urlStr.append("?username=");
+        urlStr.append(escapedString(user));
+        urlStr.append("&nonce=");
+        urlStr.append(escapedString(nonce));
+        urlStr.append("&email=");
+        urlStr.append(escapedString(email));
+        urlStr.append("&password=");
+        urlStr.append(escapedString(password));
         if (null != profileData) {
-            for (Map.Entry<String, Object> entry : profileData.entrySet()) {
-                params.put(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, String> entry : profileData.entrySet()) {
+                String escapedKey = escapedString(entry.getKey());
+                String escapedValue = escapedString(entry.getValue());
+                urlStr.append("&");
+                urlStr.append(escapedKey);
+                urlStr.append("=");
+                urlStr.append(escapedValue);
             }
         }
-        mClient.post(context, urlStr, params, new JsonHttpResponseHandler() {
+        mClient.post(context, urlStr.toString(), null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.i(LOG_TAG, "registerUser result: " + response.toString());

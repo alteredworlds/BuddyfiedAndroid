@@ -17,7 +17,7 @@ public interface UserManagement {
                                 final String user,
                                 final String password,
                                 final String email,
-                                final HashMap<String, Object> profileData,
+                                final HashMap<String, String> profileData,
                                 final JsonHttpResponseHandler responseHandler);
 
     public void updateProfileForUser(final Context context,

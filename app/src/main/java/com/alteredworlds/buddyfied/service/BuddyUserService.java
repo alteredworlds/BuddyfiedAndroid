@@ -90,7 +90,7 @@ public class BuddyUserService extends Service {
                 stopSelf(startID);
             } else if (ID_REGISTER == msg.what) {
                 // let's see what the requested search might be...
-                HashMap<String, Object> data = getProfileParams(msg.arg2);
+                HashMap<String, String> data = getProfileParams(msg.arg2);
                 mClient.registerNewUser(
                         BuddyUserService.this,
                         Settings.getUsername(BuddyUserService.this),
@@ -196,8 +196,8 @@ public class BuddyUserService extends Service {
         return mFieldIdsFromName.get(name);
     }
 
-    private HashMap<String, Object> getProfileParams(int profileId) {
-        HashMap<String, Object> retVal = new HashMap<String, Object>();
+    private HashMap<String, String> getProfileParams(int profileId) {
+        HashMap<String, String> retVal = new HashMap<String, String>();
         if (-1 != profileId) {
             // get the associated attributes
             Uri query = ProfileAttributeListEntry.buildProfileAttributeListUri(profileId);

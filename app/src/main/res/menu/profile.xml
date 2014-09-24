@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.alteredworlds.buddyfied.ProfileActivity">
     <item
-        android:id="@+id/action_next"
-        android:title="@string/next_action"
+        android:id="@+id/action_join"
+        android:title="@string/join_action"
         app:showAsAction="always" />
 </menu>

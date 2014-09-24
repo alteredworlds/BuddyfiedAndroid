@@ -61,5 +61,8 @@
     <string name="title_activity_age_editor">AgeEditorActivity</string>
     <string name="title_activity_age_selection">Age</string>
     <string name="supply_value_for_required_field"> is a required field</string>
+    <string name="eula_agreement_intro">You\'ll need to agree to our terms of use before we can sign you up.</string>
+
+    <string name="eula_link"><a href="http://www.buddyfied.com/terms-of-use/">Terms and Conditions</a></string>
 
 </resources>

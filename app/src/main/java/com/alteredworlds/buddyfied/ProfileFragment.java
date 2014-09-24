@@ -1,5 +1,7 @@
 package com.alteredworlds.buddyfied;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,6 +11,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
@@ -164,17 +169,39 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_next:
-                onNext();
+            case R.id.action_join:
+                onJoin();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void onNext() {
+    private void onJoin() {
         if (validateProfileForSignUp()) {
-
+            // get prompts.xml view
+            LayoutInflater li = LayoutInflater.from(getActivity());
+            View promptsView = li.inflate(R.layout.eula_prompt, null);
+            TextView tv = (TextView) promptsView.findViewById(R.id.eula_link_textview);
+            tv.setMovementMethod(LinkMovementMethod.getInstance());
+            new AlertDialog.Builder(
+                    getActivity())
+                    .setView(promptsView)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Log.i(LOG_TAG, "Fucking JOIN already...!");
+                                }
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            })
+                    .create()
+                    .show();
         }
     }
 

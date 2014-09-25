@@ -19,6 +19,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private static final String LOG_TAG = ProfileFragment.class.getSimpleName();
 
     private static final String EDIT_MODE_KEY = "edit_mode";
+    private static final String JOIN_MODE_KEY = "join_mode";
 
     private LoaderListItem[] mData;
     private BuddyAdapter mAdapter;
@@ -56,6 +58,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private int HEADER_ROW;
 
     public Boolean mEditMode = false;
+    public Boolean mJoinMode = false;
     private BroadcastReceiver mMessageReceiver;
     private Boolean mDisableJoinButton = false;
 
@@ -78,6 +81,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
         if (null != savedInstanceState) {
             mEditMode = savedInstanceState.getBoolean(EDIT_MODE_KEY, false);
+            mJoinMode = savedInstanceState.getBoolean(JOIN_MODE_KEY, false);
         }
         if (Settings.isGuestUser(getActivity())) {
             mData = new LoaderListItem[]{
@@ -252,6 +256,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EDIT_MODE_KEY, mEditMode);
+        outState.putBoolean(JOIN_MODE_KEY, mJoinMode);
     }
 
     @Override
@@ -260,6 +265,14 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         MenuItem joinMenuItem = menu.findItem(R.id.action_join);
         if (null != joinMenuItem) {
             joinMenuItem.setEnabled(!mDisableJoinButton);
+            joinMenuItem.setTitle(mJoinMode ? R.string.join_action : R.string.action_commit);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!mEditMode) {
+            inflater.inflate(R.menu.profile_fragment, menu);
         }
     }
 
@@ -267,11 +280,20 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_join:
-                onJoin();
+                onActionButtonPress();
+                return true;
+            case R.id.action_edit:
+                onEdit();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void onEdit() {
+        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+        intent.putExtra(Constants.ID_EXTRA, mProfileId);
+        startActivity(intent);
     }
 
     private void setJoinButtonEnabled(Boolean enabled) {
@@ -315,6 +337,25 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                             })
                     .create()
                     .show();
+        }
+    }
+
+    private void onActionButtonPress() {
+        if (mJoinMode) {
+            onJoin();
+        } else {
+            onCommit();
+        }
+    }
+
+    private void onCommit() {
+        if (mEditMode) {
+            // should only ever get called in edit mode, but may as well protect
+            Intent intent = new Intent(getActivity(), BuddyUserService.class);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.UPDATE);
+            intent.putExtra(Constants.ID_EXTRA, mProfileId);
+            getActivity().startService(intent);
+            getActivity().finish();
         }
     }
 

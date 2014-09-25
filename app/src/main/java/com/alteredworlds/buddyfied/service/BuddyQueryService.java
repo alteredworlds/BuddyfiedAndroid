@@ -158,7 +158,7 @@ public class BuddyQueryService extends IntentService {
     private Bundle getMemberInfo(Intent intent) {
         int resultCode = Constants.RESULT_OK;
         String resultDescription = null;
-        Long userId = Settings.getUserId(this);
+        Long userId = intent.getLongExtra(Constants.ID_EXTRA, -1);
 
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("user_id", userId);

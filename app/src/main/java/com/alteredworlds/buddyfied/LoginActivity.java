@@ -37,11 +37,15 @@ public class LoginActivity extends Activity {
     private BroadcastReceiver mMessageReceiver;
     private View mFocusDummy;
 
+    private Boolean alreadyLoggedIn() {
+        return !TextUtils.isEmpty(Settings.getUsername(this)) &&
+                !TextUtils.isEmpty(Settings.getPassword(this));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!TextUtils.isEmpty(Settings.getUsername(this)) &&
-                !TextUtils.isEmpty(Settings.getPassword(this))) {
+        if (alreadyLoggedIn()) {
             //we're logged in already, just move on to app
             Intent main = new Intent(this, MainActivity.class);
             this.startActivity(main);

@@ -16,7 +16,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -119,7 +118,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                         String description = results.getString(Constants.RESULT_DESCRIPTION, "");
                         if (Constants.RESULT_OK == code) {
                             new AlertDialog.Builder(getActivity())
-                                    .setTitle(getString(R.string.welcome_title) + " " + Settings.getUsername(getActivity()) + "!")
+                                    .setTitle(getString(R.string.welcome_title) + " " + getProfileName() + "!")
                                     .setMessage(getString(R.string.welcome_message))
                                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -165,7 +164,10 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        mProfileId = Settings.getUserId(getActivity());
+        mProfileId = getActivity().getIntent().getLongExtra(Constants.ID_EXTRA, -1);
+        if (-1 == mProfileId) {
+            mProfileId = Settings.getUserId(getActivity());
+        }
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         mAdapter = new BuddyAdapter(getActivity(), mData);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_profile);
@@ -216,7 +218,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         } else {
             Intent intent = new Intent(getActivity(), BuddyQueryService.class);
             intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
-            intent.putExtra(Constants.ID_EXTRA, Settings.getUserId(getActivity()));
+            intent.putExtra(Constants.ID_EXTRA, mProfileId);
             getActivity().startService(intent);
         }
         // start loaders
@@ -292,10 +294,15 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                     .setPositiveButton(android.R.string.ok,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Log.i(LOG_TAG, "Fucking JOIN already...!");
                                     Intent intent = new Intent(getActivity(), BuddyUserService.class);
                                     intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.REGISTER);
                                     intent.putExtra(Constants.ID_EXTRA, mProfileId);
+                                    intent.putExtra(
+                                            Constants.EMAIL_EXTRA,
+                                            getActivity().getIntent().getStringExtra(Constants.EMAIL_EXTRA));
+                                    intent.putExtra(
+                                            Constants.PASSWORD_EXTRA,
+                                            getActivity().getIntent().getStringExtra(Constants.PASSWORD_EXTRA));
                                     getActivity().startService(intent);
                                 }
                             })
@@ -361,6 +368,10 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
         return retVal;
+    }
+
+    private String getProfileName() {
+        return mData[HEADER_ROW].name;
     }
 
     private void setRowName(int row, String value) {

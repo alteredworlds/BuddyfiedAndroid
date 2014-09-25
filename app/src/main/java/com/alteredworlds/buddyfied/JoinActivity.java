@@ -15,6 +15,7 @@ import android.widget.EditText;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.StaticDataService;
 
 
 public class JoinActivity extends ActionBarActivity {
@@ -25,24 +26,44 @@ public class JoinActivity extends ActionBarActivity {
     private EditText mPasswordConfirmEditText;
     private View mFocusDummy;
 
+    private static final String USERNAME_EXTRA = "username";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
         mFocusDummy = findViewById(R.id.focus_dummy);
-
         mUsernameEditText = (EditText) findViewById(R.id.join_username);
-        mUsernameEditText.setText(Settings.getUsername(this));
-
         mEmailEditText = (EditText) findViewById(R.id.join_email);
-        mEmailEditText.setText(Settings.getEmail(this));
-
         mPasswordEditText = (EditText) findViewById(R.id.join_password);
-        mPasswordEditText.setText(Settings.getPassword(this));
-
         mPasswordConfirmEditText = (EditText) findViewById(R.id.join_confirm_password);
-        mPasswordConfirmEditText.setText(Settings.getPassword(this));
+
+        if (null != savedInstanceState) {
+            mUsernameEditText.setText(savedInstanceState.getString(USERNAME_EXTRA));
+            mEmailEditText.setText(savedInstanceState.getString(Constants.EMAIL_EXTRA));
+            mPasswordEditText.setText(savedInstanceState.getString(Constants.PASSWORD_EXTRA));
+            mPasswordConfirmEditText.setText(savedInstanceState.getString(Constants.PASSWORD_EXTRA));
+        }
+        //
+        // load static data if required (i.e. if we don't already have it)
+        Intent staticDataIntent = new Intent(this, StaticDataService.class);
+        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.GET_ALL_IF_NEEDED);
+        startService(staticDataIntent);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        String username = mUsernameEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
+        String email = mEmailEditText.getText().toString();
+
+        savedInstanceState.putString(USERNAME_EXTRA, username);
+        savedInstanceState.putString(Constants.EMAIL_EXTRA, email);
+        savedInstanceState.putString(Constants.PASSWORD_EXTRA, password);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
@@ -80,8 +101,6 @@ public class JoinActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        // clear username, password, email
-        Settings.clearPersonalSettings(this);
         // clear all data in database
         Intent clearDataIntent = new Intent(this, BuddyQueryService.class);
         clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
@@ -138,17 +157,12 @@ public class JoinActivity extends ActionBarActivity {
             focusView.requestFocus();
         } else {
             // time to move to the next phase of the Join sequence
-            //
-            // first, persist the values derived from this form
-            Settings.setUsername(this, username);
-            Settings.setPassword(this, password);
-            Settings.setEmail(this, email);
-            //
             long userId = createUserProfileIfNeeded(username);
-            Settings.setUserId(this, userId);
             //
-            // now transition to the
             Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra(Constants.ID_EXTRA, userId);
+            intent.putExtra(Constants.PASSWORD_EXTRA, password);
+            intent.putExtra(Constants.EMAIL_EXTRA, email);
             startActivity(intent);
         }
     }

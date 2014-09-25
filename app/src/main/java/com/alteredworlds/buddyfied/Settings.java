@@ -3,6 +3,7 @@ package com.alteredworlds.buddyfied;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 /**
  * Created by twcgilbert on 30/07/2014.
@@ -28,18 +29,6 @@ public class Settings {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(pref_username_key, username);
-        edit.apply();
-    }
-
-    public static String getEmail(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(pref_email_key, null);
-    }
-
-    public static void setEmail(Context context, String email) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(pref_email_key, email);
         edit.apply();
     }
 
@@ -80,7 +69,8 @@ public class Settings {
     }
 
     public static Boolean isGuestUser(Context context) {
-        return 0 == getGuestUsername(context).compareTo(getUsername(context));
+        String userName = getUsername(context);
+        return !TextUtils.isEmpty(userName) && (0 == userName.compareTo(getGuestUsername(context)));
     }
 
     public static String getGuestUsername(Context context) {
@@ -108,6 +98,5 @@ public class Settings {
         setUsername(context, "");
         setUserId(context, -1l);
         setPosition(context, 0);
-        setEmail(context, "");
     }
 }

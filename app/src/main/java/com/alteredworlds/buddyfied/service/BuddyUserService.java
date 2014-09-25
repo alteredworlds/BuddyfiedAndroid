@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
-import com.alteredworlds.buddyfied.Settings;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
@@ -42,18 +41,16 @@ public class BuddyUserService extends Service {
     public static final String REGISTER = "register";
     public static final String UPDATE = "update";
 
-    public final int ID_CANCEL = 0;
-    public final int ID_REGISTER = 1;
-    public final int ID_UPDATE = 2;
-
     private HashMap<String, String> mFieldIdsFromName;
 
     private static final String[] ProfileQueryCols = {
+            ProfileEntry.COLUMN_NAME,
             ProfileEntry.COLUMN_COMMENTS,
             ProfileEntry.COLUMN_AGE
     };
-    private static final int COLUMN_COMMENTS_IDX = 0;
-    private static final int COLUMN_AGE_IDX = 1;
+    private static final int COLUMN_NAME_IDX = 0;
+    private static final int COLUMN_COMMENTS_IDX = 1;
+    private static final int COLUMN_AGE_IDX = 2;
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -77,27 +74,31 @@ public class BuddyUserService extends Service {
             }
         }
 
-
         @Override
         public void handleMessage(Message msg) {
-            final int startID = msg.arg1;
+            final int startID = msg.what;
+            final Bundle data = msg.getData();
+            final String method = data.getString(Constants.METHOD_EXTRA);
             // only support one call at a time, kill any that might be running
             cancelRunningTask();
-            if ((ID_CANCEL == msg.what) || (null == mClient)) {
+            if ((0 == CANCEL.compareTo(method)) || (null == mClient)) {
                 // if this is a cancel or a faulty config we're done
                 stopSelf(startID);
-            } else if (ID_UPDATE == msg.what) {
+            } else if (0 == (UPDATE.compareTo(method))) {
                 Log.i(LOG_TAG, "Update user info not yet implemented");
                 stopSelf(startID);
-            } else if (ID_REGISTER == msg.what) {
+            } else if (0 == (REGISTER.compareTo(method))) {
                 // let's see what the requested search might be...
-                HashMap<String, String> data = getProfileParams(msg.arg2);
+                final long profileId = data.getLong(Constants.ID_EXTRA);
+                final String password = data.getString(Constants.PASSWORD_EXTRA);
+                final String email = data.getString(Constants.EMAIL_EXTRA);
+                ProfileInfo profileInfo = getProfileParams(profileId);
                 mClient.registerNewUser(
                         BuddyUserService.this,
-                        Settings.getUsername(BuddyUserService.this),
-                        Settings.getPassword(BuddyUserService.this),
-                        Settings.getEmail(BuddyUserService.this),
-                        data,
+                        profileInfo.mName,
+                        password,
+                        email,
+                        profileInfo.mParams,
                         new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -186,17 +187,16 @@ public class BuddyUserService extends Service {
         // For each start request, send a message to start a job and deliver the
         // start ID so we know which request we're stopping when we finish the job
         //
-        String methodName = intent.getStringExtra(Constants.METHOD_EXTRA);
-        int method = ID_CANCEL;
-        if (0 == REGISTER.compareTo(methodName)) {
-            method = ID_REGISTER;
-        } else if (0 == UPDATE.compareTo(methodName)) {
-            method = ID_UPDATE;
-        }
         Message msg = mServiceHandler.obtainMessage();
-        msg.what = method;
-        msg.arg1 = startId;
-        msg.arg2 = (int) intent.getLongExtra(Constants.ID_EXTRA, -1);
+        //
+        Bundle data = new Bundle();
+        msg.what = startId;
+        data.putString(Constants.METHOD_EXTRA, intent.getStringExtra(Constants.METHOD_EXTRA));
+        data.putLong(Constants.ID_EXTRA, intent.getLongExtra(Constants.ID_EXTRA, -1));
+        data.putString(Constants.PASSWORD_EXTRA, intent.getStringExtra(Constants.PASSWORD_EXTRA));
+        data.putString(Constants.EMAIL_EXTRA, intent.getStringExtra(Constants.EMAIL_EXTRA));
+        msg.setData(data);
+        //
         mServiceHandler.sendMessage(msg);
 
         return START_NOT_STICKY;
@@ -226,8 +226,8 @@ public class BuddyUserService extends Service {
         return mFieldIdsFromName.get(name);
     }
 
-    private HashMap<String, String> getProfileParams(int profileId) {
-        HashMap<String, String> retVal = new HashMap<String, String>();
+    private ProfileInfo getProfileParams(long profileId) {
+        ProfileInfo retVal = new ProfileInfo();
         if (-1 != profileId) {
             // get the associated attributes
             Uri query = ProfileAttributeListEntry.buildProfileAttributeListUri(profileId);
@@ -244,7 +244,7 @@ public class BuddyUserService extends Service {
                     // must transform the local property name / attribute type to
                     // what the server expects...
                     type = getServerFieldIdFromPropertyName(type);
-                    retVal.put(type, value);
+                    retVal.mParams.put(type, value);
                 }
                 while (cursor.moveToNext());
             }
@@ -253,13 +253,14 @@ public class BuddyUserService extends Service {
             query = ProfileEntry.buildProfileUri(profileId);
             cursor = getContentResolver().query(query, ProfileQueryCols, null, null, null);
             if (cursor.moveToFirst()) {
+                retVal.mName = cursor.getString(COLUMN_NAME_IDX);
                 String comments = cursor.getString(COLUMN_COMMENTS_IDX);
                 if (!TextUtils.isEmpty(comments)) {
-                    retVal.put(getServerFieldIdFromPropertyName("comments"), comments);
+                    retVal.mParams.put(getServerFieldIdFromPropertyName("comments"), comments);
                 }
                 String age = cursor.getString(COLUMN_AGE_IDX);
                 if (!TextUtils.isEmpty(age)) {
-                    retVal.put(getServerFieldIdFromPropertyName("years"), age);
+                    retVal.mParams.put(getServerFieldIdFromPropertyName("years"), age);
                 }
             }
             cursor.close();
@@ -279,5 +280,23 @@ public class BuddyUserService extends Service {
         }
         cursor.close();
         return retVal;
+    }
+
+    private class ProfileInfo {
+        public String mName;
+        public HashMap<String, String> mParams;
+
+        public ProfileInfo() {
+            this(null);
+        }
+
+        public ProfileInfo(String name) {
+            this(name, new HashMap<String, String>());
+        }
+
+        public ProfileInfo(String name, HashMap<String, String> params) {
+            mName = name;
+            mParams = params;
+        }
     }
 }

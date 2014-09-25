@@ -232,9 +232,12 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onPause() {
         if (mEditMode) {
             // cancel any active communications relating to profile (register/amend)
-            Intent intent = new Intent(getActivity(), BuddyUserService.class);
-            intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.CANCEL);
-            getActivity().startService(intent);
+            if (!getActivity().isChangingConfigurations()) {
+                // should allow call to continue during device rotation
+                Intent intent = new Intent(getActivity(), BuddyUserService.class);
+                intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.CANCEL);
+                getActivity().startService(intent);
+            }
             //
             // Unregister since the activity is about to be closed.
             if (null != mMessageReceiver) {

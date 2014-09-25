@@ -45,7 +45,7 @@ public class ProfileActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return (true);
+                return true;
             case R.id.action_settings:
                 return true;
             default:

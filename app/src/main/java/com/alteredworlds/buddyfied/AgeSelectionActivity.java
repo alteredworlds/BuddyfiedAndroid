@@ -99,13 +99,27 @@ public class AgeSelectionActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        // Handle action bar item clicks here.
+        // see: http://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview
+        // comment by Mazvél at bottom.
+        //
+        // This code will override the "up" button to behave the same way as the back button so
+        // in the case of Listview -> Details -> Back to Listview (and no other options) this is the
+        // simplest code to maintain the scrollposition and the content in the listview.
+        //
+        // Caution: If you can go to another activity from the details activity the up button will
+        // return you back to that activity so you will have to manipulate the backbutton history
+        // in order for this to work.
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
+
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 }

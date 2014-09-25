@@ -50,6 +50,12 @@ public class LoginActivity extends Activity {
             Intent main = new Intent(this, MainActivity.class);
             this.startActivity(main);
             finish();
+        } else {
+            // cleanup in case any previous join attempt has left a profile
+            // record in place. This works; no doubt there's a better way!
+            Intent clearDataIntent = new Intent(this, BuddyQueryService.class);
+            clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+            startService(clearDataIntent);
         }
         setContentView(R.layout.activity_login);
 

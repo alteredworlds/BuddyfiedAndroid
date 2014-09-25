@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -65,7 +66,7 @@ public class MessageUserFragment extends Fragment {
                     if (0 != code) {
                         // code other than 0 should trigger an alert
                         String description = results.getString(Constants.RESULT_DESCRIPTION, "");
-                        if (Utils.isNullOrEmpty(description)) {
+                        if (TextUtils.isEmpty(description)) {
                             description = getString(R.string.message_send_failed_message);
                         }
                         new AlertDialog.Builder(getActivity())
@@ -141,7 +142,7 @@ public class MessageUserFragment extends Fragment {
         // get the subject and body
         String messageSubject = mMessageSubject.getText().toString();
         String messageBody = mMessageBody.getText().toString();
-        if (Utils.isNullOrEmpty(messageSubject) || Utils.isNullOrEmpty(messageBody)) {
+        if (TextUtils.isEmpty(messageSubject) || TextUtils.isEmpty(messageBody)) {
             new AlertDialog.Builder(getActivity())
                     .setTitle(getString(R.string.message_invalid_title))
                     .setMessage(getString(R.string.message_invalid_body))

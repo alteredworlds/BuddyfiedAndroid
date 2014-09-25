@@ -13,12 +13,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
-import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
@@ -150,7 +150,7 @@ public class BuddySearchService extends Service {
         private void reportResult(int code, String description) {
             Bundle result = new Bundle();
             result.putInt(Constants.RESULT_CODE, code);
-            if (!Utils.isNullOrEmpty(description)) {
+            if (!TextUtils.isEmpty(description)) {
                 result.putString(Constants.RESULT_DESCRIPTION, description);
             }
             Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());

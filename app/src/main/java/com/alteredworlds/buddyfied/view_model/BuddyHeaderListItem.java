@@ -1,5 +1,6 @@
 package com.alteredworlds.buddyfied.view_model;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.ImageDownloader;
 import com.alteredworlds.buddyfied.R;
-import com.alteredworlds.buddyfied.Utils;
 
 /**
  * Created by twcgilbert on 02/09/2014.
@@ -46,7 +46,7 @@ public class BuddyHeaderListItem extends LoaderListItem {
             holder = (ViewHolder) row.getTag();
         }
         holder.nameTextView.setText(name);
-        if (!Utils.isNullOrEmpty(value)) {
+        if (!TextUtils.isEmpty(value)) {
             ImageDownloader.getInstance().download(value, holder.imageView);
         }
         holder.messageButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);

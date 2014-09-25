@@ -40,8 +40,8 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!Utils.isNullOrEmpty(Settings.getUsername(this)) &&
-                !Utils.isNullOrEmpty(Settings.getPassword(this))) {
+        if (!TextUtils.isEmpty(Settings.getUsername(this)) &&
+                !TextUtils.isEmpty(Settings.getPassword(this))) {
             //we're logged in already, just move on to app
             Intent main = new Intent(this, MainActivity.class);
             this.startActivity(main);
@@ -95,7 +95,7 @@ public class LoginActivity extends Activity {
                         Settings.setUsername(context, "");
                         Settings.setPassword(context, "");
                         String description = results.getString(Constants.RESULT_DESCRIPTION, "");
-                        if (Utils.isNullOrEmpty(description)) {
+                        if (TextUtils.isEmpty(description)) {
                             description = getString(R.string.sign_in_failed_message_default);
                         }
                         showErrorAlert(description);

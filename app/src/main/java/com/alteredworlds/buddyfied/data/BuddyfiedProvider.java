@@ -9,8 +9,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 
-import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
@@ -244,7 +244,7 @@ public class BuddyfiedProvider extends ContentProvider {
         String attributeType = AttributeEntry.getAttributeTypeFromUri(uri);
         long profileId = AttributeEntry.getProfileIdFromUri(uri);
         StringBuilder sb = new StringBuilder(sAttributeTypeForProfileSelection);
-        if (!Utils.isNullOrEmpty(selection)) {
+        if (!TextUtils.isEmpty(selection)) {
             sb.append(" AND ");
             sb.append(selection);
         }
@@ -262,11 +262,11 @@ public class BuddyfiedProvider extends ContentProvider {
         long profileId = AttributeEntry.getProfileIdFromAttributeTypeForProfileAllUri(uri);
         StringBuilder sb = new StringBuilder(sAllAttributesByTypeForProfileSelectionP1);
         sb.append(profileId + sAllAttributesByTypeForProfileSelectionP2 + "'" + attributeType + "'");
-        if (!Utils.isNullOrEmpty(selection)) {
+        if (!TextUtils.isEmpty(selection)) {
             sb.append(" AND ");
             sb.append(selection);
         }
-        if (!Utils.isNullOrEmpty(sortOrder)) {
+        if (!TextUtils.isEmpty(sortOrder)) {
             sb.append(" ORDER BY ");
             sb.append(sortOrder);
         }

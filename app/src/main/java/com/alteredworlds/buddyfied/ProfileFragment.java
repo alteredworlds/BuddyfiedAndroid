@@ -1,8 +1,11 @@
 package com.alteredworlds.buddyfied;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +57,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private int HEADER_ROW;
 
     public Boolean mEditMode = false;
+    private BroadcastReceiver mMessageReceiver;
+    private Boolean mDisableJoinButton = false;
 
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
@@ -101,6 +108,57 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             AGE_ROW = 8;
             COMMENTS_ROW = 10;
         }
+        if (mEditMode) {
+            mMessageReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
+                    if (null != results) {
+                        // we want a code 0 indicating success.
+                        int code = results.getInt(Constants.RESULT_CODE, Constants.RESULT_OK);
+                        String description = results.getString(Constants.RESULT_DESCRIPTION, "");
+                        if (Constants.RESULT_OK == code) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(getString(R.string.welcome_title) + " " + Settings.getUsername(getActivity()) + "!")
+                                    .setMessage(getString(R.string.welcome_message))
+                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            AboutFragment.signOut(getActivity());
+                                        }
+                                    })
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                        } else {
+                            // error case & popup an alert with error
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(getString(R.string.user_registration_failed))
+                                    .setMessage(description)
+                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                        }
+                                    })
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            // re-enable the JOIN button to allow option of having another go
+                            setJoinButtonEnabled(true);
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+
+    private void showMessage(String message) {
+        showMessage(message, false);
+    }
+
+    private void showMessage(String message, Boolean longTime) {
+        if (!TextUtils.isEmpty(message)) {
+            Toast toast = Toast.makeText(getActivity(), message, longTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
     }
 
     @Override
@@ -149,7 +207,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
         //
-        if (!mEditMode) {
+        if (mEditMode) {
+            if (null != mMessageReceiver) {
+                // Register an observer to receive specific named Intents ('events')
+                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                        new IntentFilter(BuddyUserService.BUDDY_USER_SERVICE_RESULT_EVENT));
+            }
+        } else {
             Intent intent = new Intent(getActivity(), BuddyQueryService.class);
             intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
             intent.putExtra(Constants.ID_EXTRA, Settings.getUserId(getActivity()));
@@ -164,9 +228,34 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    @Override
+    public void onPause() {
+        if (mEditMode) {
+            // cancel any active communications relating to profile (register/amend)
+            Intent intent = new Intent(getActivity(), BuddyUserService.class);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.CANCEL);
+            getActivity().startService(intent);
+            //
+            // Unregister since the activity is about to be closed.
+            if (null != mMessageReceiver) {
+                LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+            }
+        }
+        super.onPause();
+    }
+
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EDIT_MODE_KEY, mEditMode);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem joinMenuItem = menu.findItem(R.id.action_join);
+        if (null != joinMenuItem) {
+            joinMenuItem.setEnabled(!mDisableJoinButton);
+        }
     }
 
     @Override
@@ -180,8 +269,15 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    private void setJoinButtonEnabled(Boolean enabled) {
+        mDisableJoinButton = !enabled;
+        getActivity().invalidateOptionsMenu();
+    }
+
     private void onJoin() {
         if (validateProfileForSignUp()) {
+            setJoinButtonEnabled(false);
+            getActivity().invalidateOptionsMenu();
             LayoutInflater li = LayoutInflater.from(getActivity());
             View promptsView = li.inflate(R.layout.eula_prompt, null);
             TextView tv = (TextView) promptsView.findViewById(R.id.eula_link_textview);
@@ -204,6 +300,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
+                                    setJoinButtonEnabled(true);
                                 }
                             })
                     .create()
@@ -218,9 +315,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                 retVal &= !TextUtils.isEmpty(lli.value);
                 if (!retVal) {
                     String description = lli.name + " " + getString(R.string.supply_value_for_required_field);
-                    Toast toast = Toast.makeText(getActivity(), description, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
+                    showMessage(description);
                     break;
                 }
             }
@@ -250,7 +345,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                     break;
                 }
             }
-            if ((null != row) && !Utils.isNullOrEmpty(row.extra)) {
+            if ((null != row) && !TextUtils.isEmpty(row.extra)) {
                 // we have the AttributeEntry.COLUMN_TYPE information in row.extra
                 Uri query = BuddyfiedContract.AttributeEntry.buildAttributeTypeForProfile(row.extra, mProfileId);
                 retVal = new CursorLoader(

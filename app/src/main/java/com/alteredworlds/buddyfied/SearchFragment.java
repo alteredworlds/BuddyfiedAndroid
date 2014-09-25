@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +100,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
             }
         }
-        if ((null != row) && !Utils.isNullOrEmpty(row.extra)) {
+        if ((null != row) && !TextUtils.isEmpty(row.extra)) {
             // we have the AttributeEntry.COLUMN_TYPE information in row.extra
             Uri query = AttributeEntry.buildAttributeTypeForProfile(row.extra, mProfileId);
             retVal = new CursorLoader(

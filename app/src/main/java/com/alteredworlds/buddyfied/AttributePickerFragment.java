@@ -19,6 +19,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -210,7 +211,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
                 if (null != results) {
                     int code = results.getInt(Constants.RESULT_CODE, Constants.RESULT_OK);
                     String description = results.getString(Constants.RESULT_DESCRIPTION, "");
-                    if ((Constants.RESULT_FAIL == code) && !Utils.isNullOrEmpty(description)) {
+                    if ((Constants.RESULT_FAIL == code) && !TextUtils.isEmpty(description)) {
                         // error case, e.g.: problem with server, network
                         Toast toast = Toast.makeText(context, description, Toast.LENGTH_SHORT);
                         toast.show();

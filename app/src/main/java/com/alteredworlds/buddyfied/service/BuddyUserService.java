@@ -16,7 +16,6 @@ import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.Settings;
-import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
@@ -25,6 +24,7 @@ import com.alteredworlds.buddyfied.user_management.BuddyUserManagement;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -73,6 +73,7 @@ public class BuddyUserService extends Service {
         private void cancelRunningTask() {
             if (null != mClient) {
                 mClient.cancel(BuddyUserService.this);
+                Log.d(LOG_TAG, "BuddyUserService cancelled");
             }
         }
 
@@ -101,8 +102,35 @@ public class BuddyUserService extends Service {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Log.i(LOG_TAG, "registerUser result: " + response.toString());
+                                //
+                                // call succeeded, but user registration may or may not have done.
+                                // REGISTRATION SUCCEEDED
+                                //{
+                                //  cookie = "devtestuser|1405520768|decac9d414670153b07395f4a5f95e57";
+                                //  status = ok;
+                                //  "user_id" = 35;
+                                //}
+                                //
+                                // ERROR CASES:
+                                //{
+                                //    error = "Username already exists.";
+                                //    status = error;
+                                //}
+                                //
+                                //{
+                                //    error = "E-mail address is already in use.";
+                                //    status = error;
+                                //}
+                                try {
+                                    String status = response.getString("status");
+                                    if (0 == "ok".compareTo(status)) {
+                                        reportResult(Constants.RESULT_OK, null);
+                                    } else {
+                                        reportResult(Constants.RESULT_FAIL, response.getString("error"));
+                                    }
+                                } catch (JSONException e) {
 
-
+                                }
                                 stopSelf(startID);
                             }
 
@@ -114,9 +142,11 @@ public class BuddyUserService extends Service {
                                 }
                                 if (null != throwable) {
                                     sb.append(" ");
-                                    sb.append(throwable.toString());
+                                    sb.append(throwable.getLocalizedMessage());
                                 }
-                                Log.e(LOG_TAG, sb.toString());
+                                String result = sb.toString();
+                                Log.e(LOG_TAG, result);
+                                reportResult(Constants.RESULT_FAIL, result);
                                 stopSelf(startID);
                             }
                         });
@@ -126,7 +156,7 @@ public class BuddyUserService extends Service {
         private void reportResult(int code, String description) {
             Bundle result = new Bundle();
             result.putInt(Constants.RESULT_CODE, code);
-            if (!Utils.isNullOrEmpty(description)) {
+            if (!TextUtils.isEmpty(description)) {
                 result.putString(Constants.RESULT_DESCRIPTION, description);
             }
             Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());

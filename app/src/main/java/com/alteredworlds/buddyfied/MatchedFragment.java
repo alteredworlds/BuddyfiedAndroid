@@ -14,6 +14,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,7 +149,7 @@ public class MatchedFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void showMessage(String message) {
         if (null != mMatchedText) {
-            if (Utils.isNullOrEmpty(message)) {
+            if (TextUtils.isEmpty(message)) {
                 showTextOrProgress(false, false);
             } else {
                 showTextOrProgress(true, false);

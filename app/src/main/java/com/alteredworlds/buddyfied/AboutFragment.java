@@ -1,5 +1,6 @@
 package com.alteredworlds.buddyfied;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,20 +22,26 @@ public class AboutFragment extends Fragment {
     public AboutFragment() {
     }
 
-    private void signOut(Boolean joinRequested) {
+
+    public static void signOut(Activity context) {
+        signOut(context, false);
+    }
+
+    public static void signOut(Activity context, Boolean joinRequested) {
         // continue with sign out
-        Settings.clearPersonalSettings(getActivity());
+        Settings.clearPersonalSettings(context);
         //
-        Intent clearDataIntent = new Intent(getActivity(), BuddyQueryService.class);
+        Intent clearDataIntent = new Intent(context, BuddyQueryService.class);
         clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
-        getActivity().startService(clearDataIntent);
+        context.startService(clearDataIntent);
         //
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        Intent intent = new Intent(context, LoginActivity.class);
         if (joinRequested) {
-            Settings.setJoinRequired(getActivity(), true);
+            Settings.setJoinRequired(context, true);
         }
-        getActivity().startActivity(intent);
-        getActivity().finish();
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+        context.finish();
     }
 
     @Override
@@ -58,7 +65,7 @@ public class AboutFragment extends Fragment {
                         .setMessage(getString(R.string.sign_out_alert_message))
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                signOut(false);
+                                signOut(getActivity(), false);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -75,7 +82,7 @@ public class AboutFragment extends Fragment {
             joinTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    signOut(true);
+                    signOut(getActivity(), true);
                 }
             });
         } else {

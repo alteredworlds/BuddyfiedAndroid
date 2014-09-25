@@ -3,8 +3,7 @@ package com.alteredworlds.buddyfied.data;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import com.alteredworlds.buddyfied.Utils;
+import android.text.TextUtils;
 
 import java.util.List;
 
@@ -100,7 +99,7 @@ public class BuddyfiedContract {
             final int size = segments.size();
             if (size > 1) {
                 String profileId = segments.get(size - 2);
-                if (!Utils.isNullOrEmpty(profileId)) {
+                if (!TextUtils.isEmpty(profileId)) {
                     retVal = Long.parseLong(profileId);
                 }
             }

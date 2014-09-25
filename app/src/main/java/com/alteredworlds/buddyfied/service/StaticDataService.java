@@ -7,12 +7,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
-import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 
 import org.apache.http.HttpEntity;
@@ -52,7 +52,7 @@ public class StaticDataService extends IntentService {
     public static final String LanguagesKey = "languages";
 
     static final String BuddifiedStaticDataUrl =
-    "wp-content/themes/buddyfied/_inc/ajax/autocomplete.php?mode=";
+            "wp-content/themes/buddyfied/_inc/ajax/autocomplete.php?mode=";
 
     static final String AgeRangeJSON = "[{\"id\":\"900800\",\"name\":\"16-19\"},{\"id\":\"900801\",\"name\":\"20-25\"},{\"id\":\"900802\",\"name\":\"26-35\"},{\"id\":\"900803\",\"name\":\"36-44\"},{\"id\":\"900804\",\"name\":\"45+\"}]";
     public static final int VOICE_ID_YES = 900900;
@@ -173,7 +173,7 @@ public class StaticDataService extends IntentService {
     private Bundle resultBundle(int code, String description) {
         Bundle retVal = new Bundle();
         retVal.putInt(Constants.RESULT_CODE, code);
-        if (!Utils.isNullOrEmpty(description)) {
+        if (!TextUtils.isEmpty(description)) {
             retVal.putString(Constants.RESULT_DESCRIPTION, description);
         }
         return retVal;
@@ -252,23 +252,17 @@ public class StaticDataService extends IntentService {
         String retVal = null;
         if (0 == AttributeEntry.TypePlatform.compareTo(entityName)) {
             retVal = PlatformKey;
-        }
-        else if (0 == AttributeEntry.TypeCountry.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypeCountry.compareTo(entityName)) {
             retVal = CountryKey;
-        }
-        else if (0 == AttributeEntry.TypePlaying.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypePlaying.compareTo(entityName)) {
             retVal = GameKey;
-        }
-        else if (0 == AttributeEntry.TypeLanguage.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypeLanguage.compareTo(entityName)) {
             retVal = LanguagesKey;
-        }
-        else if (0 == AttributeEntry.TypeGameplay.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypeGameplay.compareTo(entityName)) {
             retVal = GameplayKey;
-        }
-        else if (0 == AttributeEntry.TypeSkill.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypeSkill.compareTo(entityName)) {
             retVal = SkillKey;
-        }
-        else if (0 == AttributeEntry.TypeTime.compareTo(entityName)) {
+        } else if (0 == AttributeEntry.TypeTime.compareTo(entityName)) {
             retVal = TimeKey;
         }
         return retVal;

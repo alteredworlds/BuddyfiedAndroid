@@ -7,12 +7,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
-import com.alteredworlds.buddyfied.Utils;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
@@ -292,7 +292,7 @@ public class BuddyQueryService extends IntentService {
     private Bundle resultBundle(int code, String description) {
         Bundle retVal = new Bundle();
         retVal.putInt(Constants.RESULT_CODE, code);
-        if (!Utils.isNullOrEmpty(description)) {
+        if (!TextUtils.isEmpty(description)) {
             retVal.putString(Constants.RESULT_DESCRIPTION, description);
         }
         return retVal;
@@ -404,7 +404,7 @@ public class BuddyQueryService extends IntentService {
             default:
                 return;
         }
-        if (!Utils.isNullOrEmpty(value)) {
+        if (!TextUtils.isEmpty(value)) {
             // OK, so value is one or more (as comma-delimited) AttributeEntry Id
             for (String attributeIdStr : value.split(",")) {
                 try {

@@ -47,8 +47,8 @@ import com.alteredworlds.buddyfied.view_model.SearchListItem;
 public class ProfileFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ProfileFragment.class.getSimpleName();
 
-    private static final String EDIT_MODE_KEY = "edit_mode";
-    private static final String JOIN_MODE_KEY = "join_mode";
+    public static final String EDIT_MODE_KEY = "edit_mode";
+    public static final String JOIN_MODE_KEY = "join_mode";
 
     private LoaderListItem[] mData;
     private BuddyAdapter mAdapter;
@@ -271,7 +271,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (!mEditMode) {
+        if (!mEditMode && !Settings.isGuestUser(getActivity())) {
             inflater.inflate(R.menu.profile_fragment, menu);
         }
     }

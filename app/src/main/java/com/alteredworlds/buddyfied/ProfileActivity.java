@@ -15,6 +15,7 @@ public class ProfileActivity extends ActionBarActivity {
         if (savedInstanceState == null) {
             ProfileFragment frag = new ProfileFragment();
             frag.mEditMode = true;
+            frag.mJoinMode = getIntent().getBooleanExtra(ProfileFragment.JOIN_MODE_KEY, false);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, frag)
                     .commit();

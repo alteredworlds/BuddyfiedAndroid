@@ -71,6 +71,7 @@ public class ProfileFragmentEdit extends ProfileFragmentMaleable {
 
     private void onCommit() {
         if (validateProfile()) {
+            setNextButtonEnabled(false);
             Intent intent = new Intent(getActivity(), BuddyUserService.class);
             intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.UPDATE);
             intent.putExtra(Constants.ID_EXTRA, mProfileId);

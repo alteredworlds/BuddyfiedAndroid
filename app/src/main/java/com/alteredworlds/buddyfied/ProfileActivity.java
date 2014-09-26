@@ -7,6 +7,8 @@ import android.view.MenuItem;
 
 public class ProfileActivity extends ActionBarActivity {
 
+    public static final String JOIN_MODE_KEY = "join_mode";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

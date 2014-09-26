@@ -163,7 +163,7 @@ public class JoinActivity extends ActionBarActivity {
             intent.putExtra(Constants.ID_EXTRA, userId);
             intent.putExtra(Constants.PASSWORD_EXTRA, password);
             intent.putExtra(Constants.EMAIL_EXTRA, email);
-            intent.putExtra(ProfileFragment.JOIN_MODE_KEY, true);
+            intent.putExtra(ProfileActivity.JOIN_MODE_KEY, true);
             startActivity(intent);
         }
     }

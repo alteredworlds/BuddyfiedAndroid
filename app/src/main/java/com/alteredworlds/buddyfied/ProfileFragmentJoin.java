@@ -26,6 +26,7 @@ public class ProfileFragmentJoin extends ProfileFragmentMaleable {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                showProgress(false);
                 Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
@@ -105,6 +106,7 @@ public class ProfileFragmentJoin extends ProfileFragmentMaleable {
                                             Constants.PASSWORD_EXTRA,
                                             getActivity().getIntent().getStringExtra(Constants.PASSWORD_EXTRA));
                                     getActivity().startService(intent);
+                                    showProgress(true);
                                 }
                             })
                     .setNegativeButton(android.R.string.cancel,

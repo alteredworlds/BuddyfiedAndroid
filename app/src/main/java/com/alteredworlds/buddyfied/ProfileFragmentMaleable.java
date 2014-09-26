@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
@@ -33,6 +34,7 @@ public class ProfileFragmentMaleable extends ProfileFragmentBase {
 
     protected Boolean mDisableNextButton = false;
     protected BroadcastReceiver mMessageReceiver;
+    protected ProgressBar mProgressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class ProfileFragmentMaleable extends ProfileFragmentBase {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.profile_progress);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_profile);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -130,6 +133,14 @@ public class ProfileFragmentMaleable extends ProfileFragmentBase {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.profile_fragment_maleable, menu);
+    }
+
+    protected void showProgress(Boolean show) {
+        if (show) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mProgressBar.setVisibility(View.GONE);
+        }
     }
 
     protected Boolean validateProfile() {

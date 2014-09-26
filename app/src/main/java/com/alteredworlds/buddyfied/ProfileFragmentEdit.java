@@ -22,6 +22,7 @@ public class ProfileFragmentEdit extends ProfileFragmentMaleable {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                showProgress(false);
                 Bundle results = intent.getBundleExtra(Constants.RESULT_BUNDLE);
                 if (null != results) {
                     // we want a code 0 indicating success.
@@ -72,6 +73,7 @@ public class ProfileFragmentEdit extends ProfileFragmentMaleable {
     private void onCommit() {
         if (validateProfile()) {
             setNextButtonEnabled(false);
+            showProgress(true);
             Intent intent = new Intent(getActivity(), BuddyUserService.class);
             intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.UPDATE);
             intent.putExtra(Constants.ID_EXTRA, mProfileId);

@@ -53,6 +53,7 @@ public class BuddyQueryService extends IntentService {
     public static final String DeleteBuddies = "deleteBuddies";
     public static final String CreateEditProfile = "CreateEditProfile";
     public static final String CleanupEditProfile = "CleanupEditProfile";
+    public static final String CommitEditProfile = "CommitEditProfile";
 
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
 
@@ -107,6 +108,8 @@ public class BuddyQueryService extends IntentService {
             result = createEditProfile(intent);
         } else if (0 == CleanupEditProfile.compareTo(method)) {
             result = cleanupEditProfile(intent);
+        } else if (0 == CommitEditProfile.compareTo(method)) {
+            result = commitEditProfile(intent);
         } else {
             String errorMessage = "Unknown xmlrpc method call: '" + method + "'";
             Log.e(LOG_TAG, errorMessage);
@@ -183,6 +186,43 @@ public class BuddyQueryService extends IntentService {
                 ProfileEntry.CONTENT_URI,
                 ProfileEntry._ID + " = " + BuddyfiedDbHelper.EDIT_PROFILE_ID,
                 null);
+        return null;
+    }
+
+    private Bundle commitEditProfile(Intent intent) {
+        long editProfileId = BuddyfiedDbHelper.EDIT_PROFILE_ID;
+        long userProfileId = Settings.getUserId(this);
+        //
+        // remove any existing attributes for user profile
+        getContentResolver().delete(
+                ProfileAttributeEntry.CONTENT_URI,
+                ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + userProfileId,
+                null);
+        //
+        // transfer all attributes from edit profile over to user profile
+        ContentValues cv = new ContentValues();
+        cv.put(ProfileAttributeEntry.COLUMN_PROFILE_ID, userProfileId);
+        getContentResolver().update(
+                ProfileAttributeEntry.CONTENT_URI,
+                cv,
+                ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + editProfileId,
+                null);
+        // may need to update profile directly - some elements held there: comments, age
+        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
+                sProfileCols,
+                ProfileEntry._ID + " = " + editProfileId,
+                null, null);
+        if (cursor.moveToFirst()) {
+            cv = new ContentValues();
+            cv.put(ProfileEntry.COLUMN_COMMENTS, cursor.getString(PROFILE_COL_COMMENTS_IDX));
+            cv.put(ProfileEntry.COLUMN_AGE, cursor.getString(PROFILE_COL_AGE_IDX));
+            getContentResolver().update(
+                    ProfileEntry.CONTENT_URI,
+                    cv,
+                    ProfileEntry._ID + " = " + userProfileId,
+                    null);
+        }
+        cursor.close();
         return null;
     }
 

@@ -412,6 +412,7 @@ public class BuddyfiedProvider extends ContentProvider {
                 break;
             case PROFILE_ATTRIBUTE:
                 numRows = db.update(ProfileAttributeEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }

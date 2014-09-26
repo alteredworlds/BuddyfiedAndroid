@@ -3,7 +3,8 @@
 
     <string name="app_name">Buddyfied</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Refresh Lists</string>
+    <string name="action_refresh_lists">Refresh Lists</string>
+    <string name="action_refresh_list">Refresh List</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="user">User:</string>
@@ -56,6 +57,7 @@
     <string name="error_passwords_must_match">Passwords must match</string>
     <string name="error_invalid_email">Valid email required</string>
     <string name="title_activity_profile">My Profile</string>
+    <string name="title_activity_edit_profile">Edit Profile</string>
     <string name="username_too_short">Username must be at least 4 characters</string>
     <string name="title_activity_comment_editor">Comments</string>
     <string name="title_activity_age_editor">AgeEditorActivity</string>

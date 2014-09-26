@@ -111,9 +111,6 @@ public class AgeSelectionActivity extends Activity {
         // return you back to that activity so you will have to manipulate the backbutton history
         // in order for this to work.
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                return true;
-
             case android.R.id.home:
                 onBackPressed();
                 return true;

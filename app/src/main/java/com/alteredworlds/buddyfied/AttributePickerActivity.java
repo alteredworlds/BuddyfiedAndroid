@@ -45,9 +45,10 @@ public class AttributePickerActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return (true);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

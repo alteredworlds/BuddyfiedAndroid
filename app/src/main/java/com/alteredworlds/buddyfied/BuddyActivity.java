@@ -51,11 +51,10 @@ public class BuddyActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return (true);
-            case R.id.action_settings:
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void messageUserButtonClick(View view) {

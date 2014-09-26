@@ -243,7 +243,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
             case R.id.attribute_picker_filter:
                 toggleCheckedFilter();
                 return true;
-            case R.id.action_settings:
+            case R.id.action_refresh:
                 refreshStaticData();
                 return true;
         }

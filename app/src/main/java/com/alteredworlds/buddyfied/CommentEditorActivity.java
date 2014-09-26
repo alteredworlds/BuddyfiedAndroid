@@ -55,8 +55,6 @@ public class CommentEditorActivity extends Activity {
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case R.id.action_settings:
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

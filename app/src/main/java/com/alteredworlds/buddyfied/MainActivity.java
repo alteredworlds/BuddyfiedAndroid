@@ -219,17 +219,7 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         // The action bar home/up action should open or close the drawer.
         // ActionBarDrawerToggle will take care of this.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            refreshStaticData();
-        }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void refreshStaticData() {
-        Intent staticDataIntent = new Intent(this, StaticDataService.class);
-        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.UPDATE_ALL);
-        startService(staticDataIntent);
     }
 
     /**

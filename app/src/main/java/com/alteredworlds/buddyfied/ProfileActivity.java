@@ -22,6 +22,7 @@ public class ProfileActivity extends ActionBarActivity {
             if (getIntent().getBooleanExtra(JOIN_MODE_KEY, false)) {
                 frag = new ProfileFragmentJoin();
             } else {
+                setTitle(R.string.title_activity_edit_profile);
                 frag = new ProfileFragmentEdit();
             }
             getSupportFragmentManager().beginTransaction()

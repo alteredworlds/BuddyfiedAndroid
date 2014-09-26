@@ -8,11 +8,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.StaticDataService;
 
 /**
  * Created by twcgilbert on 30/07/2014.
@@ -47,6 +51,7 @@ public class AboutFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View rootView = inflater.inflate(R.layout.fragment_about, container, false);
         TextView buddyfiedHelpLink = (TextView) rootView.findViewById(R.id.about_help_link_textview);
         buddyfiedHelpLink.setMovementMethod(LinkMovementMethod.getInstance());
@@ -94,5 +99,27 @@ public class AboutFragment extends Fragment {
         TextView versionTextView = (TextView) rootView.findViewById(R.id.about_version);
         versionTextView.setText("Version " + versionName + "  build " + versionCode);
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.about_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh_lists:
+                refreshStaticData();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void refreshStaticData() {
+        Intent staticDataIntent = new Intent(getActivity(), StaticDataService.class);
+        staticDataIntent.putExtra(Constants.METHOD_EXTRA, StaticDataService.UPDATE_ALL);
+        getActivity().startService(staticDataIntent);
     }
 }

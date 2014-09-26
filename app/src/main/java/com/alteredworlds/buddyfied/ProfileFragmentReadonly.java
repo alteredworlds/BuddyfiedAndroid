@@ -7,6 +7,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
+import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
@@ -53,6 +54,11 @@ public class ProfileFragmentReadonly extends ProfileFragmentBase {
     @Override
     public void onResume() {
         super.onResume();
+        // cleanup any edit copy of the profile. async so no biggie if there isn't one.
+        Intent copyProfileIntent = new Intent(getActivity(), BuddyQueryService.class);
+        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CleanupEditProfile);
+        getActivity().startService(copyProfileIntent);
+        //
         Intent intent = new Intent(getActivity(), BuddyQueryService.class);
         intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
         intent.putExtra(Constants.ID_EXTRA, mProfileId);
@@ -78,8 +84,14 @@ public class ProfileFragmentReadonly extends ProfileFragmentBase {
     }
 
     private void onEdit() {
+        // create copy of current user profile to edit
+        Intent copyProfileIntent = new Intent(getActivity(), BuddyQueryService.class);
+        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CreateEditProfile);
+        getActivity().startService(copyProfileIntent);
+        //
+        // launch the profile edit UI
         Intent intent = new Intent(getActivity(), ProfileActivity.class);
-        intent.putExtra(Constants.ID_EXTRA, mProfileId);
+        intent.putExtra(Constants.ID_EXTRA, BuddyfiedDbHelper.EDIT_PROFILE_ID);
         startActivity(intent);
     }
 }

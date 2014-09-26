@@ -22,6 +22,7 @@ import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.data.BuddyfiedProvider;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -50,6 +51,8 @@ public class BuddyQueryService extends IntentService {
     public static final String UpdateJoinProfile = "UpdateJoinProfile";
     public static final String ClearDataOnLogout = "ClearDataOnLogout";
     public static final String DeleteBuddies = "deleteBuddies";
+    public static final String CreateEditProfile = "CreateEditProfile";
+    public static final String CleanupEditProfile = "CleanupEditProfile";
 
     public static final String BuddyXmlRpcRoot = "index.php?bp_xmlrpc=true";
 
@@ -64,6 +67,17 @@ public class BuddyQueryService extends IntentService {
     private static final int FIELD_ID_SKILL = 7;
     private static final int FIELD_ID_TIME = 152;
     private static final int FIELD_ID_VOICE = 9;
+
+    private static final String[] sProfileCols = {
+            ProfileEntry.COLUMN_NAME,
+            ProfileEntry.COLUMN_COMMENTS,
+            ProfileEntry.COLUMN_AGE,
+            ProfileEntry.COLUMN_IMAGE_URI
+    };
+    private static final int PROFILE_COL_NAME_IDX = 0;
+    private static final int PROFILE_COL_COMMENTS_IDX = 1;
+    private static final int PROFILE_COL_AGE_IDX = 2;
+    private static final int PROFILE_COL_IMAGE_URI_IDX = 3;
 
     public BuddyQueryService() {
         super("BuddyQueryService");
@@ -89,6 +103,10 @@ public class BuddyQueryService extends IntentService {
             result = updateJoinProfile(intent);
         } else if (0 == ClearDataOnLogout.compareTo(method)) {
             result = clearDataOnLogout(intent);
+        } else if (0 == CreateEditProfile.compareTo(method)) {
+            result = createEditProfile(intent);
+        } else if (0 == CleanupEditProfile.compareTo(method)) {
+            result = cleanupEditProfile(intent);
         } else {
             String errorMessage = "Unknown xmlrpc method call: '" + method + "'";
             Log.e(LOG_TAG, errorMessage);
@@ -150,6 +168,74 @@ public class BuddyQueryService extends IntentService {
         }
         if (null != cursor) {
             cursor.close();
+        }
+        return null;
+    }
+
+    private Bundle cleanupEditProfile(Intent intent) {
+        // remove any existing attributes for this profile ID
+        getContentResolver().delete(
+                ProfileAttributeEntry.CONTENT_URI,
+                ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + BuddyfiedDbHelper.EDIT_PROFILE_ID,
+                null);
+        // now delete the profile itself
+        getContentResolver().delete(
+                ProfileEntry.CONTENT_URI,
+                ProfileEntry._ID + " = " + BuddyfiedDbHelper.EDIT_PROFILE_ID,
+                null);
+        return null;
+    }
+
+    private Bundle createEditProfile(Intent intent) {
+        // FIRST: remove any existing Attributes for this Profile
+        long editProfileId = BuddyfiedDbHelper.EDIT_PROFILE_ID;
+        long userProfileId = Settings.getUserId(this);
+        //
+        // remove any existing attributes for this profile ID (shouldn't exist)
+        getContentResolver().delete(
+                ProfileAttributeEntry.CONTENT_URI,
+                ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + editProfileId,
+                null);
+        //
+        // now need to copy the current user profile and all associated attributes.
+        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
+                sProfileCols,
+                ProfileEntry._ID + " = " + userProfileId,
+                null, null);
+        if (null != cursor) {
+            if (cursor.moveToFirst()) {
+                ContentValues cv = new ContentValues();
+                cv.put(ProfileEntry._ID, editProfileId);
+                cv.put(ProfileEntry.COLUMN_NAME, cursor.getString(PROFILE_COL_NAME_IDX));
+                cv.put(ProfileEntry.COLUMN_COMMENTS, cursor.getString(PROFILE_COL_COMMENTS_IDX));
+                cv.put(ProfileEntry.COLUMN_AGE, cursor.getString(PROFILE_COL_AGE_IDX));
+                cv.put(ProfileEntry.COLUMN_IMAGE_URI, cursor.getString(PROFILE_COL_IMAGE_URI_IDX));
+                //
+                // write this Profile record to the database (updated if already present)
+                getContentResolver().insert(ProfileEntry.CONTENT_URI, cv);
+            }
+            cursor.close();
+            //
+            // now write any associated Attributes
+            cursor = getContentResolver().query(ProfileAttributeEntry.CONTENT_URI,
+                    new String[]{ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID},
+                    ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + userProfileId,
+                    null, null);
+            if (null != cursor) {
+                ArrayList<ContentValues> cvList = new ArrayList<ContentValues>();
+                while (cursor.moveToNext()) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(ProfileAttributeEntry.COLUMN_PROFILE_ID, editProfileId);
+                    cv.put(ProfileAttributeEntry.COLUMN_ATTRIBUTE_ID, cursor.getInt(0));
+                    cvList.add(cv);
+                }
+                cursor.close();
+                if (cvList.size() > 0) {
+                    ContentValues[] param = new ContentValues[cvList.size()];
+                    cvList.toArray(param);
+                    getContentResolver().bulkInsert(ProfileAttributeEntry.CONTENT_URI, param);
+                }
+            }
         }
         return null;
     }

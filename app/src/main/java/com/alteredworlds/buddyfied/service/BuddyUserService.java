@@ -85,73 +85,111 @@ public class BuddyUserService extends Service {
                 // if this is a cancel or a faulty config we're done
                 stopSelf(startID);
             } else if (0 == (UPDATE.compareTo(method))) {
-                Log.i(LOG_TAG, "Update user info not yet implemented");
-                stopSelf(startID);
+                updateUser(startID, data);
             } else if (0 == (REGISTER.compareTo(method))) {
-                // let's see what the requested search might be...
-                final long profileId = data.getLong(Constants.ID_EXTRA);
-                final String password = data.getString(Constants.PASSWORD_EXTRA);
-                final String email = data.getString(Constants.EMAIL_EXTRA);
-                ProfileInfo profileInfo = getProfileParams(profileId);
-                mClient.registerNewUser(
-                        BuddyUserService.this,
-                        profileInfo.mName,
-                        password,
-                        email,
-                        profileInfo.mParams,
-                        new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                Log.i(LOG_TAG, "registerUser result: " + response.toString());
-                                //
-                                // call succeeded, but user registration may or may not have done.
-                                // REGISTRATION SUCCEEDED
-                                //{
-                                //  cookie = "devtestuser|1405520768|decac9d414670153b07395f4a5f95e57";
-                                //  status = ok;
-                                //  "user_id" = 35;
-                                //}
-                                //
-                                // ERROR CASES:
-                                //{
-                                //    error = "Username already exists.";
-                                //    status = error;
-                                //}
-                                //
-                                //{
-                                //    error = "E-mail address is already in use.";
-                                //    status = error;
-                                //}
-                                try {
-                                    String status = response.getString("status");
-                                    if (0 == "ok".compareTo(status)) {
-                                        reportResult(Constants.RESULT_OK, null);
-                                    } else {
-                                        reportResult(Constants.RESULT_FAIL, response.getString("error"));
-                                    }
-                                } catch (JSONException e) {
-
-                                }
-                                stopSelf(startID);
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                StringBuilder sb = new StringBuilder("Register user failed: ");
-                                if (!TextUtils.isEmpty(responseString)) {
-                                    sb.append(responseString);
-                                }
-                                if (null != throwable) {
-                                    sb.append(" ");
-                                    sb.append(throwable.getLocalizedMessage());
-                                }
-                                String result = sb.toString();
-                                Log.e(LOG_TAG, result);
-                                reportResult(Constants.RESULT_FAIL, result);
-                                stopSelf(startID);
-                            }
-                        });
+                registerUser(startID, data);
             }
+        }
+
+        private void updateUser(final int startID, final Bundle data) {
+            final long profileId = data.getLong(Constants.ID_EXTRA);
+            final String password = data.getString(Constants.PASSWORD_EXTRA);
+            ProfileInfo profileInfo = getProfileParams(profileId);
+            mClient.updateProfileForUser(BuddyUserService.this,
+                    profileInfo.mName,
+                    password,
+                    profileInfo.mParams,
+                    new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i(LOG_TAG, "updateUser result: " + response.toString());
+                            try {
+                                String status = response.getString("status");
+                                if (0 == "ok".compareTo(status)) {
+                                    reportResult(Constants.RESULT_OK, null);
+                                } else {
+                                    reportResult(Constants.RESULT_FAIL, response.getString("error"));
+                                }
+                            } catch (JSONException e) {
+                                reportResult(Constants.RESULT_FAIL, e.getLocalizedMessage());
+                            }
+                            stopSelf(startID);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            reportFailure("updateUser", responseString, throwable);
+                            stopSelf(startID);
+                        }
+                    });
+        }
+
+        private void registerUser(final int startID, final Bundle data) {
+            final long profileId = data.getLong(Constants.ID_EXTRA);
+            final String password = data.getString(Constants.PASSWORD_EXTRA);
+            final String email = data.getString(Constants.EMAIL_EXTRA);
+            ProfileInfo profileInfo = getProfileParams(profileId);
+            mClient.registerNewUser(
+                    BuddyUserService.this,
+                    profileInfo.mName,
+                    password,
+                    email,
+                    profileInfo.mParams,
+                    new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Log.i(LOG_TAG, "registerUser result: " + response.toString());
+                            //
+                            // call succeeded, but user registration may or may not have done.
+                            // REGISTRATION SUCCEEDED
+                            //{
+                            //  cookie = "devtestuser|1405520768|decac9d414670153b07395f4a5f95e57";
+                            //  status = ok;
+                            //  "user_id" = 35;
+                            //}
+                            //
+                            // ERROR CASES:
+                            //{
+                            //    error = "Username already exists.";
+                            //    status = error;
+                            //}
+                            //
+                            //{
+                            //    error = "E-mail address is already in use.";
+                            //    status = error;
+                            //}
+                            try {
+                                String status = response.getString("status");
+                                if (0 == "ok".compareTo(status)) {
+                                    reportResult(Constants.RESULT_OK, null);
+                                } else {
+                                    reportResult(Constants.RESULT_FAIL, response.getString("error"));
+                                }
+                            } catch (JSONException e) {
+                                reportResult(Constants.RESULT_FAIL, e.getLocalizedMessage());
+                            }
+                            stopSelf(startID);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            reportFailure("registerUser", responseString, throwable);
+                            stopSelf(startID);
+                        }
+                    });
+        }
+
+        private void reportFailure(String method, String responseString, Throwable throwable) {
+            StringBuilder sb = new StringBuilder(method + " failed: ");
+            if (!TextUtils.isEmpty(responseString)) {
+                sb.append(responseString);
+            }
+            if (null != throwable) {
+                sb.append(" ");
+                sb.append(throwable.getLocalizedMessage());
+            }
+            String result = sb.toString();
+            reportResult(Constants.RESULT_FAIL, sb.toString());
         }
 
         private void reportResult(int code, String description) {

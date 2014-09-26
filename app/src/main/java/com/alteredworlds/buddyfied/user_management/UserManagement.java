@@ -23,6 +23,6 @@ public interface UserManagement {
     public void updateProfileForUser(final Context context,
                                      final String user,
                                      final String password,
-                                     final HashMap<String, Object> profileData,
+                                     final HashMap<String, String> profileData,
                                      final JsonHttpResponseHandler responseHandler);
 }

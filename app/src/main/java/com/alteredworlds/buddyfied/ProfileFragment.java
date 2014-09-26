@@ -349,11 +349,14 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void onCommit() {
-        if (mEditMode) {
+        if (mEditMode && !mJoinMode) {
             // should only ever get called in edit mode, but may as well protect
             Intent intent = new Intent(getActivity(), BuddyUserService.class);
             intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.UPDATE);
             intent.putExtra(Constants.ID_EXTRA, mProfileId);
+            // NOTE the wierdness: onCommit called once a user is logged in
+            // so password accessible via Settings.getPassword
+            intent.putExtra(Constants.PASSWORD_EXTRA, Settings.getPassword(getActivity()));
             getActivity().startService(intent);
             getActivity().finish();
         }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alteredworlds.buddyfied.Constants;
 import com.alteredworlds.buddyfied.Settings;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -26,10 +27,11 @@ public class BuddyUserManagement implements UserManagement {
 
     private final static String sMagicTokenUrl = "api/get_nonce/?controller=user&method=";
     private final static String sBuddyfiedRegisterUserURL = "api/user/buddypress_register";
-    private final static String sBuddyfiedUpdateProfileURL = "%@api/user/xprofile_multi_update/?cookie=%@";
-    private final static String sBuddyfiedGenerateCookieURL = "%@api/user/generate_auth_cookie/?nonce=%@&username=%@&password=%@";
+    private final static String sBuddyfiedUpdateProfileURL = "api/user/xprofile_multi_update";
+    private final static String sBuddyfiedGenerateCookieURL = "api/user/generate_auth_cookie";
 
     private final AsyncHttpClient mClient = new AsyncHttpClient();
+    private String mAuthCookie;
 
     @Override
     public void cancel(Context context) {
@@ -54,7 +56,6 @@ public class BuddyUserManagement implements UserManagement {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Log.i(LOG_TAG, "registerUser result: " + response.toString());
-
                                 responseHandler.onSuccess(statusCode, headers, response);
                             }
 
@@ -77,19 +78,199 @@ public class BuddyUserManagement implements UserManagement {
             final Context context,
             final String user,
             final String password,
-            final HashMap<String, Object> profileData,
+            final HashMap<String, String> profileData,
             final JsonHttpResponseHandler responseHandler) {
+        grabAuthCookieIfNeededForUser(context,
+                user,
+                password,
+                new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                        //OK, we should now have the authCookie token in responseString
+                        updateProfileUsingAuthCookie(context, responseString, profileData, new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                Log.i(LOG_TAG, "updateProfileForUser result: " + response.toString());
+                                responseHandler.onSuccess(statusCode, headers, response);
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                responseHandler.onFailure(statusCode, headers, responseString, throwable);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                        responseHandler.onFailure(statusCode, headers, responseString, throwable);
+                    }
+                });
 
     }
 
-    private String escapedString(String value) {
-        String retVal = null;
-        try {
-            retVal = java.net.URLEncoder.encode(value, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            //WTF is the point of this?
+    private void grabAuthCookieIfNeededForUser(
+            final Context context,
+            final String user,
+            final String password,
+            final JsonHttpResponseHandler responseHandler) {
+        if (!TextUtils.isEmpty(mAuthCookie)) {   // we already have it...
+            responseHandler.onSuccess(Constants.RESULT_OK, null, mAuthCookie);
+        } else {
+            // we need to get the blasted thing...
+            // first we're going to need an NONCE token
+            grabNonce(context,
+                    "generate_auth_cookie",
+                    new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                            //OK, we should now have the nonce token in responseString
+                            generateAuthCookie(context, user, password, responseString, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, String response) {
+                                    Log.i(LOG_TAG, "generateAuthCookie result: " + response);
+                                    // pass cookie back via overload of onSuccess that returns a String
+                                    // but it is also cached in mAuthCookie
+                                    responseHandler.onSuccess(statusCode, headers, response);
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    Log.e(LOG_TAG, "grabAuthCookieIfNeededForUser failed to grabNonceForUser ");
+                                    responseHandler.onFailure(statusCode, headers, responseString, throwable);
+                                }
+                            });
+                        }
+                    });
         }
-        return retVal;
+    }
+
+    private void generateAuthCookie(
+            final Context context,
+            final String user,
+            final String password,
+            final String nonce,
+            final JsonHttpResponseHandler responseHandler) {
+        //"%@api/user/generate_auth_cookie/?nonce=%@&username=%@&password=%@";
+        // make sure we are consistent...
+        mAuthCookie = null;
+        //
+        StringBuilder urlStr = new StringBuilder(Settings.getBuddySite(context));
+        urlStr.append(sBuddyfiedGenerateCookieURL);
+        urlStr.append("?nonce=");
+        urlStr.append(escapedString(nonce));
+        urlStr.append("&username=");
+        urlStr.append(escapedString(user));
+        urlStr.append("&password=");
+        urlStr.append(escapedString(password));
+        mClient.post(context, urlStr.toString(), null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.i(LOG_TAG, "registerUser result: " + response.toString());
+                try {
+                    if (0 == "ok".compareTo(response.getString("status"))) {
+                        mAuthCookie = (String) response.get("cookie");
+                        if (!TextUtils.isEmpty(mAuthCookie)) {
+                            // pass cookie back via overload of onSuccess that returns a String
+                            responseHandler.onSuccess(statusCode, headers, mAuthCookie);
+                        } else {
+                            unexpectedResponse(this, statusCode, headers, null, response);
+                        }
+                    } else {
+                        unexpectedResponse(this, statusCode, headers, null, response);
+                    }
+                } catch (Exception e) {
+                    unexpectedResponse(this, statusCode, headers, e, response);
+                }
+                responseHandler.onSuccess(statusCode, headers, response);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                unexpectedResponse(this, statusCode, headers, null, response);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                unexpectedResponse(this, statusCode, headers, null, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                responseHandler.onFailure(statusCode, headers, responseString, throwable);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                unexpectedResponse(this, statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                unexpectedResponse(this, statusCode, headers, throwable, errorResponse);
+            }
+        });
+    }
+
+    private void updateProfileUsingAuthCookie(Context context,
+                                              String authCookie,
+                                              final HashMap<String, String> profileData,
+                                              final JsonHttpResponseHandler responseHandler) {
+        //"api/user/xprofile_multi_update/?cookie=";
+        StringBuilder urlStr = new StringBuilder(Settings.getBuddySite(context));
+        urlStr.append(sBuddyfiedUpdateProfileURL);
+        urlStr.append("?cookie=");
+        urlStr.append(escapedString(authCookie));
+        if (null != profileData) {
+            for (Map.Entry<String, String> entry : profileData.entrySet()) {
+                String escapedKey = escapedString(entry.getKey());
+                String escapedValue = escapedString(entry.getValue());
+                urlStr.append("&");
+                urlStr.append(escapedKey);
+                urlStr.append("=");
+                urlStr.append(escapedValue);
+            }
+        }
+        mClient.post(context, urlStr.toString(), null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.i(LOG_TAG, "updateProfileUsingAuthCookie result: " + response.toString());
+                try {
+                    if (0 == "ok".compareTo(response.getString("status"))) {
+                        responseHandler.onSuccess(statusCode, headers, response);
+                    } else {
+                        unexpectedResponse(this, statusCode, headers, null, response);
+                    }
+                } catch (Exception e) {
+                    unexpectedResponse(this, statusCode, headers, e, response);
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                unexpectedResponse(this, statusCode, headers, null, response);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                unexpectedResponse(this, statusCode, headers, null, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                responseHandler.onFailure(statusCode, headers, responseString, throwable);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                unexpectedResponse(this, statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                unexpectedResponse(this, statusCode, headers, throwable, errorResponse);
+            }
+        });
     }
 
     private void registerUser(Context context,
@@ -207,6 +388,16 @@ public class BuddyUserManagement implements UserManagement {
                 headers,
                 (null != response) ? response.toString() : null,
                 useThrowable);
+    }
+
+    private String escapedString(String value) {
+        String retVal = null;
+        try {
+            retVal = java.net.URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            //WTF is the point of this?
+        }
+        return retVal;
     }
 }
 

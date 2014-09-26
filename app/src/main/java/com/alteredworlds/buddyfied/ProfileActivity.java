@@ -19,7 +19,7 @@ public class ProfileActivity extends ActionBarActivity {
             //   OR
             // EDIT profile of logged in user
             ProfileFragmentBase frag = null;
-            if (getIntent().getBooleanExtra(ProfileFragment.JOIN_MODE_KEY, false)) {
+            if (getIntent().getBooleanExtra(JOIN_MODE_KEY, false)) {
                 frag = new ProfileFragmentJoin();
             } else {
                 frag = new ProfileFragmentEdit();

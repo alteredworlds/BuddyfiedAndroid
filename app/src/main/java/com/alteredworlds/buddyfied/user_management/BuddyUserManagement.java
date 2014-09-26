@@ -26,9 +26,9 @@ public class BuddyUserManagement implements UserManagement {
     private final static String LOG_TAG = BuddyUserManagement.class.getSimpleName();
 
     private final static String sMagicTokenUrl = "api/get_nonce/?controller=user&method=";
-    private final static String sBuddyfiedRegisterUserURL = "api/user/buddypress_register";
-    private final static String sBuddyfiedUpdateProfileURL = "api/user/xprofile_multi_update";
-    private final static String sBuddyfiedGenerateCookieURL = "api/user/generate_auth_cookie";
+    private final static String sBuddyfiedRegisterUserURL = "api/user/buddypress_register/";
+    private final static String sBuddyfiedUpdateProfileURL = "api/user/xprofile_multi_update/";
+    private final static String sBuddyfiedGenerateCookieURL = "api/user/generate_auth_cookie/";
 
     private final AsyncHttpClient mClient = new AsyncHttpClient();
     private String mAuthCookie;
@@ -216,7 +216,6 @@ public class BuddyUserManagement implements UserManagement {
                                               String authCookie,
                                               final HashMap<String, String> profileData,
                                               final JsonHttpResponseHandler responseHandler) {
-        //"api/user/xprofile_multi_update/?cookie=";
         StringBuilder urlStr = new StringBuilder(Settings.getBuddySite(context));
         urlStr.append(sBuddyfiedUpdateProfileURL);
         urlStr.append("?cookie=");

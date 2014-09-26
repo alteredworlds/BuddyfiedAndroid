@@ -18,8 +18,11 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "buddyfied.db";
 
-    public static final long SEARCH_PROFILE_ID = 1;
+    public static final long SEARCH_PROFILE_ID = Long.MAX_VALUE - 1;
     public static final String SEARCH_PROFILE_NAME = "Default";
+
+    public static final long JOIN_PROFILE_ID = Long.MAX_VALUE - 2;
+    public static final long EDIT_PROFILE_ID = Long.MAX_VALUE - 3;
 
     public BuddyfiedDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -1,10 +1,6 @@
 package com.alteredworlds.buddyfied;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -13,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
 import com.alteredworlds.buddyfied.service.BuddyQueryService;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
@@ -157,33 +153,18 @@ public class JoinActivity extends ActionBarActivity {
             focusView.requestFocus();
         } else {
             // time to move to the next phase of the Join sequence
-            long userId = createUserProfileIfNeeded(username);
+            Intent updateIntent = new Intent(this, BuddyQueryService.class);
+            updateIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.UpdateJoinProfile);
+            updateIntent.putExtra(BuddyQueryService.NAME_EXTRA, username);
+            startService(updateIntent);
             //
             Intent intent = new Intent(this, ProfileActivity.class);
-            intent.putExtra(Constants.ID_EXTRA, userId);
+            intent.putExtra(Constants.ID_EXTRA, BuddyfiedDbHelper.JOIN_PROFILE_ID);
             intent.putExtra(Constants.PASSWORD_EXTRA, password);
             intent.putExtra(Constants.EMAIL_EXTRA, email);
             intent.putExtra(ProfileActivity.JOIN_MODE_KEY, true);
             startActivity(intent);
         }
-    }
-
-    private long createUserProfileIfNeeded(String name) {
-        long retVal = -1;
-        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
-                new String[]{ProfileEntry._ID},
-                ProfileEntry.COLUMN_NAME + " = '" + name + "'",
-                null, null);
-        if ((null != cursor) && cursor.moveToFirst()) {
-            // we have a user profile already, just get the ID
-            retVal = cursor.getLong(0);
-        } else {
-            ContentValues row = new ContentValues();
-            row.put(ProfileEntry.COLUMN_NAME, name);
-            Uri rowUri = getContentResolver().insert(ProfileEntry.CONTENT_URI, row);
-            retVal = ContentUris.parseId(rowUri);
-        }
-        return retVal;
     }
 
     private boolean isUsernameValid(String value) {

@@ -94,7 +94,7 @@ public class BuddyUserService extends Service {
         private void updateUser(final int startID, final Bundle data) {
             final long profileId = data.getLong(Constants.ID_EXTRA);
             final String password = data.getString(Constants.PASSWORD_EXTRA);
-            ProfileInfo profileInfo = getProfileParams(profileId);
+            ProfileInfo profileInfo = getProfileParams(profileId, true);
             mClient.updateProfileForUser(BuddyUserService.this,
                     profileInfo.mName,
                     password,
@@ -128,7 +128,7 @@ public class BuddyUserService extends Service {
             final long profileId = data.getLong(Constants.ID_EXTRA);
             final String password = data.getString(Constants.PASSWORD_EXTRA);
             final String email = data.getString(Constants.EMAIL_EXTRA);
-            ProfileInfo profileInfo = getProfileParams(profileId);
+            ProfileInfo profileInfo = getProfileParams(profileId, false);
             mClient.registerNewUser(
                     BuddyUserService.this,
                     profileInfo.mName,
@@ -264,7 +264,7 @@ public class BuddyUserService extends Service {
         return mFieldIdsFromName.get(name);
     }
 
-    private ProfileInfo getProfileParams(long profileId) {
+    private ProfileInfo getProfileParams(long profileId, Boolean includeNullValues) {
         ProfileInfo retVal = new ProfileInfo();
         if (-1 != profileId) {
             // get the associated attributes
@@ -292,18 +292,21 @@ public class BuddyUserService extends Service {
             cursor = getContentResolver().query(query, ProfileQueryCols, null, null, null);
             if (cursor.moveToFirst()) {
                 retVal.mName = cursor.getString(COLUMN_NAME_IDX);
-                String comments = cursor.getString(COLUMN_COMMENTS_IDX);
-                if (!TextUtils.isEmpty(comments)) {
-                    retVal.mParams.put(getServerFieldIdFromPropertyName("comments"), comments);
-                }
-                String age = cursor.getString(COLUMN_AGE_IDX);
-                if (!TextUtils.isEmpty(age)) {
-                    retVal.mParams.put(getServerFieldIdFromPropertyName("years"), age);
-                }
+                putValue(retVal.mParams, "comments", cursor.getString(COLUMN_COMMENTS_IDX), includeNullValues);
+                putValue(retVal.mParams, "years", cursor.getString(COLUMN_AGE_IDX), includeNullValues);
             }
             cursor.close();
         }
         return retVal;
+    }
+
+    private void putValue(HashMap<String, String> map, String propertyName, String value, Boolean useEmptyStringForNull) {
+        String serverFieldId = getServerFieldIdFromPropertyName(propertyName);
+        if (!TextUtils.isEmpty(value)) {
+            map.put(serverFieldId, value);
+        } else if (useEmptyStringForNull) {
+            map.put(serverFieldId, "");
+        }
     }
 
     private String getAttributeNameForId(String attributeId) {

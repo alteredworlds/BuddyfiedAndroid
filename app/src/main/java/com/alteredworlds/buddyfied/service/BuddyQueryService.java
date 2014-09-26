@@ -34,6 +34,7 @@ import de.timroes.axmlrpc.XMLRPCException;
 public class BuddyQueryService extends IntentService {
     private static final String LOG_TAG = BuddyQueryService.class.getSimpleName();
 
+    public static final String NAME_EXTRA = "name";
     public static final String SUBJECT_EXTRA = "subject";
     public static final String BODY_EXTRA = "content";
 
@@ -46,6 +47,7 @@ public class BuddyQueryService extends IntentService {
 
     // these are just used to provide asynchronous database processing
     public static final String CreateSearchProfileIfNeeded = "CreateSearchProfileIfNeeded";
+    public static final String UpdateJoinProfile = "UpdateJoinProfile";
     public static final String ClearDataOnLogout = "ClearDataOnLogout";
     public static final String DeleteBuddies = "deleteBuddies";
 
@@ -83,6 +85,8 @@ public class BuddyQueryService extends IntentService {
             result = deleteAllBuddies(intent);
         } else if (0 == CreateSearchProfileIfNeeded.compareTo(method)) {
             result = createSearchProfileIfNeeded(intent);
+        } else if (0 == UpdateJoinProfile.compareTo(method)) {
+            result = updateJoinProfile(intent);
         } else if (0 == ClearDataOnLogout.compareTo(method)) {
             result = clearDataOnLogout(intent);
         } else {
@@ -112,6 +116,40 @@ public class BuddyQueryService extends IntentService {
             row.put(ProfileEntry._ID, BuddyfiedDbHelper.SEARCH_PROFILE_ID);
             row.put(ProfileEntry.COLUMN_NAME, BuddyfiedDbHelper.SEARCH_PROFILE_NAME);
             getContentResolver().insert(ProfileEntry.CONTENT_URI, row);
+        }
+        return null;
+    }
+
+    private Bundle updateJoinProfile(Intent intent) {
+        long profileId = BuddyfiedDbHelper.JOIN_PROFILE_ID;
+        String name = intent.getStringExtra(NAME_EXTRA);
+        //
+        Cursor cursor = getContentResolver().query(ProfileEntry.CONTENT_URI,
+                new String[]{ProfileEntry._ID, ProfileEntry.COLUMN_NAME},
+                ProfileEntry._ID + " = " + profileId,
+                null, null);
+        if ((null != cursor) && cursor.moveToFirst()) {
+            // we have a user profile already, may need to update
+            if (!TextUtils.isEmpty(name)) {
+                if (0 != name.compareTo(cursor.getString(1))) {
+                    // need to update this record.
+                    ContentValues row = new ContentValues();
+                    row.put(ProfileEntry.COLUMN_NAME, name);
+                    getContentResolver().update(
+                            ProfileEntry.CONTENT_URI,
+                            row,
+                            ProfileEntry._ID + " = " + profileId,
+                            null);
+                }
+            }
+        } else {
+            ContentValues row = new ContentValues();
+            row.put(ProfileEntry._ID, profileId);
+            row.put(ProfileEntry.COLUMN_NAME, name);
+            getContentResolver().insert(ProfileEntry.CONTENT_URI, row);
+        }
+        if (null != cursor) {
+            cursor.close();
         }
         return null;
     }

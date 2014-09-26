@@ -15,7 +15,7 @@
     <string-array name="main_menu_fragments">
         <item>com.alteredworlds.buddyfied.SearchFragment</item>
         <item>com.alteredworlds.buddyfied.MatchedFragment</item>
-        <item>com.alteredworlds.buddyfied.ProfileFragment</item>
+        <item>com.alteredworlds.buddyfied.ProfileFragmentReadonly</item>
         <item>com.alteredworlds.buddyfied.AboutFragment</item>
     </string-array>
 </resources>

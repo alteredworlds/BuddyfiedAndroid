@@ -60,7 +60,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public Boolean mEditMode = false;
     public Boolean mJoinMode = false;
     private BroadcastReceiver mMessageReceiver;
-    private Boolean mDisableJoinButton = false;
+    private Boolean mDisableNextButton = false;
 
     private static final String[] ProfileColumns = {
             ProfileEntry.COLUMN_NAME,
@@ -143,7 +143,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                                     .setIcon(android.R.drawable.ic_dialog_alert)
                                     .show();
                             // re-enable the JOIN button to allow option of having another go
-                            setJoinButtonEnabled(true);
+                            setNextButtonEnabled(true);
                         }
                     }
                 }
@@ -264,7 +264,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         super.onPrepareOptionsMenu(menu);
         MenuItem joinMenuItem = menu.findItem(R.id.action_join);
         if (null != joinMenuItem) {
-            joinMenuItem.setEnabled(!mDisableJoinButton);
+            joinMenuItem.setEnabled(!mDisableNextButton);
             joinMenuItem.setTitle(mJoinMode ? R.string.join_action : R.string.action_commit);
         }
     }
@@ -296,14 +296,14 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         startActivity(intent);
     }
 
-    private void setJoinButtonEnabled(Boolean enabled) {
-        mDisableJoinButton = !enabled;
+    private void setNextButtonEnabled(Boolean enabled) {
+        mDisableNextButton = !enabled;
         getActivity().invalidateOptionsMenu();
     }
 
     private void onJoin() {
-        if (validateProfileForSignUp()) {
-            setJoinButtonEnabled(false);
+        if (validateProfile()) {
+            setNextButtonEnabled(false);
             getActivity().invalidateOptionsMenu();
             LayoutInflater li = LayoutInflater.from(getActivity());
             View promptsView = li.inflate(R.layout.eula_prompt, null);
@@ -332,7 +332,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
-                                    setJoinButtonEnabled(true);
+                                    setNextButtonEnabled(true);
                                 }
                             })
                     .create()
@@ -362,7 +362,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
-    private Boolean validateProfileForSignUp() {
+    private Boolean validateProfile() {
         Boolean retVal = true;
         for (LoaderListItem lli : mData) {
             if (lli instanceof ProfileListItem) {

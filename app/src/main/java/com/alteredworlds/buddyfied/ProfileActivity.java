@@ -2,7 +2,6 @@ package com.alteredworlds.buddyfied;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 
 
@@ -13,21 +12,20 @@ public class ProfileActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         if (savedInstanceState == null) {
-            ProfileFragment frag = new ProfileFragment();
-            frag.mEditMode = true;
-            frag.mJoinMode = getIntent().getBooleanExtra(ProfileFragment.JOIN_MODE_KEY, false);
+            // when launched via ProfileActivity, appearing either as:
+            // Part of JOIN sequence
+            //   OR
+            // EDIT profile of logged in user
+            ProfileFragmentBase frag = null;
+            if (getIntent().getBooleanExtra(ProfileFragment.JOIN_MODE_KEY, false)) {
+                frag = new ProfileFragmentJoin();
+            } else {
+                frag = new ProfileFragmentEdit();
+            }
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, frag)
                     .commit();
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.profile, menu);
-        return true;
     }
 
     @Override
@@ -46,8 +44,6 @@ public class ProfileActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return true;
-            case R.id.action_settings:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

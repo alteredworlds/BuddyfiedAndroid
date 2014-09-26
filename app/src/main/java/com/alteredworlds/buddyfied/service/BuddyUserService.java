@@ -183,7 +183,6 @@ public class BuddyUserService extends Service {
             if (!TextUtils.isEmpty(description)) {
                 result.putString(Constants.RESULT_DESCRIPTION, description);
             }
-            Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_USER_SERVICE_RESULT_EVENT);
             intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(BuddyUserService.this).sendBroadcast(intent);

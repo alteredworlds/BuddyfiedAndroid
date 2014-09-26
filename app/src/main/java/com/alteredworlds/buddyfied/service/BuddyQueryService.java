@@ -282,7 +282,6 @@ public class BuddyQueryService extends IntentService {
 
     private void reportResult(Bundle result) {
         if (null != result) {
-            Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_QUERY_SERVICE_RESULT_EVENT);
             intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);

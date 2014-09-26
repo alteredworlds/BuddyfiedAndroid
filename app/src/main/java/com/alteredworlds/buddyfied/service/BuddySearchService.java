@@ -37,7 +37,7 @@ public class BuddySearchService extends Service {
     private static final String LOG_TAG = BuddySearchService.class.getSimpleName();
 
     public static final String GetMatches = "bp.getMatches";
-    public static final String Cancel = "cancel";
+    public static final String CANCEL = "cancel";
 
     public static final String BUDDY_SEARCH_SERVICE_RESULT_EVENT = "buddy_search_service_result";
 
@@ -81,15 +81,18 @@ public class BuddySearchService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            final int startID = msg.arg1;
-            if ((CANCEL_ALL == msg.what) || (null == mClient)) {
+            final int startID = msg.what;
+            final Bundle bundle = msg.getData();
+            final String method = bundle.getString(Constants.METHOD_EXTRA);
+            if ((0 == CANCEL.compareTo(method)) || (null == mClient)) {
                 // if this is a cancel or a faulty config we're done
                 cancelRunningTask();
                 Log.d(LOG_TAG, "Cancelling Search");
                 stopSelf(startID);
             } else {
+                final long profileId = bundle.getLong(Constants.ID_EXTRA);
                 // let's see what the requested search might be...
-                HashMap<String, Object> data = getSearchParameters(msg.arg2);
+                HashMap<String, Object> data = getSearchParameters(profileId);
                 int currentSearchIdentifier = data.hashCode();
                 if (currentSearchIdentifier == mRunningTaskSearchIdentifier) {
                     // we are already running this search, no point repeating it
@@ -153,7 +156,6 @@ public class BuddySearchService extends Service {
             if (!TextUtils.isEmpty(description)) {
                 result.putString(Constants.RESULT_DESCRIPTION, description);
             }
-            Log.d(LOG_TAG, "Reporting method call result via localBroadcast: " + result.toString());
             Intent intent = new Intent(BUDDY_SEARCH_SERVICE_RESULT_EVENT);
             intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(BuddySearchService.this).sendBroadcast(intent);
@@ -175,22 +177,18 @@ public class BuddySearchService extends Service {
         mServiceHandler = new ServiceHandler(mServiceLooper);
     }
 
-    public final int SEARCH = 0;
-    public final int CANCEL_ALL = 1;
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // For each start request, send a message to start a job and deliver the
         // start ID so we know which request we're stopping when we finish the job
-        //
-        int method = SEARCH;
-        if (0 == Cancel.compareTo(intent.getStringExtra(Constants.METHOD_EXTRA))) {
-            method = CANCEL_ALL;
-        }
         Message msg = mServiceHandler.obtainMessage();
-        msg.what = method;
-        msg.arg1 = startId;
-        msg.arg2 = (int) intent.getLongExtra(Constants.ID_EXTRA, -1);
+
+        Bundle data = new Bundle();
+        msg.what = startId;
+        data.putString(Constants.METHOD_EXTRA, intent.getStringExtra(Constants.METHOD_EXTRA));
+        data.putLong(Constants.ID_EXTRA, intent.getLongExtra(Constants.ID_EXTRA, -1));
+        msg.setData(data);
+
         mServiceHandler.sendMessage(msg);
 
         return START_NOT_STICKY;
@@ -202,12 +200,7 @@ public class BuddySearchService extends Service {
         return null;
     }
 
-    @Override
-    public void onDestroy() {
-        Log.d(LOG_TAG, "BuddySearchService done");
-    }
-
-    private HashMap<String, Object> getSearchParameters(int profileId) {
+    private HashMap<String, Object> getSearchParameters(long profileId) {
         HashMap<String, Object> retVal = new HashMap<String, Object>();
         if (-1 != profileId) {
             Uri query = BuddyfiedContract.ProfileAttributeListEntry.buildProfileAttributeListUri(profileId);

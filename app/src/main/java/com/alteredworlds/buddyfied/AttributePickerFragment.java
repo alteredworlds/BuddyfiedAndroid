@@ -151,7 +151,7 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
                 // if the search has changed, we need to:
                 // stop any running search
                 Intent intent = new Intent(getActivity(), BuddySearchService.class);
-                intent.putExtra(Constants.METHOD_EXTRA, BuddySearchService.Cancel);
+                intent.putExtra(Constants.METHOD_EXTRA, BuddySearchService.CANCEL);
                 getActivity().startService(intent);
                 //
                 // remove all Buddies

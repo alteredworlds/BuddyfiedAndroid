@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.alteredworlds.buddyfied.Constants;
+import com.alteredworlds.buddyfied.Settings;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
@@ -27,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by twcgilbert on 24/09/2014.
@@ -94,11 +96,13 @@ public class BuddyUserService extends Service {
         private void updateUser(final int startID, final Bundle data) {
             final long profileId = data.getLong(Constants.ID_EXTRA);
             final String password = data.getString(Constants.PASSWORD_EXTRA);
-            ProfileInfo profileInfo = getProfileParams(profileId, true);
+            ProfileInfo userProfileInfo = getProfileParams(Settings.getUserId(BuddyUserService.this));
+            ProfileInfo editProfileInfo = getProfileParams(profileId);
+            HashMap<String, String> diffs = findChanges(userProfileInfo, editProfileInfo);
             mClient.updateProfileForUser(BuddyUserService.this,
-                    profileInfo.mName,
+                    userProfileInfo.mName,
                     password,
-                    profileInfo.mParams,
+                    diffs,
                     new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -128,7 +132,7 @@ public class BuddyUserService extends Service {
             final long profileId = data.getLong(Constants.ID_EXTRA);
             final String password = data.getString(Constants.PASSWORD_EXTRA);
             final String email = data.getString(Constants.EMAIL_EXTRA);
-            ProfileInfo profileInfo = getProfileParams(profileId, false);
+            ProfileInfo profileInfo = getProfileParams(profileId);
             mClient.registerNewUser(
                     BuddyUserService.this,
                     profileInfo.mName,
@@ -139,25 +143,6 @@ public class BuddyUserService extends Service {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             Log.i(LOG_TAG, "registerUser result: " + response.toString());
-                            //
-                            // call succeeded, but user registration may or may not have done.
-                            // REGISTRATION SUCCEEDED
-                            //{
-                            //  cookie = "devtestuser|1405520768|decac9d414670153b07395f4a5f95e57";
-                            //  status = ok;
-                            //  "user_id" = 35;
-                            //}
-                            //
-                            // ERROR CASES:
-                            //{
-                            //    error = "Username already exists.";
-                            //    status = error;
-                            //}
-                            //
-                            //{
-                            //    error = "E-mail address is already in use.";
-                            //    status = error;
-                            //}
                             try {
                                 String status = response.getString("status");
                                 if (0 == "ok".compareTo(status)) {
@@ -264,7 +249,19 @@ public class BuddyUserService extends Service {
         return mFieldIdsFromName.get(name);
     }
 
-    private ProfileInfo getProfileParams(long profileId, Boolean includeNullValues) {
+    private HashMap<String, String> findChanges(ProfileInfo userProfileInfo, ProfileInfo editProfileInfo) {
+        HashMap<String, String> retVal = new HashMap<String, String>(editProfileInfo.mParams);
+        // any field that was present in the userProfile but is no longer present in the editProfile
+        // has been 'blanked out' and needs to be present in the change set with value ""
+        for (Map.Entry<String, String> entry : userProfileInfo.mParams.entrySet()) {
+            if (!editProfileInfo.mParams.containsKey(entry.getKey())) {
+                retVal.put(entry.getKey(), "");
+            }
+        }
+        return retVal;
+    }
+
+    private ProfileInfo getProfileParams(long profileId) {
         ProfileInfo retVal = new ProfileInfo();
         if (-1 != profileId) {
             // get the associated attributes
@@ -292,21 +289,18 @@ public class BuddyUserService extends Service {
             cursor = getContentResolver().query(query, ProfileQueryCols, null, null, null);
             if (cursor.moveToFirst()) {
                 retVal.mName = cursor.getString(COLUMN_NAME_IDX);
-                putValue(retVal.mParams, "comments", cursor.getString(COLUMN_COMMENTS_IDX), includeNullValues);
-                putValue(retVal.mParams, "years", cursor.getString(COLUMN_AGE_IDX), includeNullValues);
+                String value = cursor.getString(COLUMN_COMMENTS_IDX);
+                if (!TextUtils.isEmpty(value)) {
+                    retVal.mParams.put(getServerFieldIdFromPropertyName("comments"), value);
+                }
+                value = cursor.getString(COLUMN_AGE_IDX);
+                if (!TextUtils.isEmpty(value)) {
+                    retVal.mParams.put(getServerFieldIdFromPropertyName("years"), value);
+                }
             }
             cursor.close();
         }
         return retVal;
-    }
-
-    private void putValue(HashMap<String, String> map, String propertyName, String value, Boolean useEmptyStringForNull) {
-        String serverFieldId = getServerFieldIdFromPropertyName(propertyName);
-        if (!TextUtils.isEmpty(value)) {
-            map.put(serverFieldId, value);
-        } else if (useEmptyStringForNull) {
-            map.put(serverFieldId, "");
-        }
     }
 
     private String getAttributeNameForId(String attributeId) {

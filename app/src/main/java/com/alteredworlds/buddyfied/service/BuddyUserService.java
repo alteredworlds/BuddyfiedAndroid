@@ -218,6 +218,7 @@ public class BuddyUserService extends Service {
         data.putLong(Constants.ID_EXTRA, intent.getLongExtra(Constants.ID_EXTRA, -1));
         data.putString(Constants.PASSWORD_EXTRA, intent.getStringExtra(Constants.PASSWORD_EXTRA));
         data.putString(Constants.EMAIL_EXTRA, intent.getStringExtra(Constants.EMAIL_EXTRA));
+        data.putString(Constants.USERNAME_EXTRA, intent.getStringExtra(Constants.USERNAME_EXTRA));
         msg.setData(data);
         //
         mServiceHandler.sendMessage(msg);

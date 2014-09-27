@@ -100,6 +100,9 @@ public class ProfileFragmentJoin extends ProfileFragmentMaleable {
                                     intent.putExtra(Constants.METHOD_EXTRA, BuddyUserService.REGISTER);
                                     intent.putExtra(Constants.ID_EXTRA, mProfileId);
                                     intent.putExtra(
+                                            Constants.USERNAME_EXTRA,
+                                            getActivity().getIntent().getStringExtra(Constants.USERNAME_EXTRA));
+                                    intent.putExtra(
                                             Constants.EMAIL_EXTRA,
                                             getActivity().getIntent().getStringExtra(Constants.EMAIL_EXTRA));
                                     intent.putExtra(

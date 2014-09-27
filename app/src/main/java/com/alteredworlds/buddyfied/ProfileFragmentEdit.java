@@ -40,7 +40,7 @@ public class ProfileFragmentEdit extends ProfileFragmentMaleable {
                     } else {
                         // error case & popup an alert with error
                         new AlertDialog.Builder(getActivity())
-                                .setTitle(getString(R.string.user_registration_failed))
+                                .setTitle(getString(R.string.profile_update_failed))
                                 .setMessage(description)
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {

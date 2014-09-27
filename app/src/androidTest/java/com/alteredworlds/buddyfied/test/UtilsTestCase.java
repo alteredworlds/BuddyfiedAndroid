@@ -4,15 +4,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
 
-import com.alteredworlds.buddyfied.data.BuddyfiedContract;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
+import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
 import java.util.Map;
 import java.util.Set;
-
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
-import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 
 /**
  * Created by twcgilbert on 27/07/2014.

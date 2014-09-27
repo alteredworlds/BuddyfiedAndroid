@@ -87,29 +87,7 @@ public class BuddyfiedDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_PROFILE_TABLE);
         db.execSQL(SQL_CREATE_ATTRIBUTE_TABLE);
         db.execSQL(SQL_CREATE_PROFILE_ATTRIBUTE_TABLE);
-        //
-        //insertSearchProfileIfNeeded(db);
     }
-
-//    public void insertSearchProfileIfNeeded(SQLiteDatabase db) {
-//        Cursor cursor = db.query(ProfileEntry.TABLE_NAME,
-//                new String[]{ProfileEntry._ID},
-//                ProfileEntry._ID + " = " + SEARCH_PROFILE_ID,
-//                null, null, null, null);
-//        if ((null != cursor) && cursor.moveToFirst()) {
-//            // we have a search profile already
-//        } else {
-//            insertProfile(db, SEARCH_PROFILE_ID, SEARCH_PROFILE_NAME);
-//        }
-//    }
-//
-//    protected void insertProfile(SQLiteDatabase db, int id, String name) {
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(ProfileEntry._ID, id);
-//        contentValues.put(ProfileEntry.COLUMN_NAME, name);
-//        long profileId = db.insert(ProfileEntry.TABLE_NAME, null, contentValues);
-//        Log.i(LOG_TAG, "Profile '" + name + "' has ID " + profileId);
-//    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

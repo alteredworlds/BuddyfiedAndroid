@@ -489,61 +489,63 @@ public class BuddyQueryService extends IntentService {
                 retVal = (String) message;
             } else if (message instanceof HashMap) {
                 // this should be member info...
-                // start building Profile record to insert
                 HashMap data = (HashMap) message;
-                ContentValues profileCv = new ContentValues();
-                profileCv.put(ProfileEntry._ID, userId);
-                profileCv.put(ProfileEntry.COLUMN_NAME, (String) data.get("display_name"));
-                profileCv.put(ProfileEntry.COLUMN_IMAGE_URI, getBuddyImageUrl(data));
-                //
-                Vector<ContentValues> profileAttributeCv = new Vector<ContentValues>();
                 Object[] profileGroups = (Object[]) data.get("profile_groups");
-                String groupLabel, value;
-                Object valueObj;
-                for (Object group : profileGroups) {
-                    groupLabel = (String) ((HashMap) group).get("label");
-                    if (0 == "Your games profile".compareTo(groupLabel)) {
-                        Object[] fields = (Object[]) ((HashMap) group).get("fields");
-                        for (Object field : fields) {
-                            try {
-                                int serverFieldId = Integer.parseInt((String) ((HashMap) field).get("id"));
-                                valueObj = ((HashMap) field).get("value");
-                                if (valueObj instanceof String) {
-                                    value = (String) valueObj;
-                                    if (FIELD_ID_COMMENTS == serverFieldId) {
-                                        profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
-                                    } else if (FIELD_ID_AGE == serverFieldId) {
-                                        profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
-                                    } else {
-                                        if (FIELD_ID_VOICE == serverFieldId) {
-                                            value = String.valueOf((0 == StaticDataService.VOICE_YES.compareToIgnoreCase(value)) ?
-                                                    StaticDataService.VOICE_ID_YES : StaticDataService.VOICE_ID_NO);
+                if (null != profileGroups) {
+                    // start building Profile record to insert
+                    ContentValues profileCv = new ContentValues();
+                    profileCv.put(ProfileEntry._ID, userId);
+                    profileCv.put(ProfileEntry.COLUMN_NAME, (String) data.get("display_name"));
+                    profileCv.put(ProfileEntry.COLUMN_IMAGE_URI, getBuddyImageUrl(data));
+
+                    Vector<ContentValues> profileAttributeCv = new Vector<ContentValues>();
+                    String groupLabel, value;
+                    Object valueObj;
+                    for (Object group : profileGroups) {
+                        groupLabel = (String) ((HashMap) group).get("label");
+                        if (0 == "Your games profile".compareTo(groupLabel)) {
+                            Object[] fields = (Object[]) ((HashMap) group).get("fields");
+                            for (Object field : fields) {
+                                try {
+                                    int serverFieldId = Integer.parseInt((String) ((HashMap) field).get("id"));
+                                    valueObj = ((HashMap) field).get("value");
+                                    if (valueObj instanceof String) {
+                                        value = (String) valueObj;
+                                        if (FIELD_ID_COMMENTS == serverFieldId) {
+                                            profileCv.put(ProfileEntry.COLUMN_COMMENTS, value);
+                                        } else if (FIELD_ID_AGE == serverFieldId) {
+                                            profileCv.put(ProfileEntry.COLUMN_AGE, Integer.parseInt(value));
+                                        } else {
+                                            if (FIELD_ID_VOICE == serverFieldId) {
+                                                value = String.valueOf((0 == StaticDataService.VOICE_YES.compareToIgnoreCase(value)) ?
+                                                        StaticDataService.VOICE_ID_YES : StaticDataService.VOICE_ID_NO);
+                                            }
+                                            addProfileAttributeEntriesForServerField(
+                                                    profileAttributeCv, userId, serverFieldId, value);
                                         }
-                                        addProfileAttributeEntriesForServerField(
-                                                profileAttributeCv, userId, serverFieldId, value);
                                     }
+                                } catch (NumberFormatException ex) {
+                                    // ignore this malformed field
+                                    Log.e(LOG_TAG, "Invalid member data field " + field.toString());
                                 }
-                            } catch (NumberFormatException ex) {
-                                // ignore this malformed field
-                                Log.e(LOG_TAG, "Invalid member data field " + field.toString());
                             }
                         }
                     }
-                }
-                // FIRST: remove any existing Attributes for this Profile
-                getContentResolver().delete(
-                        ProfileAttributeEntry.CONTENT_URI,
-                        ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + userId,
-                        null);
-                //
-                // write this Profile record to the database (updated if already present)
-                getContentResolver().insert(ProfileEntry.CONTENT_URI, profileCv);
-                //
-                // now write any associated Attributes
-                if (profileAttributeCv.size() > 0) {
-                    ContentValues[] param = new ContentValues[profileAttributeCv.size()];
-                    profileAttributeCv.toArray(param);
-                    getContentResolver().bulkInsert(ProfileAttributeEntry.CONTENT_URI, param);
+                    // FIRST: remove any existing Attributes for this Profile
+                    getContentResolver().delete(
+                            ProfileAttributeEntry.CONTENT_URI,
+                            ProfileAttributeEntry.COLUMN_PROFILE_ID + " = " + userId,
+                            null);
+                    //
+                    // write this Profile record to the database (updated if already present)
+                    getContentResolver().insert(ProfileEntry.CONTENT_URI, profileCv);
+                    //
+                    // now write any associated Attributes
+                    if (profileAttributeCv.size() > 0) {
+                        ContentValues[] param = new ContentValues[profileAttributeCv.size()];
+                        profileAttributeCv.toArray(param);
+                        getContentResolver().bulkInsert(ProfileAttributeEntry.CONTENT_URI, param);
+                    }
                 }
             }
         }

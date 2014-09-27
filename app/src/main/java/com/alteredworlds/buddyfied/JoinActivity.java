@@ -160,6 +160,7 @@ public class JoinActivity extends ActionBarActivity {
             //
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.putExtra(Constants.ID_EXTRA, BuddyfiedDbHelper.JOIN_PROFILE_ID);
+            intent.putExtra(Constants.USERNAME_EXTRA, username);
             intent.putExtra(Constants.PASSWORD_EXTRA, password);
             intent.putExtra(Constants.EMAIL_EXTRA, email);
             intent.putExtra(ProfileActivity.JOIN_MODE_KEY, true);

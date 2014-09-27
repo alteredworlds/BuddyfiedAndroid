@@ -418,6 +418,11 @@ public class BuddyfiedProvider extends ContentProvider {
         }
         if ((null == selection) || (0 != numRows)) {
             getContext().getContentResolver().notifyChange(uri, null);
+            if (PROFILE_ATTRIBUTE == match) {
+                // this is a link table, but due to URI hierarchy need to explicitly notify
+                // at AttributeEntry level to update related UIs
+                getContext().getContentResolver().notifyChange(AttributeEntry.CONTENT_URI, null);
+            }
         }
         return numRows;
     }

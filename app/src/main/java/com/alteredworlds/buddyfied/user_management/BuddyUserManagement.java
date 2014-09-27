@@ -1,10 +1,13 @@
 package com.alteredworlds.buddyfied.user_management;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alteredworlds.buddyfied.BuildConfig;
 import com.alteredworlds.buddyfied.Constants;
+import com.alteredworlds.buddyfied.R;
 import com.alteredworlds.buddyfied.Settings;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -30,8 +33,15 @@ public class BuddyUserManagement implements UserManagement {
     private final static String sBuddyfiedUpdateProfileURL = "api/user/xprofile_multi_update/";
     private final static String sBuddyfiedGenerateCookieURL = "api/user/generate_auth_cookie/";
 
-    private final AsyncHttpClient mClient = new AsyncHttpClient();
+    private final AsyncHttpClient mClient;
     private String mAuthCookie;
+
+    public BuddyUserManagement(Context context) {
+        mClient = new AsyncHttpClient();
+        String userAgent = context.getString(R.string.app_name) + "/" + BuildConfig.VERSION_NAME + "/" + BuildConfig.VERSION_CODE +
+                " (" + android.os.Build.MODEL + "; Android " + Build.VERSION.RELEASE + ")";
+        mClient.setUserAgent(userAgent);
+    }
 
     @Override
     public void cancel(Context context) {
@@ -136,10 +146,16 @@ public class BuddyUserManagement implements UserManagement {
 
                                 @Override
                                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                    Log.e(LOG_TAG, "grabAuthCookieIfNeededForUser failed to grabNonceForUser ");
+                                    Log.e(LOG_TAG, "generateAuthCookie failed");
                                     responseHandler.onFailure(statusCode, headers, responseString, throwable);
                                 }
                             });
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            Log.e(LOG_TAG, "grabAuthCookieIfNeededForUser failed to grabNonceForUser ");
+                            responseHandler.onFailure(statusCode, headers, responseString, throwable);
                         }
                     });
         }
@@ -151,8 +167,6 @@ public class BuddyUserManagement implements UserManagement {
             final String password,
             final String nonce,
             final JsonHttpResponseHandler responseHandler) {
-        //"%@api/user/generate_auth_cookie/?nonce=%@&username=%@&password=%@";
-        // make sure we are consistent...
         mAuthCookie = null;
         //
         StringBuilder urlStr = new StringBuilder(Settings.getBuddySite(context));
@@ -163,10 +177,11 @@ public class BuddyUserManagement implements UserManagement {
         urlStr.append(escapedString(user));
         urlStr.append("&password=");
         urlStr.append(escapedString(password));
+        //StringBuilder urlStr = new StringBuilder("http://requestb.in/oa5t1roa");
         mClient.post(context, urlStr.toString(), null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.i(LOG_TAG, "registerUser result: " + response.toString());
+                Log.i(LOG_TAG, "generateAuthCookie result: " + response.toString());
                 try {
                     if (0 == "ok".compareTo(response.getString("status"))) {
                         mAuthCookie = (String) response.get("cookie");

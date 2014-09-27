@@ -65,7 +65,7 @@ public class BuddyUserService extends Service {
 
         public ServiceHandler(Looper looper) {
             super(looper);
-            mClient = new BuddyUserManagement();
+            mClient = new BuddyUserManagement(BuddyUserService.this);
             buildMapAttributeTypeToServerField();
         }
 
@@ -98,9 +98,9 @@ public class BuddyUserService extends Service {
             final String password = data.getString(Constants.PASSWORD_EXTRA);
             ProfileInfo userProfileInfo = getProfileParams(Settings.getUserId(BuddyUserService.this));
             ProfileInfo editProfileInfo = getProfileParams(profileId);
-            HashMap<String, String> diffs = findChanges(userProfileInfo, editProfileInfo);
+            HashMap<String, String> diffs = findChanges(userProfileInfo.mParams, editProfileInfo.mParams);
             mClient.updateProfileForUser(BuddyUserService.this,
-                    userProfileInfo.mName,
+                    Settings.getUsername(BuddyUserService.this),
                     password,
                     diffs,
                     new JsonHttpResponseHandler() {
@@ -132,10 +132,11 @@ public class BuddyUserService extends Service {
             final long profileId = data.getLong(Constants.ID_EXTRA);
             final String password = data.getString(Constants.PASSWORD_EXTRA);
             final String email = data.getString(Constants.EMAIL_EXTRA);
+            final String username = data.getString(Constants.USERNAME_EXTRA);
             ProfileInfo profileInfo = getProfileParams(profileId);
             mClient.registerNewUser(
                     BuddyUserService.this,
-                    profileInfo.mName,
+                    username,
                     password,
                     email,
                     profileInfo.mParams,
@@ -248,12 +249,22 @@ public class BuddyUserService extends Service {
         return mFieldIdsFromName.get(name);
     }
 
-    private HashMap<String, String> findChanges(ProfileInfo userProfileInfo, ProfileInfo editProfileInfo) {
-        HashMap<String, String> retVal = new HashMap<String, String>(editProfileInfo.mParams);
+    private HashMap<String, String> findChanges(HashMap<String, String> userInfo, HashMap<String, String> editInfo) {
+        HashMap<String, String> retVal = new HashMap<String, String>();
+        // populate retVal with all entries in editInfo which have values different to userInfo
+        // i.e. part of desired edited profile AND represent actual changes from current profile
+        for (Map.Entry<String, String> entry : editInfo.entrySet()) {
+            String userValue = userInfo.get(entry.getKey());
+            if (null != userValue) {
+                if (0 != userValue.compareTo(entry.getValue())) {
+                    retVal.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
         // any field that was present in the userProfile but is no longer present in the editProfile
         // has been 'blanked out' and needs to be present in the change set with value ""
-        for (Map.Entry<String, String> entry : userProfileInfo.mParams.entrySet()) {
-            if (!editProfileInfo.mParams.containsKey(entry.getKey())) {
+        for (Map.Entry<String, String> entry : userInfo.entrySet()) {
+            if (!editInfo.containsKey(entry.getKey())) {
                 retVal.put(entry.getKey(), "");
             }
         }

@@ -14,6 +14,7 @@ public class Constants {
     public static final String METHOD_EXTRA = "method";
     public static final String ID_EXTRA = "id";
 
+    public static final String USERNAME_EXTRA = "username";
     public static final String EMAIL_EXTRA = "email";
     public static final String PASSWORD_EXTRA = "password";
 }

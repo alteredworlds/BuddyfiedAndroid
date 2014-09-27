@@ -71,4 +71,5 @@
     <string name="welcome_message">\nYou should receive an email containing a link to activate your account.\n\nYou\'ll need to tap on the link\nbefore you can sign in.\n </string>
     <string name="action_edit">Edit</string>
     <string name="action_commit">Done</string>
+    <string name="profile_update_failed">Profile update failed</string>
 </resources>

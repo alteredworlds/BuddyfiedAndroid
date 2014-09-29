@@ -26,8 +26,15 @@
     <ListView
         android:id="@+id/listview_attribute_picker"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:choiceMode="multipleChoice"
-        >
-    </ListView>
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="@string/confirm_button"
+        android:textColor="@color/orange"
+        android:background="@drawable/matched_button"
+        android:onClick="searchButtonClick"/>
 </LinearLayout>

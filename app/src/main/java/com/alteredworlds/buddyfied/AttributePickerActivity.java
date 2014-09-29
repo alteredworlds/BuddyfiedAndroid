@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 
 
 public class AttributePickerActivity extends ActionBarActivity {
@@ -50,6 +51,11 @@ public class AttributePickerActivity extends ActionBarActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    public void searchButtonClick(View view) {
+        onBackPressed();
+    }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {

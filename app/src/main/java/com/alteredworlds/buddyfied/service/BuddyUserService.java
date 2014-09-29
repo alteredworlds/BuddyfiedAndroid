@@ -70,10 +70,8 @@ public class BuddyUserService extends Service {
         }
 
         private void cancelRunningTask() {
-            if (null != mClient) {
-                mClient.cancel(BuddyUserService.this);
-                Log.d(LOG_TAG, "BuddyUserService cancelled");
-            }
+            mClient.cancel(BuddyUserService.this);
+            Log.d(LOG_TAG, "BuddyUserService cancelled");
         }
 
         @Override
@@ -83,8 +81,8 @@ public class BuddyUserService extends Service {
             final String method = data.getString(Constants.METHOD_EXTRA);
             // only support one call at a time, kill any that might be running
             cancelRunningTask();
-            if ((0 == CANCEL.compareTo(method)) || (null == mClient)) {
-                // if this is a cancel or a faulty config we're done
+            if (0 == CANCEL.compareTo(method)) {
+                // if this is a cancel we're done
                 stopSelf(startID);
             } else if (0 == (UPDATE.compareTo(method))) {
                 updateUser(startID, data);
@@ -99,33 +97,38 @@ public class BuddyUserService extends Service {
             ProfileInfo userProfileInfo = getProfileParams(Settings.getUserId(BuddyUserService.this));
             ProfileInfo editProfileInfo = getProfileParams(profileId);
             HashMap<String, String> diffs = findChanges(userProfileInfo.mParams, editProfileInfo.mParams);
-            mClient.updateProfileForUser(BuddyUserService.this,
-                    Settings.getUsername(BuddyUserService.this),
-                    password,
-                    diffs,
-                    new JsonHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            Log.i(LOG_TAG, "updateUser result: " + response.toString());
-                            try {
-                                String status = response.getString("status");
-                                if (0 == "ok".compareTo(status)) {
-                                    reportResult(Constants.RESULT_OK, null);
-                                } else {
-                                    reportResult(Constants.RESULT_FAIL, response.getString("error"));
+            if (0 == diffs.size()) {
+                reportResult(Constants.RESULT_OK, null);
+                stopSelf(startID);
+            } else {
+                mClient.updateProfileForUser(BuddyUserService.this,
+                        Settings.getUsername(BuddyUserService.this),
+                        password,
+                        diffs,
+                        new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                Log.i(LOG_TAG, "updateUser result: " + response.toString());
+                                try {
+                                    String status = response.getString("status");
+                                    if (0 == "ok".compareTo(status)) {
+                                        reportResult(Constants.RESULT_OK, null);
+                                    } else {
+                                        reportResult(Constants.RESULT_FAIL, response.getString("error"));
+                                    }
+                                } catch (JSONException e) {
+                                    reportResult(Constants.RESULT_FAIL, e.getLocalizedMessage());
                                 }
-                            } catch (JSONException e) {
-                                reportResult(Constants.RESULT_FAIL, e.getLocalizedMessage());
+                                stopSelf(startID);
                             }
-                            stopSelf(startID);
-                        }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            reportFailure("updateUser", responseString, throwable);
-                            stopSelf(startID);
-                        }
-                    });
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                reportFailure("updateUser", responseString, throwable);
+                                stopSelf(startID);
+                            }
+                        });
+            }
         }
 
         private void registerUser(final int startID, final Bundle data) {
@@ -174,7 +177,6 @@ public class BuddyUserService extends Service {
                 sb.append(" ");
                 sb.append(throwable.getLocalizedMessage());
             }
-            String result = sb.toString();
             reportResult(Constants.RESULT_FAIL, sb.toString());
         }
 

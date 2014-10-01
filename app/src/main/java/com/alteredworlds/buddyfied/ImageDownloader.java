@@ -16,10 +16,10 @@
 
 package com.alteredworlds.buddyfied;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
@@ -70,13 +70,14 @@ public class ImageDownloader {
      *
      * @param url       The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
+     * @param placeholderId resource ID of *required* placeholder image
      */
-    public void download(String url, ImageView imageView) {
+    public void download(String url, ImageView imageView, int placeholderId) {
         resetPurgeTimer();
         Bitmap bitmap = getBitmapFromCache(url);
 
         if (bitmap == null) {
-            forceDownload(url, imageView);
+            forceDownload(url, imageView, placeholderId);
         } else {
             cancelPotentialDownload(url, imageView);
             imageView.setImageBitmap(bitmap);
@@ -95,7 +96,7 @@ public class ImageDownloader {
      * Same as download but the image is always downloaded and the cache is not used.
      * Kept private at the moment as its interest is not clear.
      */
-    private void forceDownload(String url, ImageView imageView) {
+    private void forceDownload(String url, ImageView imageView, int placeholderId) {
         // State sanity: url is guaranteed to never be null in DownloadedDrawable and cache keys.
         if (url == null) {
             imageView.setImageDrawable(null);
@@ -104,7 +105,10 @@ public class ImageDownloader {
 
         if (cancelPotentialDownload(url, imageView)) {
             BitmapDownloaderTask task = new BitmapDownloaderTask(imageView);
-            DownloadedDrawable downloadedDrawable = new DownloadedDrawable(task);
+            DownloadedDrawable downloadedDrawable = new DownloadedDrawable(
+                    task,
+                    imageView.getContext().getResources(),
+                    placeholderId);
             imageView.setImageDrawable(downloadedDrawable);
             imageView.setMinimumHeight(156);
             task.execute(url);
@@ -149,8 +153,6 @@ public class ImageDownloader {
     }
 
     Bitmap downloadBitmap(String url) {
-        final int IO_BUFFER_SIZE = 4 * 1024;
-
         // AndroidHttpClient is not allowed to be used from the main thread
         final HttpClient client = AndroidHttpClient.newInstance("Android");
         HttpClientParams.setRedirecting(client.getParams(), true);
@@ -274,11 +276,11 @@ public class ImageDownloader {
      * if a new binding is required, and makes sure that only the last started download process can
      * bind its result, independently of the download finish order.</p>
      */
-    static class DownloadedDrawable extends ColorDrawable {
+    static class DownloadedDrawable extends BitmapDrawable {
         private final WeakReference<BitmapDownloaderTask> bitmapDownloaderTaskReference;
 
-        public DownloadedDrawable(BitmapDownloaderTask bitmapDownloaderTask) {
-            super(Color.BLACK);
+        public DownloadedDrawable(BitmapDownloaderTask bitmapDownloaderTask, Resources res, int placeholderId) {
+            super(res, BitmapFactory.decodeResource(res, placeholderId));
             bitmapDownloaderTaskReference =
                     new WeakReference<BitmapDownloaderTask>(bitmapDownloaderTask);
         }

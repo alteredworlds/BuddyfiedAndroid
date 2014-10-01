@@ -37,9 +37,9 @@ public class BuddyHeaderListItem extends LoaderListItem {
     public View getView(LayoutInflater inflater, View convertView) {
         View row = convertView;
 
-        ViewHolder holder = null;
+        ViewHolder holder;
         if (null == row) {
-            row = (View) inflater.inflate(R.layout.list_item_buddy_header, null);
+            row = inflater.inflate(R.layout.list_item_buddy_header, null);
             holder = new ViewHolder(row);
             row.setTag(holder);
         } else {
@@ -47,7 +47,7 @@ public class BuddyHeaderListItem extends LoaderListItem {
         }
         holder.nameTextView.setText(name);
         if (!TextUtils.isEmpty(value)) {
-            ImageDownloader.getInstance().download(value, holder.imageView);
+            ImageDownloader.getInstance().download(value, holder.imageView, R.drawable.ic_launcher);
         }
         holder.messageButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);
         holder.reportButton.setVisibility(mHideButtons ? View.GONE : View.VISIBLE);

@@ -17,7 +17,7 @@
     <string name="email_chooser_title">Send email...</string>
     <string name="guest_username">guest</string>
     <string name="guest_password">buddyfied</string>
-    <string name="about_help_link"><a href="http://www.buddyfied.com/buddyfied-ios-app/">Buddyfied Help</a></string>
+    <string name="about_help_link"><a href="http://www.buddyfied.com/buddyfied-android-app/">Buddyfied Help</a></string>
     <string name="about_description">Buddyfied is a great way to find new people to play online games with. You can search for players based on your location, what games you play, and when you play. Stay connected with old friends and make new ones!</string>
     <string name="title_activity_attribute_picker">AttributePickerActivity</string>
     <string name="specify_query">Search not specified</string>

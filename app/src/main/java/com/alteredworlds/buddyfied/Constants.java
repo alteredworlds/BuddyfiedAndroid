@@ -17,4 +17,6 @@ public class Constants {
     public static final String USERNAME_EXTRA = "username";
     public static final String EMAIL_EXTRA = "email";
     public static final String PASSWORD_EXTRA = "password";
+
+    public static final int PASSWORD_MIN_LEN = 6;
 }

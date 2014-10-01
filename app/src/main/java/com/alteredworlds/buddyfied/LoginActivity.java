@@ -239,7 +239,7 @@ public class LoginActivity extends Activity {
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+        return password.length() >= Constants.PASSWORD_MIN_LEN;
     }
 }
 

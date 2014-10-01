@@ -173,7 +173,7 @@ public class JoinActivity extends ActionBarActivity {
     }
 
     private boolean isPasswordValid(String value) {
-        return value.length() > 4;
+        return value.length() >= Constants.PASSWORD_MIN_LEN;
     }
 
     private boolean isEmailValid(String value) {

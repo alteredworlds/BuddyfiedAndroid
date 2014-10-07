@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.app.AlertDialog;
@@ -16,9 +24,6 @@ import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.service.BuddyUserService;
 
-/**
- * Created by twcgilbert on 26/09/2014.
- */
 public class ProfileFragmentJoin extends ProfileFragmentMaleable {
     @Override
     public void onCreate(Bundle savedInstanceState) {

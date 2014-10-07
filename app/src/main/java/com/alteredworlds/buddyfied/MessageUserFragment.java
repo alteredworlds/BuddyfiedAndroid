@@ -1,8 +1,12 @@
-package com.alteredworlds.buddyfied;
-
-/**
- * Created by twcgilbert on 04/09/2014.
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
  */
+
+package com.alteredworlds.buddyfied;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -27,9 +31,6 @@ import android.widget.TextView;
 
 import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class MessageUserFragment extends Fragment {
 
     private static final String LOG_TAG = MessageUserFragment.class.getSimpleName();

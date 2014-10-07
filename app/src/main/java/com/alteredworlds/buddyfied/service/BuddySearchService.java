@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.service;
 
 import android.app.Service;
@@ -30,9 +38,6 @@ import de.timroes.axmlrpc.XMLRPCClient;
 import de.timroes.axmlrpc.XMLRPCException;
 import de.timroes.axmlrpc.XMLRPCServerException;
 
-/**
- * Created by twcgilbert on 08/09/2014.
- */
 public class BuddySearchService extends Service {
     private static final String LOG_TAG = BuddySearchService.class.getSimpleName();
 

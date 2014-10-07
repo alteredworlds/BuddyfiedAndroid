@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.content.Intent;
@@ -15,9 +23,6 @@ import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
-/**
- * Created by twcgilbert on 26/09/2014.
- */
 public class ProfileFragmentReadonly extends ProfileFragmentBase {
 
     @Override

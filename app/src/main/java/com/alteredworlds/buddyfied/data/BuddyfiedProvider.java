@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.data;
 
 import android.content.ContentProvider;
@@ -17,9 +25,6 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeListEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
-/**
- * Created by twcgilbert on 26/07/2014.
- */
 public class BuddyfiedProvider extends ContentProvider {
 
     private static final int PROFILE = 100;

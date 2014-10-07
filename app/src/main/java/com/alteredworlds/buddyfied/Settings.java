@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.content.Context;
@@ -5,9 +13,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-/**
- * Created by twcgilbert on 30/07/2014.
- */
 public class Settings {
     private final static String pref_username_key = "pref_username_key";
     private final static String pref_password_key = "pref_password_key";

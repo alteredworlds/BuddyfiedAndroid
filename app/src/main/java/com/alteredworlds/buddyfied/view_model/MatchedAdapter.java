@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.view_model;
 
 import android.content.Context;
@@ -13,9 +21,6 @@ import com.alteredworlds.buddyfied.ImageDownloader;
 import com.alteredworlds.buddyfied.MatchedFragment;
 import com.alteredworlds.buddyfied.R;
 
-/**
- * Created by twcgilbert on 22/08/2014.
- */
 public class MatchedAdapter extends CursorAdapter {
 
     public MatchedAdapter(Context context, Cursor c, int flags) {

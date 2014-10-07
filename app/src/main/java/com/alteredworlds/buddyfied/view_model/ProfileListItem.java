@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.view_model;
 
 import android.text.TextUtils;
@@ -6,9 +14,6 @@ import android.view.View;
 
 import com.alteredworlds.buddyfied.R;
 
-/**
- * Created by twcgilbert on 18/09/2014.
- */
 public class ProfileListItem extends SearchListItem {
 
     public ProfileListItem(String name, String value, String extra, int loaderId) {

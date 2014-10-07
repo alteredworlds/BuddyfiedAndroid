@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.service;
 
 import android.app.IntentService;
@@ -30,9 +38,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
-/**
- * Created by twcgilbert on 18/08/2014.
- */
 public class StaticDataService extends IntentService {
     private static final String LOG_TAG = StaticDataService.class.getSimpleName();
 

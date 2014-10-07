@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.view_model;
 
 import android.content.Context;
@@ -11,9 +19,6 @@ import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.AttributePickerFragment;
 
-/**
- * Created by twcgilbert on 20/08/2014.
- */
 public class AttributePickerAdapter extends CursorAdapter {
 
     final private AttributePickerFragment mPicker;
@@ -42,7 +47,7 @@ public class AttributePickerAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         int position = cursor.getPosition();
-        ViewHolder viewHolder = (ViewHolder)view.getTag();
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
         viewHolder.checkedTextView.setText(cursor.getString(AttributePickerFragment.COL_ATTRIBUTE_NAME));
         Boolean checked = true;
         int columnCount = cursor.getColumnCount();

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.app.AlertDialog;
@@ -29,9 +37,6 @@ import com.alteredworlds.buddyfied.service.BuddySearchService;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.MatchedAdapter;
 
-/**
- * Created by twcgilbert on 30/07/2014.
- */
 public class MatchedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MatchedFragment.class.getSimpleName();
 

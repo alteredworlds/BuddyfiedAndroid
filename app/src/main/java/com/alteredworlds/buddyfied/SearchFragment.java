@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.content.Intent;
@@ -23,10 +31,6 @@ import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
 import com.alteredworlds.buddyfied.view_model.SearchListItem;
 
-
-/**
- * Created by twcgilbert on 30/07/2014.
- */
 public class SearchFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     final protected long mProfileId = BuddyfiedDbHelper.SEARCH_PROFILE_ID;

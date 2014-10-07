@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
 import android.app.Activity;
@@ -18,9 +26,6 @@ import android.widget.TextView;
 import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
-/**
- * Created by twcgilbert on 30/07/2014.
- */
 public class AboutFragment extends Fragment {
 
     public AboutFragment() {

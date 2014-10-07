@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied;
 
-/**
- * Created by twcgilbert on 12/09/2014.
- */
 public class Constants {
     public static final int RESULT_OK = 0;
     public static final int RESULT_FAIL = -1;

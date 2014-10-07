@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.user_management;
 
 import android.content.Context;
@@ -21,9 +29,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by twcgilbert on 24/09/2014.
- */
 public class BuddyUserManagement implements UserManagement {
 
     private final static String LOG_TAG = BuddyUserManagement.class.getSimpleName();

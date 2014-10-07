@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Tom Gilbert <tom@alteredworlds.com> - All rights reserved.
+ *
+ * This file is part of Buddyfied Android.
+ *
+ * For applicable license please see LICENSE included with this distribution.
+ */
+
 package com.alteredworlds.buddyfied.data;
 
 import android.content.Context;
@@ -9,9 +17,6 @@ import com.alteredworlds.buddyfied.data.BuddyfiedContract.BuddyEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileEntry;
 
-/**
- * Created by twcgilbert on 25/07/2014.
- */
 public class BuddyfiedDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = BuddyfiedDbHelper.class.getSimpleName();
 

@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
 
@@ -98,8 +98,8 @@ public class JoinActivity extends ActionBarActivity {
     @Override
     public void onBackPressed() {
         // clear all data in database
-        Intent clearDataIntent = new Intent(this, BuddyQueryService.class);
-        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+        Intent clearDataIntent = new Intent(this, BuddyBackgroundService.class);
+        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.ClearDataOnLogout);
         startService(clearDataIntent);
         super.onBackPressed();
     }
@@ -153,9 +153,9 @@ public class JoinActivity extends ActionBarActivity {
             focusView.requestFocus();
         } else {
             // time to move to the next phase of the Join sequence
-            Intent updateIntent = new Intent(this, BuddyQueryService.class);
-            updateIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.UpdateJoinProfile);
-            updateIntent.putExtra(BuddyQueryService.NAME_EXTRA, username);
+            Intent updateIntent = new Intent(this, BuddyBackgroundService.class);
+            updateIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.UpdateJoinProfile);
+            updateIntent.putExtra(BuddyBackgroundService.NAME_EXTRA, username);
             startService(updateIntent);
             //
             Intent intent = new Intent(this, ProfileActivity.class);

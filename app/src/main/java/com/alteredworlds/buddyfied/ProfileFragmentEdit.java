@@ -29,13 +29,6 @@ public class ProfileFragmentEdit extends ProfileFragmentMaleable {
                     int code = results.getInt(Constants.RESULT_CODE, Constants.RESULT_OK);
                     String description = results.getString(Constants.RESULT_DESCRIPTION, "");
                     if (Constants.RESULT_OK == code) {
-                        // profile amendment has succeeded - time to close out and return
-                        //commit edited profile doesn't seem to work, or at least update UI
-                        // on readonly profile view. so forget it for now, not necessary.
-//                        Intent commitIntent = new Intent(getActivity(), BuddyQueryService.class);
-//                        commitIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CommitEditProfile);
-//                        getActivity().startService(commitIntent);
-                        //
                         getActivity().finish();
                     } else {
                         // error case & popup an alert with error

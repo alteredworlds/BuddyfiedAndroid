@@ -1,7 +1,7 @@
 package com.alteredworlds.buddyfied.test;
 
 import com.alteredworlds.buddyfied.Settings;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 
 import java.net.MalformedURLException;
 
@@ -15,10 +15,10 @@ public class TestXmlrpc extends UtilsTestCase {
     public static final String LOG_TAG = TestXmlrpc.class.getSimpleName();
 
     public void testXMLRPCClient() {
-        String uri = Settings.getBuddySite(getContext()) + BuddyQueryService.BuddyXmlRpcRoot;
+        String uri = Settings.getBuddySite(getContext()) + BuddyBackgroundService.BuddyXmlRpcRoot;
         try {
             XMLRPCClient client = new XMLRPCClient(uri);
-            client.call(BuddyQueryService.VerifyConnection, "guest", "buddyfied");
+            client.call(BuddyBackgroundService.VerifyConnection, "guest", "buddyfied");
         } catch (XMLRPCException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {

@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.ProfileAttributeEntry;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.service.BuddySearchService;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 import com.alteredworlds.buddyfied.view_model.AttributePickerAdapter;
@@ -155,8 +155,8 @@ public class AttributePickerFragment extends Fragment implements LoaderManager.L
                 getActivity().startService(intent);
                 //
                 // remove all Buddies
-                intent = new Intent(getActivity(), BuddyQueryService.class);
-                intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.DeleteBuddies);
+                intent = new Intent(getActivity(), BuddyBackgroundService.class);
+                intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.DeleteBuddies);
                 getActivity().startService(intent);
             }
         });

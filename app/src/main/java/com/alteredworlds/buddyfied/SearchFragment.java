@@ -17,7 +17,7 @@ import android.widget.ListView;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract.AttributeEntry;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
 import com.alteredworlds.buddyfied.view_model.LoaderListItem;
 import com.alteredworlds.buddyfied.view_model.SearchAdapter;
@@ -51,8 +51,8 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     public void onResume() {
         super.onResume();
         // ensure we have a search profile available
-        Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CreateSearchProfileIfNeeded);
+        Intent intent = new Intent(getActivity(), BuddyBackgroundService.class);
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.CreateSearchProfileIfNeeded);
         getActivity().startService(intent);
         //
         for (int i = 0; i < mData.length; i++) {

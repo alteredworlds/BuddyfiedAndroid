@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -95,7 +95,7 @@ public class MessageUserFragment extends Fragment {
         super.onResume();
         // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+                new IntentFilter(BuddyBackgroundService.BUDDY_BACKGROUND_SERVICE_RESULT_EVENT));
     }
 
     @Override
@@ -156,11 +156,11 @@ public class MessageUserFragment extends Fragment {
         } else {
             enableSendMenuItem(false);
             String recipient = getActivity().getIntent().getStringExtra(BuddyFragment.BUDDY_ID_EXTRA);
-            Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-            intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.SendMessage);
+            Intent intent = new Intent(getActivity(), BuddyBackgroundService.class);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.SendMessage);
             intent.putExtra(Constants.ID_EXTRA, recipient);
-            intent.putExtra(BuddyQueryService.SUBJECT_EXTRA, messageSubject);
-            intent.putExtra(BuddyQueryService.BODY_EXTRA, messageBody);
+            intent.putExtra(BuddyBackgroundService.SUBJECT_EXTRA, messageSubject);
+            intent.putExtra(BuddyBackgroundService.BODY_EXTRA, messageBody);
             getActivity().startService(intent);
         }
     }

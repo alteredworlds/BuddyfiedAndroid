@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 
 
 /**
@@ -53,8 +53,8 @@ public class LoginActivity extends Activity {
         } else {
             // cleanup in case any previous join attempt has left a profile
             // record in place. This works; no doubt there's a better way!
-            Intent clearDataIntent = new Intent(this, BuddyQueryService.class);
-            clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+            Intent clearDataIntent = new Intent(this, BuddyBackgroundService.class);
+            clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.ClearDataOnLogout);
             startService(clearDataIntent);
         }
         setContentView(R.layout.activity_login);
@@ -142,7 +142,7 @@ public class LoginActivity extends Activity {
         enableButtons(true);
         // Register an observer to receive specific named Intents ('events')
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter(BuddyQueryService.BUDDY_QUERY_SERVICE_RESULT_EVENT));
+                new IntentFilter(BuddyBackgroundService.BUDDY_BACKGROUND_SERVICE_RESULT_EVENT));
         if (Settings.getJoinRequired(this)) {
             Settings.setJoinRequired(this, false);
             attemptJoin();
@@ -173,8 +173,8 @@ public class LoginActivity extends Activity {
         cleanupActiveStatePriorToTransition();
         Settings.setUsername(this, Settings.getGuestUsername(this));
         Settings.setPassword(this, Settings.getGuestPassword(this));
-        Intent intent = new Intent(this, BuddyQueryService.class);
-        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+        Intent intent = new Intent(this, BuddyBackgroundService.class);
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.VerifyConnection);
         startService(intent);
     }
 
@@ -232,8 +232,8 @@ public class LoginActivity extends Activity {
             // TRY LOGGING IN NOW...
             Settings.setUsername(this, username);
             Settings.setPassword(this, password);
-            Intent intent = new Intent(this, BuddyQueryService.class);
-            intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.VerifyConnection);
+            Intent intent = new Intent(this, BuddyBackgroundService.class);
+            intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.VerifyConnection);
             startService(intent);
         }
     }

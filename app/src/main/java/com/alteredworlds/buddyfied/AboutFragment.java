@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.service.StaticDataService;
 
 /**
@@ -35,8 +35,8 @@ public class AboutFragment extends Fragment {
         // continue with sign out
         Settings.clearPersonalSettings(context);
         //
-        Intent clearDataIntent = new Intent(context, BuddyQueryService.class);
-        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.ClearDataOnLogout);
+        Intent clearDataIntent = new Intent(context, BuddyBackgroundService.class);
+        clearDataIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.ClearDataOnLogout);
         context.startService(clearDataIntent);
         //
         Intent intent = new Intent(context, LoginActivity.class);

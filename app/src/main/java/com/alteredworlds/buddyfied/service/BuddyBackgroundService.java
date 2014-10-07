@@ -32,14 +32,14 @@ import de.timroes.axmlrpc.XMLRPCException;
 /**
  * Created by twcgilbert on 21/08/2014.
  */
-public class BuddyQueryService extends IntentService {
-    private static final String LOG_TAG = BuddyQueryService.class.getSimpleName();
+public class BuddyBackgroundService extends IntentService {
+    private static final String LOG_TAG = BuddyBackgroundService.class.getSimpleName();
 
     public static final String NAME_EXTRA = "name";
     public static final String SUBJECT_EXTRA = "subject";
     public static final String BODY_EXTRA = "content";
 
-    public static final String BUDDY_QUERY_SERVICE_RESULT_EVENT = "buddy_query_service_result";
+    public static final String BUDDY_BACKGROUND_SERVICE_RESULT_EVENT = "buddy_background_service_result";
 
     public static final String GetMatches = "bp.getMatches";
     public static final String SendMessage = "bp.sendMessage";
@@ -80,8 +80,8 @@ public class BuddyQueryService extends IntentService {
     private static final int PROFILE_COL_AGE_IDX = 2;
     private static final int PROFILE_COL_IMAGE_URI_IDX = 3;
 
-    public BuddyQueryService() {
-        super("BuddyQueryService");
+    public BuddyBackgroundService() {
+        super(BuddyBackgroundService.class.getSimpleName());
     }
 
     @Override
@@ -282,7 +282,7 @@ public class BuddyQueryService extends IntentService {
 
     private void reportResult(Bundle result) {
         if (null != result) {
-            Intent intent = new Intent(BUDDY_QUERY_SERVICE_RESULT_EVENT);
+            Intent intent = new Intent(BUDDY_BACKGROUND_SERVICE_RESULT_EVENT);
             intent.putExtra(Constants.RESULT_BUNDLE, result);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }

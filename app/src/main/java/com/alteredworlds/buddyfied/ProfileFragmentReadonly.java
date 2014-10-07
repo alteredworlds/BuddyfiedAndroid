@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import com.alteredworlds.buddyfied.data.BuddyfiedContract;
 import com.alteredworlds.buddyfied.data.BuddyfiedDbHelper;
-import com.alteredworlds.buddyfied.service.BuddyQueryService;
+import com.alteredworlds.buddyfied.service.BuddyBackgroundService;
 import com.alteredworlds.buddyfied.view_model.BuddyHeaderListItem;
 import com.alteredworlds.buddyfied.view_model.CommentsListItem;
 import com.alteredworlds.buddyfied.view_model.LoaderID;
@@ -55,12 +55,12 @@ public class ProfileFragmentReadonly extends ProfileFragmentBase {
     public void onResume() {
         super.onResume();
         // cleanup any edit copy of the profile. async so no biggie if there isn't one.
-        Intent copyProfileIntent = new Intent(getActivity(), BuddyQueryService.class);
-        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CleanupEditProfile);
+        Intent copyProfileIntent = new Intent(getActivity(), BuddyBackgroundService.class);
+        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.CleanupEditProfile);
         getActivity().startService(copyProfileIntent);
         //
-        Intent intent = new Intent(getActivity(), BuddyQueryService.class);
-        intent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.GetMemberInfo);
+        Intent intent = new Intent(getActivity(), BuddyBackgroundService.class);
+        intent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.GetMemberInfo);
         intent.putExtra(Constants.ID_EXTRA, mProfileId);
         getActivity().startService(intent);
     }
@@ -85,8 +85,8 @@ public class ProfileFragmentReadonly extends ProfileFragmentBase {
 
     private void onEdit() {
         // create copy of current user profile to edit
-        Intent copyProfileIntent = new Intent(getActivity(), BuddyQueryService.class);
-        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyQueryService.CreateEditProfile);
+        Intent copyProfileIntent = new Intent(getActivity(), BuddyBackgroundService.class);
+        copyProfileIntent.putExtra(Constants.METHOD_EXTRA, BuddyBackgroundService.CreateEditProfile);
         getActivity().startService(copyProfileIntent);
         //
         // launch the profile edit UI
